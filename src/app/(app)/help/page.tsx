@@ -26,6 +26,9 @@ import {
   ShieldAlert,
   Loader2,
   Trash2,
+  Building,
+  Car,
+  BarChart3,
 } from "lucide-react";
 
 type ActiveTab = "guides" | "tickets";
@@ -53,44 +56,44 @@ interface Ticket {
 const GUIDE_CARDS = [
   {
     key: "leaves" as GuideKey,
-    title: "How to Apply for Leaves",
-    description: "Follow the standard procedure to request and schedule leaves.",
-    icon: Calendar,
+    title: "How to File a Claim",
+    description: "Learn how to log business expenses, upload receipts, and submit them for review.",
+    icon: FileText,
     iconColor: "text-blue-500 bg-blue-50 dark:bg-blue-950/20",
   },
   {
     key: "checkin" as GuideKey,
-    title: "Selfie Check-in & Location Verification",
-    description: "Verify attendance daily using your camera and GPS.",
-    icon: Camera,
+    title: "Mileage Expenses Logging",
+    description: "Learn how to track and file travel mileage reimbursements by distance and rates.",
+    icon: Car,
     iconColor: "text-indigo-500 bg-indigo-50 dark:bg-indigo-950/20",
   },
   {
     key: "regularize" as GuideKey,
-    title: "Regularizing Attendance Logs",
-    description: "Request correction for missing punches or incorrect hours.",
-    icon: MapPin,
+    title: "Auditing Team Approvals",
+    description: "Step-by-step guide for managers to approve, reject, or request info on team claims.",
+    icon: User,
     iconColor: "text-sky-500 bg-sky-50 dark:bg-sky-950/20",
   },
   {
     key: "wfh" as GuideKey,
-    title: "Work From Home (WFH) Requests",
-    description: "Submit remote work requests according to company branch policy.",
+    title: "Project Budget Allocations",
+    description: "How to allocate claims to specific projects and clients for billing transparency.",
     icon: Laptop,
     iconColor: "text-emerald-500 bg-emerald-50 dark:bg-emerald-950/20",
   },
   {
     key: "face" as GuideKey,
-    title: "Setting Up Face Enrollment",
-    description: "Register your face photo to enable biometric selfie attendance check-in.",
-    icon: User,
+    title: "Analyzing Spending Reports",
+    description: "Guide on viewing category distributions, spend trajectories, and metrics reports.",
+    icon: BarChart3,
     iconColor: "text-purple-500 bg-purple-50 dark:bg-purple-950/20",
   },
   {
     key: "holidays" as GuideKey,
-    title: "Viewing Holidays & Policies",
-    description: "Check upcoming company holidays and policy files.",
-    icon: FileText,
+    title: "Company Settings & Branches",
+    description: "How admins configure company profile details, billing plans, and office branch policies.",
+    icon: Building,
     iconColor: "text-rose-500 bg-rose-50 dark:bg-rose-950/20",
   },
 ];
@@ -98,134 +101,134 @@ const GUIDE_CARDS = [
 const GUIDE_STEPS: Record<GuideKey, { title: string; description: string; element: string }[]> = {
   leaves: [
     {
-      title: "Navigate to Leaves Dashboard",
-      description: "Go to your sidebar menu, click on Settings, and then select 'Company Settings' or check your employee dashboard parameters to locate the leave manager portal.",
-      element: "Sidebar -> Profile Settings -> Leave Allocation Panel",
+      title: "Open My Claims Registry",
+      description: "Navigate to the sidebar menu, click on Expense Tracker, and select 'My Claims' under sub-navigation to open your personal logs board.",
+      element: "Sidebar -> Expense Tracker -> My Claims Page",
     },
     {
-      title: "Click 'Request Leave'",
-      description: "Click the primary blue button labeled 'Request Leave' or 'Apply for Time Off' to open the leave request drawer application.",
-      element: "Button: Apply Leave",
+      title: "Open Log Expense Form",
+      description: "Click the primary blue button labeled 'Log New Expense' or 'Add Claim' to display the claim submission drawer template.",
+      element: "Button: Log New Expense / Add Claim",
     },
     {
-      title: "Choose Type & Date Range",
-      description: "Select from Casual Leave, Sick Leave, or Earned Leave. Pick start and end dates. Add notes explaining your absence request.",
-      element: "Form Fields: Leave Type, Dates, Details",
+      title: "Input Claim Metadata & Scan",
+      description: "Provide the claim title, select a category (e.g. Travel, Meals, Software, Office Supplies), input the amount in INR, and drag-and-drop your receipt image scan.",
+      element: "Form: Title, Category, Amount, Receipt Attachment Upload",
     },
     {
-      title: "Submit and Track Status",
-      description: "Click submit. Your manager will receive an immediate notification, and your request will list under 'Pending Leaves' until resolved.",
-      element: "Success State: Status is Pending Approval",
+      title: "Submit and Track Payout",
+      description: "Submit the claim. The status updates to 'Pending Approval' and it routes to your assigned reporting manager's audit queue.",
+      element: "Dashboard Payout Log: Status is Pending Approval",
     },
   ],
   checkin: [
     {
-      title: "Open Check-In Application",
-      description: "Open the workspace check-in screen on your browser or native mobile device dashboard.",
-      element: "Attendance Dashboard -> Daily Punch-In",
+      title: "Enable Mileage Toggle",
+      description: "Open the Log New Expense drawer, scroll to the bottom, and toggle the 'Is Mileage Expense' switch to active status.",
+      element: "Toggle Switch: Is Mileage Expense",
     },
     {
-      title: "Grant Device Permissions",
-      description: "Make sure you grant the application permission to access your device's Camera and GPS location services when requested.",
-      element: "Prompt: Allow Camera & Location access",
+      title: "Enter Trip Distance",
+      description: "Input your start/destination coordinates and define the total one-way or round-trip travel distance in Kilometers.",
+      element: "Form Fields: Distance (Km), Start/Destination locations",
     },
     {
-      title: "Snap Attendance Selfie",
-      description: "Align your face inside the circle frame and snap a clear selfie photo to register biometric confirmation.",
-      element: "Camera View -> Snap Selfie",
+      title: "Automatic Rate Calculation",
+      description: "The CRM automatically computes the total reimbursement payout amount using your branch's configured mileage rate-per-kilometer configuration.",
+      element: "Dynamic calculation: Amount = Distance * Rate",
     },
     {
-      title: "Click Punch-In Log",
-      description: "Click the primary check-in log button. Your GPS coordinate and photo will be synced to the workspace attendance sheet.",
-      element: "Success State: Punched In at 09:30 AM",
+      title: "Attach Log Details",
+      description: "Document the business agenda details (e.g., client site consultation) and click submit to dispatch the mileage reimbursement ticket.",
+      element: "Success State: Mileage claim logged successfully",
     },
   ],
   regularize: [
     {
-      title: "Go to Attendance Logs",
-      description: "Access your monthly attendance record sheet inside the system settings or time sheets view.",
-      element: "Settings -> Attendance Registry",
+      title: "Go to Approvals Panel",
+      description: "If holding auditor permissions, go to the sidebar and select Expense Tracker -> 'Approvals' to load pending workspace queue items.",
+      element: "Sidebar -> Expense Tracker -> Approvals Page",
     },
     {
-      title: "Select Missing Log Day",
-      description: "Find any day labeled with a warning icon (missing punch or insufficient work hours) and click the 'Regularize' button.",
-      element: "Log Day: Warning missing punch-out",
+      title: "Inspect Team Submissions",
+      description: "Select any pending expense claim log from your reportees to review their receipt uploads, billing tax parameters, and reasons.",
+      element: "Audit Details Screen: Receipt Scans and Tax Allocations",
     },
     {
-      title: "Enter Actual Working Hours",
-      description: "Specify the exact times you checked-in and out, and choose a valid regularization reason (e.g. client visit, power issue).",
-      element: "Form: Regularization Reason & Timings",
+      title: "Perform Decision Audit",
+      description: "Choose to 'Approve' to schedule the payout, 'Reject' if it fails compliance rules, or 'Needs Info' to ask the employee to upload a clearer receipt.",
+      element: "Status Decisions: Approve, Reject, Needs Info",
     },
     {
-      title: "Submit for HR Approval",
-      description: "Submit the request. Your reporting HR manager will receive the verification claim to update your daily timesheet.",
-      element: "Status: Awaiting HR Approval",
+      title: "Add Audit Resolution Notes",
+      description: "Provide audit justification notes. The submitter gets notified immediately, and the workspace ledger updates dynamically.",
+      element: "Success State: Audited and closed claim log",
     },
   ],
   wfh: [
     {
-      title: "Check Branch Policies",
-      description: "Verify your assigned office branch's WFH policy to check maximum allowed remote days per week.",
-      element: "Settings -> Company Profile -> Branch WFH Policy",
+      title: "Open Projects Registry",
+      description: "Go to the sidebar and click Expense Tracker -> 'Projects' to view all registered company projects, client accounts, and client details.",
+      element: "Sidebar -> Expense Tracker -> Projects",
     },
     {
-      title: "Open WFH Request Portal",
-      description: "Navigate to the attendance requests panel and select 'Apply for Work From Home'.",
-      element: "Attendance Portal -> Apply WFH",
+      title: "Select Project Allocation",
+      description: "When logging a new expense, click the 'Workspace Project' select dropdown menu to choose from active projects.",
+      element: "Dropdown Select: Allocate to Workspace Project",
     },
     {
-      title: "Enter Request Parameters",
-      description: "Specify the date ranges for WFH and add key project deliverables you will be handling from your remote location.",
-      element: "Form Fields: Dates, Work Agenda",
+      title: "Review Project Balances",
+      description: "The associated claim logs automatically aggregate under the selected client's cost center to compute total client project expenditures.",
+      element: "Project details: Total Client Project cost updates",
     },
     {
-      title: "Submit for Manager Review",
-      description: "Submit the request. Your reporting manager will review the workload agenda and authorize the remote status log.",
-      element: "Status: Pending Manager Approval",
+      title: "Verify Client Invoices",
+      description: "Workspace managers can export project-specific claim sheets to attach as receipt records when billing clients for business expenditures.",
+      element: "Export Report: Client Project Invoice attachment files",
     },
   ],
   face: [
     {
-      title: "Access Face Enrollment Panel",
-      description: "Go to your Profile settings, and scroll down to the security credentials and face enrollment tab.",
-      element: "Profile Settings -> Biometric Settings",
+      title: "Navigate to Spend Analytics",
+      description: "Click 'Reports & Analytics' in the sidebar menu. Go to 'My Analytics' (or 'Team Analytics' to see workspace aggregates).",
+      element: "Sidebar -> Reports & Analytics -> Spend Dashboard",
     },
     {
-      title: "Initiate Face Scanning",
-      description: "Click the 'Setup Face Check-in' button. A secure web camera framework overlay will appear.",
-      element: "Camera Portal: Align your face inside the guidelines",
+      title: "Select Report Range Filters",
+      description: "Choose a calendar scope filter (e.g., 30 Days, 6 Months, or 12 Months) to check specific reimbursement windows.",
+      element: "Filter Tabs: 30 Days / 6 Months / 1 Year",
     },
     {
-      title: "Register Facial Coordinates",
-      description: "Slowly rotate your head as indicated by the screen guidelines to scan facial points securely.",
-      element: "Progress Bar: Enrolling face 100% complete",
+      title: "Analyze Category Distributions",
+      description: "Inspect the spending mix donut diagram to verify which areas (such as Software licenses or Meals travel logs) consume your budget allocations.",
+      element: "Donut Chart: Spending by Category mix percentages",
     },
     {
-      title: "Save Profile Credentials",
-      description: "Save credentials. Your face ID registry is now securely set up to let you check-in using the mobile camera app.",
-      element: "Success State: Face enrolled successfully",
+      title: "Track Trajectory Cycles",
+      description: "Check the Monthly Trajectory trend lines to monitor spending peaks and valleys across different client billing periods.",
+      element: "Line Chart: Reimbursement Trajectory timeline",
     },
   ],
   holidays: [
     {
-      title: "Navigate to Holidays Widget",
-      description: "Find the holidays calendar block on your dashboard overview or organizational wiki workspace.",
-      element: "Dashboard Overview -> Holidays Tab",
+      title: "Access System Settings",
+      description: "Navigate to the sidebar settings list. Select 'Company Settings' to manage workspace profiles.",
+      element: "Sidebar -> Settings -> Company Settings",
     },
     {
-      title: "Filter by Office Branch",
-      description: "Filter holidays using your assigned branch (e.g., Delhi, Mumbai, or Remote HQ) since schedules vary by location.",
-      element: "Dropdown: Select Assigned Branch",
+      title: "Manage Office Branches",
+      description: "Scroll to Section 2 to manage physical office branches. Review active headcounts, add branches, and configure WFH limits.",
+      element: "Company profile -> Office Branches Registry panel",
     },
     {
-      title: "View Upcoming Holidays",
-      description: "Review lists of upcoming paid holidays, dry days, and corporate shut-downs for the current calendar year.",
-      element: "Wiki View: Holidays List",
+      title: "Manage Plan Subscription",
+      description: "Select 'Billing & Plans' to upgrade user licenses, track billing dates, and view past invoices.",
+      element: "Settings -> Billing & Plans Dashboard",
     },
     {
-      title: "Download Policy Handbooks",
-      description: "Download PDFs of official HR policies, leave handbooks, and standard guidelines from the attachment log.",
-      element: "Download Link: Corporate Policy Handbook PDF",
+      title: "Sync Corporate Policies",
+      description: "Toggle branch-specific options to sync branch policies, locations, and attendance check-in regulations.",
+      element: "Company profile -> Branch settings saved successfully",
     },
   ],
 };
@@ -625,31 +628,45 @@ export default function HelpCenterPage() {
                       <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">
                         Category
                       </label>
-                      <select
-                        value={ticketCategory}
-                        onChange={(e) => setTicketCategory(e.target.value)}
-                        className="mt-2 block w-full rounded-2xl border border-border bg-card dark:bg-slate-900/60 px-4.5 py-3 text-sm text-foreground outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/40 cursor-pointer"
-                      >
-                        <option value="IT Support">IT Support</option>
-                        <option value="HR Support">HR Support</option>
-                        <option value="Finance & Payouts">Finance & Payouts</option>
-                        <option value="General Inquiry">General Inquiry</option>
-                      </select>
+                      <div className="mt-2 relative">
+                        <select
+                          value={ticketCategory}
+                          onChange={(e) => setTicketCategory(e.target.value)}
+                          className="block w-full rounded-2xl border border-border bg-card dark:bg-slate-900/60 px-4.5 pr-10 py-3 text-sm text-foreground outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/40 appearance-none cursor-pointer"
+                        >
+                          <option value="IT Support">IT Support</option>
+                          <option value="HR Support">HR Support</option>
+                          <option value="Finance & Payouts">Finance & Payouts</option>
+                          <option value="General Inquiry">General Inquiry</option>
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
+                          <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                          </svg>
+                        </div>
+                      </div>
                     </div>
 
                     <div>
                       <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">
                         Priority
                       </label>
-                      <select
-                        value={ticketPriority}
-                        onChange={(e) => setTicketPriority(e.target.value)}
-                        className="mt-2 block w-full rounded-2xl border border-border bg-card dark:bg-slate-900/60 px-4.5 py-3 text-sm text-foreground outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/40 cursor-pointer"
-                      >
-                        <option value="Low">Low</option>
-                        <option value="Medium">Medium</option>
-                        <option value="High">High</option>
-                      </select>
+                      <div className="mt-2 relative">
+                        <select
+                          value={ticketPriority}
+                          onChange={(e) => setTicketPriority(e.target.value)}
+                          className="block w-full rounded-2xl border border-border bg-card dark:bg-slate-900/60 px-4.5 pr-10 py-3 text-sm text-foreground outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/40 appearance-none cursor-pointer"
+                        >
+                          <option value="Low">Low</option>
+                          <option value="Medium">Medium</option>
+                          <option value="High">High</option>
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
+                          <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                          </svg>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -733,16 +750,23 @@ export default function HelpCenterPage() {
                       />
                     </div>
 
-                    <select
-                      value={ticketFilter}
-                      onChange={(e) => setTicketFilter(e.target.value)}
-                      className="rounded-xl border border-border bg-card text-xs px-2.5 py-1.5 outline-none cursor-pointer"
-                    >
-                      <option value="All">All Status</option>
-                      <option value="Open">Open</option>
-                      <option value="In Progress">In Progress</option>
-                      <option value="Resolved">Resolved</option>
-                    </select>
+                    <div className="relative">
+                      <select
+                        value={ticketFilter}
+                        onChange={(e) => setTicketFilter(e.target.value)}
+                        className="rounded-xl border border-border bg-card text-xs pl-3 pr-8 py-1.5 outline-none appearance-none cursor-pointer"
+                      >
+                        <option value="All">All Status</option>
+                        <option value="Open">Open</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Resolved">Resolved</option>
+                      </select>
+                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-slate-500">
+                        <svg className="fill-current h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                          <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                        </svg>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </CardHeader>
@@ -994,15 +1018,22 @@ export default function HelpCenterPage() {
                       <label className="block text-[9px] font-bold uppercase tracking-widest text-slate-500">
                         Update Ticket Status
                       </label>
-                      <select
-                        value={adminStatus}
-                        onChange={(e) => setAdminStatus(e.target.value as any)}
-                        className="mt-2 block w-full rounded-xl border border-border bg-card dark:bg-slate-900/60 px-3.5 py-2.5 text-xs text-foreground outline-none cursor-pointer"
-                      >
-                        <option value="Open">Open</option>
-                        <option value="In Progress">In Progress</option>
-                        <option value="Resolved">Resolved</option>
-                      </select>
+                      <div className="mt-2 relative">
+                        <select
+                          value={adminStatus}
+                          onChange={(e) => setAdminStatus(e.target.value as any)}
+                          className="block w-full rounded-xl border border-border bg-card dark:bg-slate-900/60 px-3.5 pr-8 py-2.5 text-xs text-foreground outline-none appearance-none cursor-pointer"
+                        >
+                          <option value="Open">Open</option>
+                          <option value="In Progress">In Progress</option>
+                          <option value="Resolved">Resolved</option>
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-500">
+                          <svg className="fill-current h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                          </svg>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
