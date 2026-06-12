@@ -47,13 +47,140 @@ export default function MyAnalyticsPage() {
 
   if (loading) {
     return (
-      <div className="flex h-[50vh] w-full items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <span className="text-xs font-bold uppercase tracking-widest text-slate-400">
-            Compiling your analytics...
-          </span>
+      <div className="space-y-8 animate-pulse">
+        {/* Skeleton Header */}
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="space-y-3">
+            <div className="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded-lg" />
+            <div className="h-8 w-64 bg-slate-200 dark:bg-slate-800 rounded-xl" />
+            <div className="h-4 w-96 bg-slate-200 dark:bg-slate-800 rounded-lg" />
+          </div>
+          <div className="h-10 w-80 bg-slate-200 dark:bg-slate-800 rounded-xl shrink-0" />
         </div>
+
+        {/* Skeleton Stats Grid */}
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Card key={i} className="crm-card border border-border/40 opacity-70">
+              <CardContent className="p-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="h-3 w-28 bg-slate-200 dark:bg-slate-800 rounded" />
+                  <div className="h-4 w-4 bg-slate-200 dark:bg-slate-800 rounded-full" />
+                </div>
+                <div className="h-8 w-36 bg-slate-200 dark:bg-slate-800 rounded-lg" />
+                <div className="h-3 w-44 bg-slate-200 dark:bg-slate-800 rounded" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Skeleton Charts Grid */}
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* Spend Category Card */}
+          <Card className="crm-card border border-border/40 opacity-70">
+            <CardContent className="p-6 space-y-6">
+              <div className="space-y-2">
+                <div className="h-4 w-48 bg-slate-200 dark:bg-slate-800 rounded" />
+                <div className="h-3 w-72 bg-slate-200 dark:bg-slate-800 rounded" />
+              </div>
+              <div className="flex flex-col items-center justify-around gap-8 sm:flex-row py-4">
+                <div className="h-32 w-32 rounded-full border-[12px] border-slate-200 dark:border-slate-800 flex items-center justify-center shrink-0" />
+                <div className="space-y-3 flex-1 w-full">
+                  {Array.from({ length: 3 }).map((_, j) => (
+                    <div key={j} className="space-y-1">
+                      <div className="flex justify-between items-center">
+                        <div className="h-3 w-16 bg-slate-200 dark:bg-slate-800 rounded" />
+                        <div className="h-3 w-10 bg-slate-200 dark:bg-slate-800 rounded" />
+                      </div>
+                      <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Spend Trajectory Card */}
+          <Card className="crm-card border border-border/40 opacity-70">
+            <CardContent className="p-6 space-y-6">
+              <div className="space-y-2">
+                <div className="h-4 w-48 bg-slate-200 dark:bg-slate-800 rounded" />
+                <div className="h-3 w-72 bg-slate-200 dark:bg-slate-800 rounded" />
+              </div>
+              <div className="h-40 w-full flex items-end justify-between gap-4 pt-4 px-2">
+                {Array.from({ length: 6 }).map((_, j) => (
+                  <div key={j} className="flex-1 flex flex-col items-center gap-2 h-full justify-end">
+                    <div className="w-full bg-slate-200 dark:bg-slate-800 rounded-t-md" style={{ height: `${20 + (j % 3) * 25}%` }} />
+                    <div className="h-3 w-8 bg-slate-200 dark:bg-slate-800 rounded shrink-0" />
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Skeleton Log & Allocations */}
+        <div className="grid gap-6 md:grid-cols-3">
+          {/* Claims Log */}
+          <Card className="crm-card md:col-span-2 border border-border/40 opacity-70">
+            <CardContent className="p-6 space-y-4">
+              <div className="flex justify-between items-center border-b border-border/40 pb-4">
+                <div className="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded" />
+                <div className="h-3 w-24 bg-slate-200 dark:bg-slate-800 rounded" />
+              </div>
+              <div className="space-y-4">
+                {Array.from({ length: 3 }).map((_, j) => (
+                  <div key={j} className="flex justify-between items-center py-2 border-b border-border/20 last:border-0">
+                    <div className="space-y-2">
+                      <div className="h-4 w-48 bg-slate-200 dark:bg-slate-800 rounded" />
+                      <div className="h-3 w-36 bg-slate-200 dark:bg-slate-800 rounded" />
+                    </div>
+                    <div className="h-6 w-16 bg-slate-200 dark:bg-slate-800 rounded-lg" />
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Project Allocations */}
+          <Card className="crm-card border border-border/40 opacity-70">
+            <CardContent className="p-6 space-y-4">
+              <div className="flex justify-between items-center border-b border-border/40 pb-4">
+                <div className="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded" />
+              </div>
+              <div className="space-y-4">
+                {Array.from({ length: 3 }).map((_, j) => (
+                  <div key={j} className="flex justify-between items-center py-2">
+                    <div className="flex items-center gap-3">
+                      <div className="h-8 w-8 bg-slate-200 dark:bg-slate-800 rounded-lg shrink-0" />
+                      <div className="space-y-2">
+                        <div className="h-3.5 w-24 bg-slate-200 dark:bg-slate-800 rounded" />
+                        <div className="h-3 w-16 bg-slate-200 dark:bg-slate-800 rounded" />
+                      </div>
+                    </div>
+                    <div className="h-3.5 w-12 bg-slate-200 dark:bg-slate-800 rounded" />
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Insights Skeleton */}
+        <Card className="crm-card border border-border/40 opacity-70">
+          <CardContent className="p-6 space-y-4">
+            <div className="h-4 w-48 bg-slate-200 dark:bg-slate-800 rounded" />
+            <div className="grid gap-6 md:grid-cols-3 pt-2">
+              {Array.from({ length: 3 }).map((_, j) => (
+                <div key={j} className="space-y-2">
+                  <div className="h-3.5 w-36 bg-slate-200 dark:bg-slate-800 rounded" />
+                  <div className="h-3 w-full bg-slate-200 dark:bg-slate-800 rounded" />
+                  <div className="h-3 w-5/6 bg-slate-200 dark:bg-slate-800 rounded" />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }

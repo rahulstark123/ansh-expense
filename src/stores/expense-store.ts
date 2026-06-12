@@ -61,6 +61,7 @@ export interface Employee {
   reportingHR?: string | null;
   workLocation?: string;
   branch?: string;
+  bloodGroup?: string;
 }
 
 interface ExpenseState {
@@ -230,6 +231,7 @@ export const useExpenseStore = create<ExpenseState>()(
               reportingHR: data.currentUser.reportingHR || undefined,
               workLocation: data.currentUser.workLocation || undefined,
               branch: data.currentUser.branch || undefined,
+              bloodGroup: data.currentUser.bloodGroup || undefined,
             } : get().currentUser,
             employees: data.employees || get().employees,
             expenses: data.expenses || get().expenses,

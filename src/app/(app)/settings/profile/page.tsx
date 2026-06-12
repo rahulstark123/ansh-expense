@@ -9,7 +9,8 @@ import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import { 
   Loader2, User, Mail, Shield, Briefcase, CheckCircle, 
-  Phone, Calendar, Building, UserCheck, CreditCard, Clock, HeartHandshake, Pencil, MapPin
+  Phone, Calendar, Building, UserCheck, CreditCard, Clock, HeartHandshake, Pencil, MapPin,
+  Droplet
 } from "lucide-react";
 
 type ProfileFields = Pick<
@@ -27,6 +28,7 @@ export default function ProfileSettingPage() {
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [emergencyContactName, setEmergencyContactName] = useState("");
   const [emergencyContactPhone, setEmergencyContactPhone] = useState("");
+  const [bloodGroup, setBloodGroup] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [fetchingProfile, setFetchingProfile] = useState(true);
@@ -41,6 +43,7 @@ export default function ProfileSettingPage() {
     setDateOfBirth(emp.dateOfBirth || "");
     setEmergencyContactName(emp.emergencyContactName || "");
     setEmergencyContactPhone(emp.emergencyContactPhone || "");
+    setBloodGroup(emp.bloodGroup || "");
   }, []);
 
   useEffect(() => {
@@ -103,6 +106,7 @@ export default function ProfileSettingPage() {
           dateOfBirth: dateOfBirth || null,
           emergencyContactName: emergencyContactName.trim() || null,
           emergencyContactPhone: emergencyContactPhone || null,
+          bloodGroup: bloodGroup || null,
         }),
       });
 
@@ -174,6 +178,10 @@ export default function ProfileSettingPage() {
                   <span className="flex items-center gap-1.5"><CreditCard className="h-3.5 w-3.5" /> Employee Code</span>
                   <span className="font-bold text-slate-700 dark:text-slate-350 uppercase">{currentUserAny?.employeeCode || "N/A"}</span>
                 </div>
+                <div className="flex justify-between items-center">
+                  <span className="flex items-center gap-1.5"><Droplet className="h-3.5 w-3.5" /> Blood Group</span>
+                  <span className="font-bold text-slate-700 dark:text-slate-350 uppercase">{currentUserAny?.bloodGroup || "Not specified"}</span>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -213,7 +221,7 @@ export default function ProfileSettingPage() {
                   Identity Details
                 </h4>
 
-                <div className="grid gap-6 md:grid-cols-2">
+                <div className="grid gap-6 md:grid-cols-3">
                   {/* Name */}
                   <div>
                     <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">
@@ -249,6 +257,38 @@ export default function ProfileSettingPage() {
                         onChange={(e) => setDateOfBirth(e.target.value)}
                         className="block w-full rounded-2xl border border-border bg-transparent pl-11 pr-4 py-3 text-sm text-foreground outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/40 [color-scheme:light] dark:[color-scheme:dark]"
                       />
+                    </div>
+                  </div>
+
+                  {/* Blood Group */}
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                      Blood Group
+                    </label>
+                    <div className="mt-2 relative">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                        <Droplet className="h-4 w-4" />
+                      </div>
+                      <select
+                        value={bloodGroup}
+                        onChange={(e) => setBloodGroup(e.target.value)}
+                        className="block w-full rounded-2xl border border-border bg-card dark:bg-slate-900/50 pl-11 pr-10 py-3 text-sm text-foreground outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/40 appearance-none cursor-pointer"
+                      >
+                        <option value="">Select Blood Group</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                      </select>
+                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
+                        <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                          <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                        </svg>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -461,6 +501,14 @@ export default function ProfileSettingPage() {
                 <div className="text-left">
                   <span className="block text-[9px] font-bold uppercase tracking-widest text-slate-500">Security Access Role</span>
                   <span className="text-xs font-black text-slate-800 dark:text-white mt-1 block uppercase tracking-wider">{currentUserAny?.role}</span>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-2xl border border-border bg-slate-50/50 dark:bg-slate-900/30 flex items-start gap-3">
+                <Droplet className="h-5 w-5 text-slate-400 mt-0.5" />
+                <div className="text-left">
+                  <span className="block text-[9px] font-bold uppercase tracking-widest text-slate-500">Blood Group</span>
+                  <span className="text-xs font-black text-slate-800 dark:text-white mt-1 block uppercase">{currentUserAny?.bloodGroup || "N/A"}</span>
                 </div>
               </div>
             </div>
