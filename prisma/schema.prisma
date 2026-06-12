@@ -42,6 +42,7 @@ model Employee {
   bloodGroup            String?        // e.g. A+, B-, O+
   createdAt             DateTime       @default(now())
   claims                ExpenseClaim[]
+  announcements         Announcement[]
 }
 
 model ExpenseClaim {
@@ -140,4 +141,18 @@ model Transaction {
 
   @@index([workspaceId])
   @@index([subscriptionId])
+}
+
+model Announcement {
+  id          String    @id @default(cuid())
+  title       String
+  body        String
+  pinned      Boolean   @default(false)
+  archived    Boolean   @default(false)
+  wid         Int
+  authorId    String
+  author      Employee  @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorName  String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }

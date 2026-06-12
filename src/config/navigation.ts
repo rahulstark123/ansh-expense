@@ -10,7 +10,9 @@ import {
   Building,
   CreditCard,
   FileText,
-  UsersRound
+  UsersRound,
+  History,
+  Megaphone
 } from "lucide-react";
 
 export type NavSectionId =
@@ -42,6 +44,11 @@ export const mainNav: MainNavItem[] = [
     label: "Dashboard",
     href: "/dashboard",
     icon: LayoutDashboard,
+    subNav: [
+      { id: "overview", label: "Overview", href: "/dashboard", icon: LayoutDashboard },
+      { id: "activity", label: "Activity Feed", href: "/dashboard/activity", icon: History },
+      { id: "announcements", label: "Announcements", href: "/dashboard/announcements", icon: Megaphone },
+    ],
   },
   {
     id: "expenses",
