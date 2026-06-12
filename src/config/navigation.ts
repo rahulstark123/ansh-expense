@@ -12,7 +12,9 @@ import {
   FileText,
   UsersRound,
   History,
-  Megaphone
+  Megaphone,
+  Store,
+  Repeat
 } from "lucide-react";
 
 export type NavSectionId =
@@ -53,6 +55,12 @@ export const mainNav: MainNavItem[] = [
     label: "Company Expenses",
     href: "/company-expenses",
     icon: Building,
+    subNav: [
+      { id: "company-ledger", label: "General Ledger", href: "/company-expenses", icon: FileText },
+      { id: "company-analytics", label: "Analytics Desk", href: "/company-expenses/analytics", icon: BarChart3 },
+      { id: "company-vendors", label: "Vendor Registry", href: "/company-expenses/vendors", icon: Store },
+      { id: "company-recurring", label: "Recurring Contracts", href: "/company-expenses/recurring", icon: Repeat },
+    ],
   },
   {
     id: "expenses",

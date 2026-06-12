@@ -176,6 +176,7 @@ export default function CompanyExpensesPage() {
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
+  const [registeredVendors, setRegisteredVendors] = useState<{ id: string; name: string }[]>([]);
 
   // Filters State
   const [search, setSearch] = useState("");
@@ -252,10 +253,25 @@ export default function CompanyExpensesPage() {
   };
 
   useEffect(() => {
+    const fetchVendors = async () => {
+      try {
+        const token = sessionStorage.getItem("ansh_auth_token");
+        const res = await fetch("/api/company-vendors", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setRegisteredVendors(data.vendors || []);
+        }
+      } catch (e) {
+        console.error("Failed to load vendors:", e);
+      }
+    };
+
     const runInit = async () => {
       setLoading(true);
       await initialize();
-      await Promise.all([loadSettings(), detectIPCurrency()]);
+      await Promise.all([loadSettings(), detectIPCurrency(), fetchVendors()]);
       setLoading(false);
     };
     runInit();
@@ -805,11 +821,19 @@ export default function CompanyExpensesPage() {
               <div className="space-y-1">
                 <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">Vendor / Merchant</label>
                 <Input
+                  list="vendors-datalist"
                   value={vendor}
                   onChange={(e) => setVendor(e.target.value)}
-                  placeholder="e.g. Amazon Web Services"
+                  placeholder="Select or type vendor..."
                   className="h-11 rounded-2xl"
                 />
+                <datalist id="vendors-datalist">
+                  {registeredVendors.map((v) => (
+                    <option key={v.id} value={v.name}>
+                      {v.name}
+                    </option>
+                  ))}
+                </datalist>
               </div>
 
               <div className="space-y-1">

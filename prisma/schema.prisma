@@ -193,3 +193,31 @@ model CompanyExpense {
   createdAt     DateTime @default(now())
 }
 
+model CompanyVendor {
+  id          String   @id @default(cuid())
+  name        String
+  contactName String?
+  email       String?
+  phone       String?
+  category    String?  // SaaS, Utilities, Rent, Marketing, Operations, etc.
+  website     String?
+  wid         Int      @default(1)
+  createdAt   DateTime @default(now())
+
+  @@unique([name, wid])
+}
+
+model RecurringContract {
+  id              String   @id @default(cuid())
+  title           String
+  vendor          String
+  amount          Float
+  currency        String   @default("USD")
+  billingCycle    String   // "Monthly" | "Quarterly" | "Yearly"
+  startDate       String
+  nextRenewalDate String
+  status          String   @default("Active") // "Active" | "Paused" | "Expired"
+  wid             Int      @default(1)
+  createdAt       DateTime @default(now())
+}
+
