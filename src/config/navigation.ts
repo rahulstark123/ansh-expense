@@ -93,7 +93,6 @@ export const mainNav: MainNavItem[] = [
     icon: Settings,
     subNav: [
       { id: "profile", label: "Profile Settings", href: "/settings/profile", icon: User },
-      { id: "workspace", label: "Workspace Settings", href: "/settings/workspace", icon: Settings },
       { id: "company", label: "Company Settings", href: "/settings/company", icon: Building },
       { id: "billing", label: "Billing & Plans", href: "/settings/billing", icon: CreditCard },
     ],
