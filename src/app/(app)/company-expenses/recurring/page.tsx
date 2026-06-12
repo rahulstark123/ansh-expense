@@ -76,6 +76,12 @@ export default function CompanyRecurringPage() {
   const [startDate, setStartDate] = useState("");
   const [nextRenewalDate, setNextRenewalDate] = useState("");
 
+  const [billingCycles, setBillingCycles] = useState<string[]>([
+    "Monthly",
+    "Quarterly",
+    "Yearly"
+  ]);
+
   const userRole = currentUser?.role?.toLowerCase() || "";
   const isAuthorized = ["admin", "manager", "owner", "hr", "hr manager"].includes(userRole);
 
@@ -104,11 +110,29 @@ export default function CompanyRecurringPage() {
     }
   };
 
+  const fetchRecurringSettings = async () => {
+    try {
+      const token = sessionStorage.getItem("ansh_auth_token");
+      const res = await fetch("/api/company-expenses/settings", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.billingCycles?.length) {
+          setBillingCycles(data.billingCycles);
+          setBillingCycle(data.billingCycles[0]);
+        }
+      }
+    } catch (e) {
+      console.error("Failed to load recurring settings:", e);
+    }
+  };
+
   useEffect(() => {
     const run = async () => {
       setLoading(true);
       await initialize();
-      await fetchContracts();
+      await Promise.all([fetchContracts(), fetchRecurringSettings()]);
       setLoading(false);
     };
     run();
@@ -459,9 +483,9 @@ export default function CompanyRecurringPage() {
                   onChange={(e) => setBillingCycle(e.target.value)}
                   className="flex h-11 w-full items-center rounded-2xl border border-border bg-card dark:bg-slate-900 pl-3 pr-10 py-2 text-xs font-semibold outline-none hover:bg-slate-50/50 cursor-pointer appearance-none"
                 >
-                  <option value="Monthly">Monthly</option>
-                  <option value="Quarterly">Quarterly</option>
-                  <option value="Yearly">Yearly</option>
+                  {billingCycles.map((cycle) => (
+                    <option key={cycle} value={cycle}>{cycle}</option>
+                  ))}
                 </select>
                 <ChevronDown className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 pointer-events-none" />
               </div>

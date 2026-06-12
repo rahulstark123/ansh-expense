@@ -49,7 +49,23 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const validCycles = ["Monthly", "Quarterly", "Yearly"];
+    const wid = employee.wid ?? 1;
+    const workspace = await prisma.workspace.findUnique({
+      where: { id: wid },
+    });
+
+    let validCycles = ["Monthly", "Quarterly", "Yearly"];
+    if (workspace?.settingsJson) {
+      try {
+        const parsed = JSON.parse(workspace.settingsJson);
+        if (parsed.companyExpensesSettings?.billingCycles) {
+          validCycles = parsed.companyExpensesSettings.billingCycles;
+        }
+      } catch (e) {
+        console.error("Failed to parse settingsJson in recurring contract route:", e);
+      }
+    }
+
     if (!validCycles.includes(billingCycle)) {
       return NextResponse.json({ error: "Invalid billing cycle" }, { status: 400 });
     }
@@ -64,11 +80,13 @@ export async function POST(req: Request) {
         start.setMonth(start.getMonth() + 3);
       } else if (billingCycle === "Yearly") {
         start.setFullYear(start.getFullYear() + 1);
+      } else {
+        // Fallback for custom cycles
+        start.setMonth(start.getMonth() + 1);
       }
       renewal = start.toISOString().slice(0, 10);
     }
 
-    const wid = employee.wid ?? 1;
     const contract = await prisma.recurringContract.create({
       data: {
         title: title.trim(),

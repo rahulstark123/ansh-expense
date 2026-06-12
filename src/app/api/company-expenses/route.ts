@@ -100,7 +100,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing required fields or invalid values" }, { status: 400 });
     }
 
-    const validCategories = [
+    const wid = employee.wid ?? 1;
+    const workspace = await prisma.workspace.findUnique({
+      where: { id: wid },
+    });
+
+    let validCategories = [
       "Rent & Utilities",
       "SaaS & Software",
       "Marketing & Advertising",
@@ -108,6 +113,21 @@ export async function POST(req: Request) {
       "Salaries & Payroll",
       "Other",
     ];
+    let validStatuses = ["Paid", "Unpaid", "Scheduled"];
+
+    if (workspace?.settingsJson) {
+      try {
+        const parsed = JSON.parse(workspace.settingsJson);
+        if (parsed.companyExpensesSettings?.companyCategories) {
+          validCategories = parsed.companyExpensesSettings.companyCategories;
+        }
+        if (parsed.companyExpensesSettings?.paymentStatuses) {
+          validStatuses = parsed.companyExpensesSettings.paymentStatuses;
+        }
+      } catch (e) {
+        console.error("Failed to parse settingsJson in route validation:", e);
+      }
+    }
 
     if (!validCategories.includes(category)) {
       return NextResponse.json({ error: "Invalid category selection" }, { status: 400 });
@@ -118,7 +138,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid payment method selection" }, { status: 400 });
     }
 
-    const validStatuses = ["Paid", "Unpaid", "Scheduled"];
     if (!validStatuses.includes(paymentStatus)) {
       return NextResponse.json({ error: "Invalid payment status selection" }, { status: 400 });
     }
@@ -135,7 +154,7 @@ export async function POST(req: Request) {
         receiptUrl: receiptUrl ? String(receiptUrl).trim() : null,
         vendor: vendor ? String(vendor).trim() : null,
         notes: notes ? String(notes).trim() : "",
-        wid: employee.wid ?? 1,
+        wid,
         loggedById: employee.id,
       },
       include: {

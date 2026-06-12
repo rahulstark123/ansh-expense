@@ -60,6 +60,7 @@ export const mainNav: MainNavItem[] = [
       { id: "company-analytics", label: "Analytics Desk", href: "/company-expenses/analytics", icon: BarChart3 },
       { id: "company-vendors", label: "Vendor Registry", href: "/company-expenses/vendors", icon: Store },
       { id: "company-recurring", label: "Recurring Contracts", href: "/company-expenses/recurring", icon: Repeat },
+      { id: "company-settings", label: "Settings", href: "/company-expenses/settings", icon: Settings },
     ],
   },
   {

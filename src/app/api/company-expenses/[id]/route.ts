@@ -49,15 +49,36 @@ export async function PATCH(
     if (title !== undefined) updateData.title = String(title).trim();
     if (amount !== undefined) updateData.amount = Number(amount);
     if (currency !== undefined) updateData.currency = currency;
+    const wid = employee.wid ?? 1;
+    const workspaceObj = await prisma.workspace.findUnique({
+      where: { id: wid },
+    });
+
+    let validCategories = [
+      "Rent & Utilities",
+      "SaaS & Software",
+      "Marketing & Advertising",
+      "Office Operations & Equipment",
+      "Salaries & Payroll",
+      "Other",
+    ];
+    let validStatuses = ["Paid", "Unpaid", "Scheduled"];
+
+    if (workspaceObj?.settingsJson) {
+      try {
+        const parsed = JSON.parse(workspaceObj.settingsJson);
+        if (parsed.companyExpensesSettings?.companyCategories) {
+          validCategories = parsed.companyExpensesSettings.companyCategories;
+        }
+        if (parsed.companyExpensesSettings?.paymentStatuses) {
+          validStatuses = parsed.companyExpensesSettings.paymentStatuses;
+        }
+      } catch (e) {
+        console.error("Failed to parse settingsJson in PATCH validation:", e);
+      }
+    }
+
     if (category !== undefined) {
-      const validCategories = [
-        "Rent & Utilities",
-        "SaaS & Software",
-        "Marketing & Advertising",
-        "Office Operations & Equipment",
-        "Salaries & Payroll",
-        "Other",
-      ];
       if (!validCategories.includes(category)) {
         return NextResponse.json({ error: "Invalid category selection" }, { status: 400 });
       }
@@ -72,7 +93,6 @@ export async function PATCH(
       updateData.paymentMethod = paymentMethod;
     }
     if (paymentStatus !== undefined) {
-      const validStatuses = ["Paid", "Unpaid", "Scheduled"];
       if (!validStatuses.includes(paymentStatus)) {
         return NextResponse.json({ error: "Invalid payment status selection" }, { status: 400 });
       }

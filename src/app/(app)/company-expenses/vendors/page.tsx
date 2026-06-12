@@ -27,7 +27,10 @@ import {
   Phone,
   Paperclip,
   CheckCircle,
+  ChevronDown,
 } from "lucide-react";
+import PhoneInput from "react-phone-number-input";
+import "react-phone-number-input/style.css";
 
 interface CompanyVendor {
   id: string;
@@ -60,6 +63,15 @@ export default function CompanyVendorsPage() {
   const [category, setCategory] = useState("Software & SaaS");
   const [website, setWebsite] = useState("");
 
+  const [vendorCategories, setVendorCategories] = useState<string[]>([
+    "Software & SaaS",
+    "Office Utilities",
+    "Rent",
+    "Marketing",
+    "Operations",
+    "Other"
+  ]);
+
   // Search State
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -91,11 +103,29 @@ export default function CompanyVendorsPage() {
     }
   };
 
+  const fetchVendorSettings = async () => {
+    try {
+      const token = sessionStorage.getItem("ansh_auth_token");
+      const res = await fetch("/api/company-expenses/settings", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.vendorCategories?.length) {
+          setVendorCategories(data.vendorCategories);
+          setCategory(data.vendorCategories[0]);
+        }
+      }
+    } catch (e) {
+      console.error("Failed to load vendor settings:", e);
+    }
+  };
+
   useEffect(() => {
     const run = async () => {
       setLoading(true);
       await initialize();
-      await fetchVendors();
+      await Promise.all([fetchVendors(), fetchVendorSettings()]);
       setLoading(false);
     };
     run();
@@ -351,12 +381,18 @@ export default function CompanyVendorsPage() {
             {/* Category selection */}
             <div className="space-y-1">
               <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">Category</label>
-              <Input
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                placeholder="e.g. Software & SaaS, Office Utilities, Rent"
-                className="h-11 rounded-2xl"
-              />
+              <div className="relative">
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="flex h-11 w-full items-center rounded-2xl border border-border bg-card dark:bg-slate-900 pl-3 pr-10 py-2 text-xs font-semibold outline-none hover:bg-slate-50/50 cursor-pointer appearance-none"
+                >
+                  {vendorCategories.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 pointer-events-none" />
+              </div>
             </div>
 
             {/* Contact Person Name */}
@@ -384,13 +420,16 @@ export default function CompanyVendorsPage() {
               </div>
 
               <div className="space-y-1">
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">Phone Number</label>
-                <Input
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+1 (555) 123-4567"
-                  className="h-11 rounded-2xl"
-                />
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2">Phone Number</label>
+                <div className="phone-input-container">
+                  <PhoneInput
+                    international
+                    defaultCountry="IN"
+                    placeholder="Enter phone number"
+                    value={phone}
+                    onChange={(val) => setPhone(val || "")}
+                  />
+                </div>
               </div>
             </div>
 

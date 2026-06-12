@@ -178,6 +178,21 @@ export default function CompanyExpensesPage() {
   const [formError, setFormError] = useState("");
   const [registeredVendors, setRegisteredVendors] = useState<{ id: string; name: string }[]>([]);
 
+  // Workspace settings lists
+  const [companyCategories, setCompanyCategories] = useState<string[]>([
+    "Rent & Utilities",
+    "SaaS & Software",
+    "Marketing & Advertising",
+    "Office Operations & Equipment",
+    "Salaries & Payroll",
+    "Other"
+  ]);
+  const [paymentStatuses, setPaymentStatuses] = useState<string[]>([
+    "Paid",
+    "Unpaid",
+    "Scheduled"
+  ]);
+
   // Filters State
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All");
@@ -252,6 +267,28 @@ export default function CompanyExpensesPage() {
     }
   };
 
+  const fetchExpenseSettings = async () => {
+    try {
+      const token = sessionStorage.getItem("ansh_auth_token");
+      const res = await fetch("/api/company-expenses/settings", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.companyCategories?.length) {
+          setCompanyCategories(data.companyCategories);
+          setCategory(data.companyCategories[0]);
+        }
+        if (data.paymentStatuses?.length) {
+          setPaymentStatuses(data.paymentStatuses);
+          setPaymentStatus(data.paymentStatuses[0]);
+        }
+      }
+    } catch (e) {
+      console.error("Failed to load custom expense settings:", e);
+    }
+  };
+
   useEffect(() => {
     const fetchVendors = async () => {
       try {
@@ -271,7 +308,7 @@ export default function CompanyExpensesPage() {
     const runInit = async () => {
       setLoading(true);
       await initialize();
-      await Promise.all([loadSettings(), detectIPCurrency(), fetchVendors()]);
+      await Promise.all([loadSettings(), detectIPCurrency(), fetchVendors(), fetchExpenseSettings()]);
       setLoading(false);
     };
     runInit();
@@ -635,12 +672,9 @@ export default function CompanyExpensesPage() {
                     className="flex h-9 w-full items-center rounded-xl border border-border bg-card dark:bg-slate-900 pl-3 pr-9 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none hover:bg-slate-50/50 cursor-pointer appearance-none"
                   >
                     <option value="All">All Categories</option>
-                    <option value="Rent & Utilities">Rent & Utilities</option>
-                    <option value="SaaS & Software">SaaS & Software</option>
-                    <option value="Marketing & Advertising">Marketing & Advertising</option>
-                    <option value="Office Operations & Equipment">Office Operations & Equipment</option>
-                    <option value="Salaries & Payroll">Salaries & Payroll</option>
-                    <option value="Other">Other</option>
+                    {companyCategories.map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400 pointer-events-none" />
                 </div>
@@ -655,9 +689,9 @@ export default function CompanyExpensesPage() {
                     className="flex h-9 w-full items-center rounded-xl border border-border bg-card dark:bg-slate-900 pl-3 pr-9 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none hover:bg-slate-50/50 cursor-pointer appearance-none"
                   >
                     <option value="All">All Statuses</option>
-                    <option value="Paid">Paid</option>
-                    <option value="Unpaid">Unpaid</option>
-                    <option value="Scheduled">Scheduled</option>
+                    {paymentStatuses.map((s) => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400 pointer-events-none" />
                 </div>
@@ -754,12 +788,9 @@ export default function CompanyExpensesPage() {
                     onChange={(e) => setCategory(e.target.value)}
                     className="flex h-11 w-full items-center rounded-2xl border border-border bg-card dark:bg-slate-900 pl-3 pr-10 py-2 text-xs font-semibold outline-none hover:bg-slate-50/50 cursor-pointer appearance-none"
                   >
-                    <option value="Rent & Utilities">Rent & Utilities</option>
-                    <option value="SaaS & Software">SaaS & Software</option>
-                    <option value="Marketing & Advertising">Marketing & Advertising</option>
-                    <option value="Office Operations & Equipment">Office Operations & Equipment</option>
-                    <option value="Salaries & Payroll">Salaries & Payroll</option>
-                    <option value="Other">Other</option>
+                    {companyCategories.map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
                   </select>
                   <ChevronDown className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 pointer-events-none" />
                 </div>
@@ -864,9 +895,9 @@ export default function CompanyExpensesPage() {
                   onChange={(e) => setPaymentStatus(e.target.value)}
                   className="flex h-11 w-full items-center rounded-2xl border border-border bg-card dark:bg-slate-900 pl-3 pr-10 py-2 text-xs font-semibold outline-none hover:bg-slate-50/50 cursor-pointer appearance-none"
                 >
-                  <option value="Paid">Paid</option>
-                  <option value="Unpaid">Unpaid</option>
-                  <option value="Scheduled">Scheduled</option>
+                  {paymentStatuses.map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
                 </select>
                 <ChevronDown className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 pointer-events-none" />
               </div>
