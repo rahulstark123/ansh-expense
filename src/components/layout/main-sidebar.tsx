@@ -58,6 +58,12 @@ export function MainSidebar() {
 
       <nav className="flex-1 space-y-1.5 px-3 py-6">
         {mainNav.map((item) => {
+          if (item.id === "company-expenses") {
+            const role = currentUser?.role?.toLowerCase() || "";
+            const isAuthorized = ["admin", "manager", "owner", "hr", "hr manager"].includes(role);
+            if (!isAuthorized) return null;
+          }
+
           const isActive = activeSection === item.id;
           const Icon = item.icon;
           const linkClassName = cn(

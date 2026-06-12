@@ -44,6 +44,7 @@ model Employee {
   claims                ExpenseClaim[]
   announcements         Announcement[]
   supportTickets        SupportTicket[]
+  companyExpenses       CompanyExpense[]
 }
 
 model ExpenseClaim {
@@ -172,5 +173,23 @@ model SupportTicket {
   employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   wid         Int      @default(1)
   createdAt   DateTime @default(now())
+}
+
+model CompanyExpense {
+  id            String   @id @default(cuid())
+  title         String
+  amount        Float
+  currency      String   @default("USD")
+  category      String   // "Rent & Utilities" | "SaaS & Software" | "Marketing & Ads" | "Office Operations" | "Salaries & Payroll" | "Other"
+  date          String   // "YYYY-MM-DD"
+  paymentMethod String   // "Cash" | "Company Card" | "Bank Transfer" | "Cheque" | "Other"
+  paymentStatus String   // "Paid" | "Unpaid" | "Scheduled"
+  receiptUrl    String?  // Comma-separated list of attachments (up to 3)
+  vendor        String?
+  notes         String?  @default("")
+  wid           Int      @default(1)
+  loggedById    String
+  loggedBy      Employee @relation(fields: [loggedById], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
 }
 

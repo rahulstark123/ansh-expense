@@ -17,6 +17,7 @@ import {
 
 export type NavSectionId =
   | "dashboard"
+  | "company-expenses"
   | "activity"
   | "announcements"
   | "expenses"
@@ -46,6 +47,12 @@ export const mainNav: MainNavItem[] = [
     label: "Dashboard",
     href: "/dashboard",
     icon: LayoutDashboard,
+  },
+  {
+    id: "company-expenses",
+    label: "Company Expenses",
+    href: "/company-expenses",
+    icon: Building,
   },
   {
     id: "expenses",
