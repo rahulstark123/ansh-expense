@@ -1,0 +1,143 @@
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/client"
+}
+
+model Employee {
+  id             String         @id // Matches Supabase Auth ID
+  name           String
+  email          String         @unique
+  role           String         // "Admin" | "Manager" | "Employee"
+  department     String
+  avatarInitials String
+  status         String         // "Active" | "Inactive"
+  currentPunchIn String?        // Optional punch record compatibility
+  currentPunchInPhoto String?
+  currentPunchInLat   Float?
+  currentPunchInLng   Float?
+  companyName    String?        // Company Name for Admins/Managers
+  companyAddress String?        // Company Address for Admins/Managers
+  employeeCount  String?        // Employee Count range
+  wid            Int?           // Workspace ID
+  employeeCode          String?        // Unique Employee Code
+  phoneNumber           String?        // Phone Number
+  joiningDate           String?        // Date of Joining
+  designation           String?        // Job Title
+  employmentType        String?        // e.g. Full-time, Part-time, Contract, Intern
+  reportingManager      String?        // Name of Reporting Manager
+  reportingHR           String?        // Name of Reporting HR
+  workLocation          String?        // e.g. Remote, On-site, Hybrid
+  branch                String?        // Assigned branch/office name
+  rosterShift           String?        // Assigned shift roster name
+  personalEmail         String?        // Personal Email Address
+  dateOfBirth           String?        // Date of Birth (YYYY-MM-DD)
+  emergencyContactName  String?        // Emergency Contact Name
+  emergencyContactPhone String?        // Emergency Contact Phone
+  bloodGroup            String?        // e.g. A+, B-, O+
+  createdAt             DateTime       @default(now())
+  claims                ExpenseClaim[]
+}
+
+model ExpenseClaim {
+  id             String          @id @default(cuid())
+  employeeId     String
+  employee       Employee        @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  title          String
+  category       String          // "Travel" | "Meals" | "Software" | "Office Supplies" | "Mileage" | "Other"
+  amount         Float
+  date           String          // Date string "YYYY-MM-DD"
+  status         String          // "Pending" | "Approved" | "Rejected" | "NeedsInfo"
+  reason         String          @default("")
+  receiptUrl     String?         // S3 URL of the receipt photo
+  isMileage      Boolean         @default(false)
+  mileageRate    Float?          // Rate per Km
+  distanceKm     Float?          // Distance travelled
+  taxPercent     Float           @default(0)
+  taxAmount      Float           @default(0)
+  projectId      String?
+  project        WorkspaceProject? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  approvedBy     String?         // Employee ID of the approver
+  wid            Int?            // Workspace ID
+  appliedAt      DateTime        @default(now())
+  comments       ExpenseComment[]
+}
+
+model ExpenseComment {
+  id         String       @id @default(cuid())
+  claimId    String
+  claim      ExpenseClaim @relation(fields: [claimId], references: [id], onDelete: Cascade)
+  employeeId String
+  authorName String
+  content    String
+  createdAt  DateTime     @default(now())
+}
+
+model WorkspaceProject {
+  id          String         @id @default(cuid())
+  name        String
+  clientName  String?
+  description String?
+  wid         Int            @default(1)
+  createdAt   DateTime       @default(now())
+  claims      ExpenseClaim[]
+
+  @@unique([name, wid])
+}
+
+model Workspace {
+  id            Int            @id @default(autoincrement())
+  name          String?
+  plan          String         @default("free") // "free" | "pro"
+  planExpiresAt DateTime?
+  trialEndsAt   DateTime?      // 14-day Pro trial for new workspaces
+  maxUsers      Int            @default(5)
+  createdAt     DateTime       @default(now())
+  subscriptions Subscription[]
+  transactions  Transaction[]
+}
+
+model Subscription {
+  id              String        @id @default(cuid())
+  workspaceId     Int
+  workspace       Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  employeeId      String?
+  status          String        // "PENDING" | "ACTIVE" | "CANCELLED"
+  plan            String        // "pro"
+  seatsCount      Int           @default(1)
+  billingCycle    String        // "monthly" | "yearly"
+  amountPaisa     Int
+  currency        String        @default("INR")
+  razorpayOrderId String?
+  startsAt        DateTime?
+  expiresAt       DateTime?
+  createdAt       DateTime      @default(now())
+  transactions    Transaction[]
+
+  @@index([workspaceId])
+  @@index([razorpayOrderId])
+}
+
+model Transaction {
+  id                String        @id @default(cuid())
+  workspaceId       Int
+  workspace         Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  subscriptionId    String?
+  subscription      Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+  status            String        // "CREATED" | "SUCCESS" | "FAILED"
+  amountPaisa       Int
+  currency          String        @default("INR")
+  razorpayOrderId   String        @unique
+  razorpayPaymentId String?
+  razorpaySignature String?
+  description       String?
+  createdAt         DateTime      @default(now())
+
+  @@index([workspaceId])
+  @@index([subscriptionId])
+}
