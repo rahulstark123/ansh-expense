@@ -525,7 +525,7 @@ export default function ExpensesPage() {
                         className="flex h-10 w-full items-center rounded-xl border border-border bg-card dark:bg-slate-900 pl-3 pr-9 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none hover:bg-slate-50/50 cursor-pointer appearance-none"
                       >
                         <option value="All">All Categories</option>
-                        {["Travel", "Meals", "Software", "Office Supplies", "Mileage", "Other"].map((cat) => (
+                        {["Travel", "Meals", "Software", "Office Supplies", "Other"].map((cat) => (
                           <option key={cat} value={cat}>
                             {cat}
                           </option>
@@ -748,7 +748,7 @@ export default function ExpensesPage() {
                     onChange={(e) => setCategory(e.target.value)}
                     className="flex h-11 w-full items-center rounded-2xl border border-border bg-card dark:bg-slate-900 pl-3 pr-10 py-2 text-xs font-semibold outline-none hover:bg-slate-50/50 cursor-pointer appearance-none"
                   >
-                    {["Travel", "Meals", "Software", "Office Supplies", "Mileage", "Other"].map((cat) => (
+                    {["Travel", "Meals", "Software", "Office Supplies", "Other"].map((cat) => (
                       <option key={cat} value={cat}>
                         {cat}
                       </option>
@@ -797,57 +797,22 @@ export default function ExpensesPage() {
               </div>
             </div>
 
-            {/* If Mileage is selected */}
-            {isMileage ? (
-              <div className="grid grid-cols-2 gap-4 rounded-2xl bg-indigo-500/5 p-4 border border-indigo-500/10">
-                <div className="space-y-1">
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">
-                    Distance Travelled (Km/Miles)
-                  </label>
-                  <Input
-                    type="number"
-                    min="0"
-                    step="any"
-                    required
-                    value={distanceKm || ""}
-                    onChange={(e) => setDistanceKm(Math.max(0, Number(e.target.value)))}
-                    placeholder="400"
-                    className="h-11 rounded-2xl"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">
-                    Rate ({claimCurrency}/Unit)
-                  </label>
-                  <Input
-                    type="number"
-                    min="0"
-                    required
-                    value={mileageRate}
-                    onChange={(e) => setMileageRate(Math.max(0, Number(e.target.value)))}
-                    className="h-11 rounded-2xl"
-                  />
-                </div>
-              </div>
-            ) : (
-              /* If Normal Claim: Amount */
-              <div className="space-y-1">
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">
-                  Claim Amount
-                </label>
-                <Input
-                  type="number"
-                  min="0"
-                  step="any"
-                  required
-                  value={amount || ""}
-                  onChange={(e) => setAmount(Math.max(0, Number(e.target.value)))}
-                  placeholder="150"
-                  className="h-11 rounded-2xl"
-                />
-              </div>
-            )}
+            {/* Claim Amount */}
+            <div className="space-y-1">
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                Claim Amount
+              </label>
+              <Input
+                type="number"
+                min="0"
+                step="any"
+                required
+                value={amount || ""}
+                onChange={(e) => setAmount(Math.max(0, Number(e.target.value)))}
+                placeholder="150"
+                className="h-11 rounded-2xl"
+              />
+            </div>
 
             {/* Calculations display */}
             <div className="flex items-center justify-between text-xs bg-primary/10 p-3.5 rounded-xl">

@@ -604,7 +604,7 @@ export default function TeamPage() {
 
   // Categorize claims for the detailed drawer
   const getTeammateCategoryBreakdown = (claims: any[]) => {
-    const categories = ["Travel", "Meals", "Software", "Office Supplies", "Mileage", "Other"];
+    const categories = ["Travel", "Meals", "Software", "Office Supplies", "Other"];
     const approvedClaims = claims.filter(c => c.status === "Approved");
     const totalApproved = approvedClaims.reduce((sum, c) => sum + c.amount, 0);
 

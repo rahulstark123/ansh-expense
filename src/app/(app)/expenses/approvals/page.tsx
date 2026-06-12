@@ -335,7 +335,7 @@ export default function ApprovalsPage() {
                         className="flex h-10 w-full items-center rounded-xl border border-border bg-card dark:bg-slate-900 pl-3.5 pr-9 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none hover:bg-slate-50/50 cursor-pointer appearance-none"
                       >
                         <option value="All">All Categories</option>
-                        {["Travel", "Meals", "Software", "Office Supplies", "Mileage", "Other"].map((cat) => (
+                        {["Travel", "Meals", "Software", "Office Supplies", "Other"].map((cat) => (
                           <option key={cat} value={cat}>
                             {cat}
                           </option>

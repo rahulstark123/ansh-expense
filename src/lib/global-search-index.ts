@@ -36,7 +36,7 @@ export function buildGlobalSearchIndex(): GlobalSearchItem[] {
       group: "navigation",
       label: "Navigation",
       title: "My Claims",
-      subtitle: "Submit claims, add mileage and projects",
+      subtitle: "Submit and track business expense claims and projects",
       href: "/expenses",
       icon: Wallet,
     },
