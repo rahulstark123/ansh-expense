@@ -101,6 +101,7 @@ model Workspace {
   createdAt     DateTime       @default(now())
   subscriptions Subscription[]
   transactions  Transaction[]
+  settingsJson  String         @default("{\"branches\":[{\"id\":\"branch-hq\",\"name\":\"Main HQ\",\"address\":\"123 Corporate Tower, New Delhi, India\",\"pincode\":\"110001\",\"city\":\"New Delhi\",\"state\":\"Delhi\",\"latitude\":28.6139,\"longitude\":77.2090,\"allowWFH\":true}]}")
 }
 
 model Subscription {
