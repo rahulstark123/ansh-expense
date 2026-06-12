@@ -45,6 +45,12 @@ export async function GET(req: Request) {
           address: employee.companyAddress || "",
           employeeCount: employee.employeeCount || "1-10",
         },
+        workspaceSettings: parsed.workspaceSettings || {
+          name: workspace?.name || employee.companyName || "",
+          currency: "USD",
+          mileageRate: 8,
+          wfhAllowed: true,
+        },
         leaveSettings: parsed.leaveSettings || {},
         attendanceSettings: parsed.attendanceSettings || {},
       },
@@ -68,7 +74,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { companyProfile, branches } = body;
+    const { companyProfile, branches, workspaceSettings } = body;
 
     const wid = employee.wid ?? 1;
     const workspace = await prisma.workspace.findUnique({
@@ -110,6 +116,23 @@ export async function POST(req: Request) {
       });
     }
 
+    if (workspaceSettings) {
+      parsed.workspaceSettings = {
+        name: workspaceSettings.name?.trim() || parsed.companyProfile?.name || "",
+        currency: workspaceSettings.currency || "USD",
+        mileageRate: Number(workspaceSettings.mileageRate ?? 8),
+        wfhAllowed: Boolean(workspaceSettings.wfhAllowed ?? true),
+      };
+
+      // Update Workspace name
+      await prisma.workspace.update({
+        where: { id: wid },
+        data: {
+          name: parsed.workspaceSettings.name || null,
+        },
+      });
+    }
+
     if (branches) {
       parsed.branches = branches;
     }
@@ -129,6 +152,12 @@ export async function POST(req: Request) {
           name: updatedWorkspace.name || "",
           address: employee.companyAddress || "",
           employeeCount: employee.employeeCount || "1-10",
+        },
+        workspaceSettings: parsed.workspaceSettings || {
+          name: updatedWorkspace.name || "",
+          currency: "USD",
+          mileageRate: 8,
+          wfhAllowed: true,
         },
         leaveSettings: parsed.leaveSettings || {},
         attendanceSettings: parsed.attendanceSettings || {},

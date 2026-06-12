@@ -1395,7 +1395,7 @@ export default function TeamPage() {
                 if (currentStep === 1) setIsAddModalOpen(false);
                 else setCurrentStep((prev) => prev - 1);
               }}
-              className="h-11 rounded-xl font-bold px-5"
+              className="h-11 rounded-xl font-bold px-6"
             >
               {currentStep === 1 ? "Cancel" : "Back"}
             </Button>
@@ -1695,7 +1695,7 @@ export default function TeamPage() {
                 if (editCurrentStep === 1) setIsEditModalOpen(false);
                 else setEditCurrentStep((prev) => prev - 1);
               }}
-              className="h-11 rounded-xl font-bold px-5"
+              className="h-11 rounded-xl font-bold px-6"
             >
               {editCurrentStep === 1 ? "Cancel" : "Back"}
             </Button>
@@ -1744,7 +1744,7 @@ export default function TeamPage() {
             </div>
 
             <div className="flex gap-2 justify-end">
-              <Button size="sm" variant="ghost" onClick={() => setIsAddOptionModalOpen(false)} className="rounded-lg h-9">
+              <Button size="sm" variant="ghost" onClick={() => setIsAddOptionModalOpen(false)} className="rounded-lg h-9 px-4">
                 Cancel
               </Button>
               <Button size="sm" onClick={handleCreateOption} disabled={newOptionLoading || !newOptionName.trim()} className="rounded-lg h-9 bg-primary text-primary-foreground border-0 font-bold px-4">

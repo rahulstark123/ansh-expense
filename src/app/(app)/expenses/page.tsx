@@ -33,7 +33,69 @@ import {
   Trash2,
   Lock,
   Filter,
+  ChevronDown,
 } from "lucide-react";
+
+const compressImage = (file: File): Promise<Blob | File> => {
+  return new Promise((resolve) => {
+    if (!file.type.startsWith("image/")) {
+      resolve(file);
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let width = img.width;
+        let height = img.height;
+
+        const maxDimension = 1200;
+        if (width > maxDimension || height > maxDimension) {
+          if (width > height) {
+            height = Math.round((height * maxDimension) / width);
+            width = maxDimension;
+          } else {
+            width = Math.round((width * maxDimension) / height);
+            height = maxDimension;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          resolve(file);
+          return;
+        }
+
+        ctx.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              resolve(file);
+              return;
+            }
+            const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", {
+              type: "image/jpeg",
+              lastModified: Date.now(),
+            });
+            resolve(compressedFile);
+          },
+          "image/jpeg",
+          0.6
+        );
+      };
+      img.onerror = () => resolve(file);
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = () => resolve(file);
+    reader.readAsDataURL(file);
+  });
+};
 
 export default function ExpensesPage() {
   const { currentUser, employees, expenses, projects, initialize, addExpense, addComment } = useExpenseStore();
@@ -51,6 +113,9 @@ export default function ExpensesPage() {
   const [date, setDate] = useState("");
   const [projectId, setProjectId] = useState("");
   const [reason, setReason] = useState("");
+  const [workspaceCurrency, setWorkspaceCurrency] = useState("USD");
+  const [workspaceMileageRate, setWorkspaceMileageRate] = useState(8);
+  const [claimCurrency, setClaimCurrency] = useState("USD");
   
   // Mileage Form State
   const [distanceKm, setDistanceKm] = useState<number>(0);
@@ -62,8 +127,7 @@ export default function ExpensesPage() {
 
   // Receipt File State
   const [uploadingReceipt, setUploadingReceipt] = useState(false);
-  const [receiptUrl, setReceiptUrl] = useState<string | null>(null);
-  const [receiptFileName, setReceiptFileName] = useState<string | null>(null);
+  const [attachments, setAttachments] = useState<{ name: string; url: string }[]>([]);
 
   // Comments State
   const [commentText, setCommentText] = useState("");
@@ -85,6 +149,47 @@ export default function ExpensesPage() {
       return () => clearTimeout(timer);
     }
   }, [toast]);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const token = sessionStorage.getItem("ansh_auth_token");
+        const res = await fetch("/api/settings", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.settings?.workspaceSettings) {
+            const ws = data.settings.workspaceSettings;
+            setWorkspaceCurrency(ws.currency || "USD");
+            setWorkspaceMileageRate(ws.mileageRate ?? 8);
+            setMileageRate(ws.mileageRate ?? 8);
+            setClaimCurrency(ws.currency || "USD");
+          }
+        }
+      } catch (e) {
+        console.error("Failed to load settings:", e);
+      }
+    };
+    fetchSettings();
+  }, []);
+
+  useEffect(() => {
+    const detectIPCurrency = async () => {
+      try {
+        const res = await fetch("https://ipapi.co/json/");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.currency) {
+            setClaimCurrency(data.currency);
+          }
+        }
+      } catch (err) {
+        console.error("IP currency detection failed:", err);
+      }
+    };
+    detectIPCurrency();
+  }, []);
 
   useEffect(() => {
     const run = async () => {
@@ -120,12 +225,18 @@ export default function ExpensesPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setUploadingReceipt(true);
-    const token = sessionStorage.getItem("ansh_auth_token");
-    const formData = new FormData();
-    formData.append("file", file);
+    if (attachments.length >= 3) {
+      alert("Maximum 3 files are allowed.");
+      return;
+    }
 
+    setUploadingReceipt(true);
     try {
+      const processedFile = await compressImage(file);
+      const token = sessionStorage.getItem("ansh_auth_token");
+      const formData = new FormData();
+      formData.append("file", processedFile);
+
       const res = await fetch("/api/upload", {
         method: "POST",
         headers: {
@@ -136,13 +247,13 @@ export default function ExpensesPage() {
 
       if (!res.ok) throw new Error("Upload failed");
       const data = await res.json();
-      setReceiptUrl(data.url);
-      setReceiptFileName(file.name);
+      setAttachments((prev) => [...prev, { name: file.name, url: data.url }]);
     } catch (err) {
       console.error(err);
       alert("Failed to upload receipt file.");
     } finally {
       setUploadingReceipt(false);
+      e.target.value = "";
     }
   };
 
@@ -166,18 +277,20 @@ export default function ExpensesPage() {
 
     setSubmittingClaim(true);
     try {
+      const mergedUrls = attachments.map((att) => att.url).join(",");
       await addExpense({
         title: title.trim(),
         category,
         amount,
+        currency: claimCurrency,
         date: date || new Date().toISOString().slice(0, 10),
         reason: reason.trim(),
-        receiptUrl,
+        receiptUrl: mergedUrls || null,
         isMileage,
         mileageRate: isMileage ? mileageRate : null,
         distanceKm: isMileage ? distanceKm : null,
-        taxPercent,
-        taxAmount,
+        taxPercent: 0,
+        taxAmount: 0,
         projectId: projectId || null,
         employeeId: selectedEmployeeId || currentUser.id,
       });
@@ -191,8 +304,8 @@ export default function ExpensesPage() {
       setTaxAmount(0);
       setProjectId("");
       setReason("");
-      setReceiptUrl(null);
-      setReceiptFileName(null);
+      setClaimCurrency(workspaceCurrency);
+      setAttachments([]);
       setOpen(false);
       setToast({ message: "Expense claim logged successfully!", type: "success" });
     } catch (err: any) {
@@ -240,12 +353,22 @@ export default function ExpensesPage() {
   const pendingTotal = filteredClaims.filter(c => c.status === "Pending").reduce((a, b) => a + b.amount, 0);
   const rejectedTotal = filteredClaims.filter(c => c.status === "Rejected").reduce((a, b) => a + b.amount, 0);
 
-  const formatInr = (val: number) => {
-    return new Intl.NumberFormat("en-IN", {
+  const formatCurrency = (val: number, currencyCode: string = "USD") => {
+    let locale = "en-US";
+    if (currencyCode === "INR") locale = "en-IN";
+    else if (currencyCode === "EUR") locale = "de-DE";
+    else if (currencyCode === "GBP") locale = "en-GB";
+    else if (currencyCode === "JPY") locale = "ja-JP";
+
+    return new Intl.NumberFormat(locale, {
       style: "currency",
-      currency: "INR",
+      currency: currencyCode,
       maximumFractionDigits: 0
     }).format(val);
+  };
+
+  const formatInr = (val: number) => {
+    return formatCurrency(val, workspaceCurrency);
   };
 
   const getStatusBadge = (status: ClaimStatus) => {
@@ -373,18 +496,21 @@ export default function ExpensesPage() {
                     <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400">
                       Project Mapping
                     </label>
-                    <select
-                      value={projectFilter}
-                      onChange={(e) => setProjectFilter(e.target.value)}
-                      className="flex h-10 w-full items-center rounded-xl border border-border bg-card dark:bg-slate-900 px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none hover:bg-slate-50/50 cursor-pointer"
-                    >
-                      <option value="All">All Projects</option>
-                      {projects.map((p) => (
-                        <option key={p.id} value={p.name}>
-                          {p.name}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="relative">
+                      <select
+                        value={projectFilter}
+                        onChange={(e) => setProjectFilter(e.target.value)}
+                        className="flex h-10 w-full items-center rounded-xl border border-border bg-card dark:bg-slate-900 pl-3 pr-9 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none hover:bg-slate-50/50 cursor-pointer appearance-none"
+                      >
+                        <option value="All">All Projects</option>
+                        {projects.map((p) => (
+                          <option key={p.id} value={p.name}>
+                            {p.name}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                    </div>
                   </div>
 
                   {/* Category Filter */}
@@ -392,18 +518,21 @@ export default function ExpensesPage() {
                     <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400">
                       Category
                     </label>
-                    <select
-                      value={categoryFilter}
-                      onChange={(e) => setCategoryFilter(e.target.value)}
-                      className="flex h-10 w-full items-center rounded-xl border border-border bg-card dark:bg-slate-900 px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none hover:bg-slate-50/50 cursor-pointer"
-                    >
-                      <option value="All">All Categories</option>
-                      {["Travel", "Meals", "Software", "Office Supplies", "Mileage", "Other"].map((cat) => (
-                        <option key={cat} value={cat}>
-                          {cat}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="relative">
+                      <select
+                        value={categoryFilter}
+                        onChange={(e) => setCategoryFilter(e.target.value)}
+                        className="flex h-10 w-full items-center rounded-xl border border-border bg-card dark:bg-slate-900 pl-3 pr-9 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none hover:bg-slate-50/50 cursor-pointer appearance-none"
+                      >
+                        <option value="All">All Categories</option>
+                        {["Travel", "Meals", "Software", "Office Supplies", "Mileage", "Other"].map((cat) => (
+                          <option key={cat} value={cat}>
+                            {cat}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                    </div>
                   </div>
 
                   {/* Status Filter */}
@@ -411,18 +540,21 @@ export default function ExpensesPage() {
                     <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400">
                       Status
                     </label>
-                    <select
-                      value={statusFilter}
-                      onChange={(e) => setStatusFilter(e.target.value)}
-                      className="flex h-10 w-full items-center rounded-xl border border-border bg-card dark:bg-slate-900 px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none hover:bg-slate-50/50 cursor-pointer"
-                    >
-                      <option value="All">All Statuses</option>
-                      {["Pending", "Approved", "Rejected", "NeedsInfo"].map((st) => (
-                        <option key={st} value={st}>
-                          {st}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="relative">
+                      <select
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        className="flex h-10 w-full items-center rounded-xl border border-border bg-card dark:bg-slate-900 pl-3 pr-9 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none hover:bg-slate-50/50 cursor-pointer appearance-none"
+                      >
+                        <option value="All">All Statuses</option>
+                        {["Pending", "Approved", "Rejected", "NeedsInfo"].map((st) => (
+                          <option key={st} value={st}>
+                            {st}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                    </div>
                   </div>
                 </div>
               </>
@@ -512,9 +644,9 @@ export default function ExpensesPage() {
                           <span className="text-slate-400 italic">None</span>
                         )}
                       </td>
-                      <td className="px-6 py-4 text-xs text-slate-450 dark:text-slate-400 font-semibold">
+                      <td className="px-6 py-4 text-xs font-semibold text-slate-450 dark:text-slate-400 font-semibold">
                         {claim.taxPercent > 0 ? (
-                          <span>{claim.taxPercent}% ({formatInr(claim.taxAmount)})</span>
+                          <span>{claim.taxPercent}% ({formatCurrency(claim.taxAmount, claim.currency || "USD")})</span>
                         ) : (
                           <span className="text-slate-400 italic">0%</span>
                         )}
@@ -527,7 +659,7 @@ export default function ExpensesPage() {
                         })}
                       </td>
                       <td className="px-6 py-4 font-black text-slate-800 dark:text-white">
-                        {formatInr(claim.amount)}
+                        {formatCurrency(claim.amount, claim.currency || "USD")}
                       </td>
                       <td className="px-6 py-4">{getStatusBadge(claim.status)}</td>
                       <td className="px-6 py-4 text-right">
@@ -574,17 +706,20 @@ export default function ExpensesPage() {
               <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">
                 Claimant / Person
               </label>
-              <select
-                value={selectedEmployeeId}
-                onChange={(e) => setSelectedEmployeeId(e.target.value)}
-                className="flex h-11 w-full items-center rounded-2xl border border-border bg-card dark:bg-slate-900 px-3 py-2 text-xs font-semibold outline-none hover:bg-slate-50/50 cursor-pointer"
-              >
-                {employees.map((emp) => (
-                  <option key={emp.id} value={emp.id}>
-                    {emp.name} {emp.id === currentUser?.id ? "(You)" : ""}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <select
+                  value={selectedEmployeeId}
+                  onChange={(e) => setSelectedEmployeeId(e.target.value)}
+                  className="flex h-11 w-full items-center rounded-2xl border border-border bg-card dark:bg-slate-900 pl-3 pr-10 py-2 text-xs font-semibold outline-none hover:bg-slate-50/50 cursor-pointer appearance-none"
+                >
+                  {employees.map((emp) => (
+                    <option key={emp.id} value={emp.id}>
+                      {emp.name} {emp.id === currentUser?.id ? "(You)" : ""}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 pointer-events-none" />
+              </div>
             </div>
 
             {/* Title */}
@@ -607,17 +742,20 @@ export default function ExpensesPage() {
                 <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">
                   Category
                 </label>
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  className="flex h-11 w-full items-center rounded-2xl border border-border bg-card dark:bg-slate-900 px-3 py-2 text-xs font-semibold outline-none hover:bg-slate-50/50 cursor-pointer"
-                >
-                  {["Travel", "Meals", "Software", "Office Supplies", "Mileage", "Other"].map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="flex h-11 w-full items-center rounded-2xl border border-border bg-card dark:bg-slate-900 pl-3 pr-10 py-2 text-xs font-semibold outline-none hover:bg-slate-50/50 cursor-pointer appearance-none"
+                  >
+                    {["Travel", "Meals", "Software", "Office Supplies", "Mileage", "Other"].map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                </div>
               </div>
 
               <div className="space-y-1">
@@ -634,12 +772,37 @@ export default function ExpensesPage() {
               </div>
             </div>
 
+            {/* Currency selector (Visible for both Mileage and Regular claims) */}
+            <div className="space-y-1">
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                Claim Currency
+              </label>
+              <div className="relative">
+                <select
+                  value={claimCurrency}
+                  onChange={(e) => setClaimCurrency(e.target.value)}
+                  className="flex h-11 w-full items-center rounded-2xl border border-border bg-card dark:bg-slate-900 pl-3 pr-10 py-2 text-xs font-semibold outline-none hover:bg-slate-50/50 cursor-pointer appearance-none"
+                >
+                  <option value="USD">USD ($)</option>
+                  <option value="INR">INR (₹)</option>
+                  <option value="EUR">EUR (€)</option>
+                  <option value="GBP">GBP (£)</option>
+                  <option value="AUD">AUD ($)</option>
+                  <option value="CAD">CAD ($)</option>
+                  <option value="SGD">SGD ($)</option>
+                  <option value="AED">AED (د.إ)</option>
+                  <option value="JPY">JPY (¥)</option>
+                </select>
+                <ChevronDown className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 pointer-events-none" />
+              </div>
+            </div>
+
             {/* If Mileage is selected */}
             {isMileage ? (
               <div className="grid grid-cols-2 gap-4 rounded-2xl bg-indigo-500/5 p-4 border border-indigo-500/10">
                 <div className="space-y-1">
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">
-                    Distance Travelled (Km)
+                    Distance Travelled (Km/Miles)
                   </label>
                   <Input
                     type="number"
@@ -655,7 +818,7 @@ export default function ExpensesPage() {
 
                 <div className="space-y-1">
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">
-                    Mileage Rate (₹/Km)
+                    Rate ({claimCurrency}/Unit)
                   </label>
                   <Input
                     type="number"
@@ -668,56 +831,30 @@ export default function ExpensesPage() {
                 </div>
               </div>
             ) : (
-              /* If Normal Claim: Amount and Tax */
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">
-                    Base Amount (INR)
-                  </label>
-                  <Input
-                    type="number"
-                    min="0"
-                    step="any"
-                    required
-                    value={amount || ""}
-                    onChange={(e) => setAmount(Math.max(0, Number(e.target.value)))}
-                    placeholder="15000"
-                    className="h-11 rounded-2xl"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">
-                    Tax Percent / GST
-                  </label>
-                  <select
-                    value={taxPercent}
-                    onChange={(e) => setTaxPercent(Number(e.target.value))}
-                    className="flex h-11 w-full items-center rounded-2xl border border-border bg-card dark:bg-slate-900 px-3 py-2 text-xs font-semibold outline-none hover:bg-slate-50/50 cursor-pointer"
-                  >
-                    <option value="0">0% (Exempt)</option>
-                    <option value="5">5% (GST)</option>
-                    <option value="12">12% (GST)</option>
-                    <option value="18">18% (GST)</option>
-                    <option value="28">28% (GST)</option>
-                  </select>
-                </div>
+              /* If Normal Claim: Amount */
+              <div className="space-y-1">
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                  Claim Amount
+                </label>
+                <Input
+                  type="number"
+                  min="0"
+                  step="any"
+                  required
+                  value={amount || ""}
+                  onChange={(e) => setAmount(Math.max(0, Number(e.target.value)))}
+                  placeholder="150"
+                  className="h-11 rounded-2xl"
+                />
               </div>
             )}
 
             {/* Calculations display */}
-            <div className="flex items-center justify-between text-xs bg-slate-550/5 dark:bg-slate-900/40 p-3 rounded-xl border border-border/40">
-              <span className="font-semibold text-slate-400">
-                {isMileage ? "Distance x Rate" : `GST Tax Amount (${taxPercent}%):`}
-              </span>
-              <span className="font-bold text-slate-700 dark:text-slate-200">
-                {isMileage ? `${distanceKm} Km x ₹${mileageRate}` : formatInr(taxAmount)}
-              </span>
-            </div>
-
             <div className="flex items-center justify-between text-xs bg-primary/10 p-3.5 rounded-xl">
               <span className="font-bold text-primary">Total Claimable Amount:</span>
-              <span className="font-black text-sm text-primary">{formatInr(amount + (isMileage ? 0 : taxAmount))}</span>
+              <span className="font-black text-sm text-primary">
+                {formatCurrency(amount, claimCurrency)}
+              </span>
             </div>
 
             {/* Project Mapping (Pro Feature check) */}
@@ -733,23 +870,26 @@ export default function ExpensesPage() {
                 )}
               </div>
 
-              <select
-                value={projectId}
-                disabled={!planStore.hasProAccess}
-                onChange={(e) => setProjectId(e.target.value)}
-                className={`flex h-11 w-full items-center rounded-2xl border bg-card dark:bg-slate-900 px-3 py-2 text-xs font-semibold outline-none transition-all ${
-                  !planStore.hasProAccess
-                    ? "border-border bg-slate-50 cursor-not-allowed opacity-60 dark:bg-slate-950"
-                    : "border-border hover:bg-slate-50/50 cursor-pointer"
-                }`}
-              >
-                <option value="">Unassigned / No Project</option>
-                {projects.map((proj) => (
-                  <option key={proj.id} value={proj.id}>
-                    {proj.name} ({proj.clientName || "Internal"})
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <select
+                  value={projectId}
+                  disabled={!planStore.hasProAccess}
+                  onChange={(e) => setProjectId(e.target.value)}
+                  className={`flex h-11 w-full items-center rounded-2xl border bg-card dark:bg-slate-900 pl-3 pr-10 py-2 text-xs font-semibold outline-none transition-all appearance-none ${
+                    !planStore.hasProAccess
+                      ? "border-border bg-slate-50 cursor-not-allowed opacity-60 dark:bg-slate-950"
+                      : "border-border hover:bg-slate-50/50 cursor-pointer"
+                  }`}
+                >
+                  <option value="">Unassigned / No Project</option>
+                  {projects.map((proj) => (
+                    <option key={proj.id} value={proj.id}>
+                      {proj.name} ({proj.clientName || "Internal"})
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 pointer-events-none" />
+              </div>
 
               {!planStore.hasProAccess && (
                 <div
@@ -763,32 +903,56 @@ export default function ExpensesPage() {
             {/* Receipt Upload */}
             <div className="space-y-2">
               <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">
-                Receipt Attachment Proof
+                Receipt Attachment Proof (Max 3)
               </label>
 
-              <div className="flex items-center gap-3">
-                <label className="flex h-11 items-center justify-center gap-2 rounded-2xl border border-dashed border-border px-4 text-xs font-semibold hover:bg-slate-550/5 cursor-pointer shrink-0">
-                  <Paperclip className="h-4 w-4 text-slate-400" />
-                  {uploadingReceipt ? "Uploading..." : "Attach File"}
-                  <input
-                    type="file"
-                    accept="image/*,application/pdf"
-                    onChange={handleReceiptUpload}
-                    disabled={uploadingReceipt}
-                    className="hidden"
-                  />
-                </label>
-                <div className="min-w-0 flex-1">
-                  {receiptFileName ? (
-                    <span className="text-xs font-bold text-indigo-400 block truncate" title={receiptFileName}>
-                      ✓ {receiptFileName}
-                    </span>
-                  ) : (
-                    <span className="text-[11px] text-slate-400 block truncate">
+              <div className="space-y-2">
+                {attachments.length < 3 && (
+                  <label className="flex h-11 items-center justify-center gap-2 rounded-2xl border border-dashed border-border px-4 text-xs font-semibold hover:bg-slate-500/5 dark:hover:bg-slate-900/50 cursor-pointer w-full transition-colors">
+                    <Paperclip className="h-4 w-4 text-slate-400" />
+                    {uploadingReceipt ? "Uploading..." : "Attach File"}
+                    <input
+                      type="file"
+                      accept="image/*,application/pdf"
+                      onChange={handleReceiptUpload}
+                      disabled={uploadingReceipt}
+                      className="hidden"
+                    />
+                  </label>
+                )}
+
+                {attachments.length > 0 ? (
+                  <div className="space-y-1.5">
+                    {attachments.map((att, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center justify-between rounded-xl bg-indigo-500/5 border border-indigo-500/10 px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-350"
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <Paperclip className="h-3.5 w-3.5 text-indigo-400 shrink-0" />
+                          <span className="truncate" title={att.name}>
+                            {att.name}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAttachments((prev) => prev.filter((_, i) => i !== idx));
+                          }}
+                          className="text-slate-400 hover:text-rose-500 transition-colors cursor-pointer p-0.5 ml-2"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  !uploadingReceipt && (
+                    <span className="text-[11px] text-slate-400 block italic">
                       No receipt attached. Optional but recommended.
                     </span>
-                  )}
-                </div>
+                  )
+                )}
               </div>
             </div>
 
@@ -811,14 +975,14 @@ export default function ExpensesPage() {
                 type="button"
                 variant="secondary"
                 onClick={() => setOpen(false)}
-                className="rounded-2xl"
+                className="h-11 px-6 rounded-2xl font-bold"
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
                 disabled={submittingClaim}
-                className="btn-primary rounded-2xl gap-2"
+                className="btn-primary h-11 px-6 rounded-2xl font-black border-0 gap-2"
               >
                 {submittingClaim ? (
                   <>
@@ -876,7 +1040,7 @@ export default function ExpensesPage() {
 
                   <div>
                     <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-450 mb-0.5">Base Amount</span>
-                    <span className="font-bold text-slate-700 dark:text-slate-200">{formatInr(selectedClaim.amount)}</span>
+                    <span className="font-bold text-slate-700 dark:text-slate-200">{formatCurrency(selectedClaim.amount, selectedClaim.currency || "USD")}</span>
                   </div>
 
                   {selectedClaim.taxPercent > 0 && (
@@ -887,7 +1051,7 @@ export default function ExpensesPage() {
                       </div>
                       <div>
                         <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-450 mb-0.5">Tax Amount</span>
-                        <span className="font-bold text-slate-700 dark:text-slate-200">{formatInr(selectedClaim.taxAmount)}</span>
+                        <span className="font-bold text-slate-700 dark:text-slate-200">{formatCurrency(selectedClaim.taxAmount, selectedClaim.currency || "USD")}</span>
                       </div>
                     </>
                   )}
@@ -896,11 +1060,11 @@ export default function ExpensesPage() {
                     <>
                       <div>
                         <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-450 mb-0.5">Distance Travelled</span>
-                        <span className="font-bold text-slate-700 dark:text-slate-200">{selectedClaim.distanceKm} Km</span>
+                        <span className="font-bold text-slate-700 dark:text-slate-200">{selectedClaim.distanceKm} Km/Miles</span>
                       </div>
                       <div>
                         <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-450 mb-0.5">Mileage Rate</span>
-                        <span className="font-bold text-slate-700 dark:text-slate-200">₹{selectedClaim.mileageRate}/Km</span>
+                        <span className="font-bold text-slate-700 dark:text-slate-200">{formatCurrency(selectedClaim.mileageRate || 0, selectedClaim.currency || "USD")}/Unit</span>
                       </div>
                     </>
                   )}
@@ -910,7 +1074,7 @@ export default function ExpensesPage() {
                 <div className="flex items-center justify-between bg-primary/10 p-3.5 rounded-2xl">
                   <span className="font-bold text-primary">Claim Total Amount:</span>
                   <span className="font-black text-sm text-primary">
-                    {formatInr(selectedClaim.amount + (selectedClaim.isMileage ? 0 : selectedClaim.taxAmount))}
+                    {formatCurrency(selectedClaim.amount + (selectedClaim.isMileage ? 0 : selectedClaim.taxAmount), selectedClaim.currency || "USD")}
                   </span>
                 </div>
 
@@ -925,16 +1089,21 @@ export default function ExpensesPage() {
                 {/* Receipt attachment link */}
                 {selectedClaim.receiptUrl && (
                   <div>
-                    <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-450 mb-1.5">Attached Receipt</span>
-                    <a
-                      href={selectedClaim.receiptUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20 px-3.5 py-2 font-bold text-indigo-400 hover:bg-indigo-500/15 transition-all"
-                    >
-                      <Paperclip className="h-3.5 w-3.5" />
-                      View Receipt File
-                    </a>
+                    <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-450 mb-1.5">Attached Receipts</span>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedClaim.receiptUrl.split(",").filter(Boolean).map((url, idx) => (
+                        <a
+                          key={url}
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20 px-3.5 py-2 font-bold text-indigo-400 hover:bg-indigo-500/15 transition-all text-xs"
+                        >
+                          <Paperclip className="h-3.5 w-3.5" />
+                          Receipt #{idx + 1}
+                        </a>
+                      ))}
+                    </div>
                   </div>
                 )}
 
@@ -1003,7 +1172,7 @@ export default function ExpensesPage() {
               <DialogFooter className="pt-2 border-t border-border/40">
                 <Button
                   onClick={() => setDetailOpen(false)}
-                  className="rounded-xl"
+                  className="h-11 px-6 rounded-2xl font-bold"
                 >
                   Close
                 </Button>

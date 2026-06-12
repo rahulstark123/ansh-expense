@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, ArrowRight, ArrowLeft, Sparkles, Briefcase, Shield, User, CheckCircle2, Circle, Building, MapPin, Users } from "lucide-react";
+import { Loader2, ArrowRight, ArrowLeft, Sparkles, Briefcase, Shield, User, CheckCircle2, Circle, Building, MapPin, Users, ChevronDown } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 
 export default function OnboardingPage() {
@@ -389,7 +389,7 @@ export default function OnboardingPage() {
                     <select
                       value={department}
                       onChange={(e) => setDepartment(e.target.value)}
-                      className="block w-full rounded-2xl border border-white/5 bg-slate-950/80 pl-11 pr-4 py-3.5 text-sm text-white shadow-inner outline-none transition-all focus:border-indigo-500/40 focus:ring-1 focus:ring-indigo-500/40 appearance-none cursor-pointer"
+                      className="block w-full rounded-2xl border border-white/5 bg-slate-950/80 pl-11 pr-10 py-3.5 text-sm text-white shadow-inner outline-none transition-all focus:border-indigo-500/40 focus:ring-1 focus:ring-indigo-500/40 appearance-none cursor-pointer"
                     >
                       <option value="Engineering">Engineering</option>
                       <option value="Human Resources">Human Resources</option>
@@ -398,6 +398,7 @@ export default function OnboardingPage() {
                       <option value="Executive">Executive</option>
                       <option value="Marketing">Marketing</option>
                     </select>
+                    <ChevronDown className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 pointer-events-none" />
                   </div>
                 </div>
 
@@ -525,13 +526,14 @@ export default function OnboardingPage() {
                       <select
                         value={employeeCount}
                         onChange={(e) => setEmployeeCount(e.target.value)}
-                        className="block w-full rounded-xl border border-white/5 bg-slate-950/90 pl-9 pr-3 py-2.5 text-xs text-white outline-none focus:border-indigo-500/40 focus:ring-1 focus:ring-indigo-500/40 appearance-none cursor-pointer"
+                        className="block w-full rounded-xl border border-white/5 bg-slate-950/90 pl-9 pr-10 py-2.5 text-xs text-white outline-none focus:border-indigo-500/40 focus:ring-1 focus:ring-indigo-500/40 appearance-none cursor-pointer"
                       >
                         <option value="1-10">1 - 10 employees</option>
                         <option value="11-50">11 - 50 employees</option>
                         <option value="51-200">51 - 200 employees</option>
                         <option value="200+">200+ employees</option>
                       </select>
+                      <ChevronDown className="absolute right-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400 pointer-events-none" />
                     </div>
                   </div>
 

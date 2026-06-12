@@ -26,7 +26,8 @@ import {
   Trash2,
   Lock,
   Archive,
-  Home
+  Home,
+  ChevronDown
 } from "lucide-react";
 
 interface Branch {
@@ -377,13 +378,14 @@ export default function CompanySettingPage() {
                     disabled={!isAuthorized}
                     value={employeeCount}
                     onChange={(e) => setEmployeeCount(e.target.value)}
-                    className="block w-full rounded-2xl border border-border bg-card dark:bg-slate-905 pl-11 pr-4 py-3.5 text-xs font-semibold text-foreground outline-none focus:border-primary/45 focus:ring-1 focus:ring-primary/45 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+                    className="block w-full rounded-2xl border border-border bg-card dark:bg-slate-905 pl-11 pr-10 py-3.5 text-xs font-semibold text-foreground outline-none focus:border-primary/45 focus:ring-1 focus:ring-primary/45 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer appearance-none"
                   >
                     <option value="1-10">1 - 10 employees</option>
                     <option value="11-50">11 - 50 employees</option>
                     <option value="51-200">51 - 200 employees</option>
                     <option value="200+">200+ employees</option>
                   </select>
+                  <ChevronDown className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 pointer-events-none" />
                 </div>
               </div>
 
@@ -614,14 +616,14 @@ export default function CompanySettingPage() {
                 type="button"
                 variant="secondary"
                 onClick={() => setBranchModalOpen(false)}
-                className="rounded-2xl"
+                className="h-11 px-6 rounded-2xl font-bold"
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
                 disabled={loading}
-                className="btn-primary rounded-2xl gap-2 border-0 cursor-pointer"
+                className="btn-primary h-11 px-6 rounded-2xl font-black gap-2 border-0 cursor-pointer"
               >
                 {loading ? (
                   <>
@@ -654,14 +656,14 @@ export default function CompanySettingPage() {
             <Button
               variant="secondary"
               onClick={() => setDeleteConfirmOpen(false)}
-              className="rounded-2xl w-full sm:w-auto"
+              className="h-11 px-6 rounded-2xl font-bold w-full sm:w-auto"
             >
               Cancel
             </Button>
             <Button
               onClick={handleDeleteBranch}
               disabled={loading}
-              className="rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs gap-2 border-0 w-full sm:w-auto cursor-pointer"
+              className="h-11 px-6 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black text-xs gap-2 border-0 w-full sm:w-auto cursor-pointer flex items-center justify-center"
             >
               {loading ? (
                 <>

@@ -23,6 +23,7 @@ export interface ExpenseClaim {
   title: string;
   category: string; // "Travel" | "Meals" | "Software" | "Office Supplies" | "Mileage" | "Other"
   amount: number;
+  currency?: string;
   date: string; // YYYY-MM-DD
   status: ClaimStatus;
   reason: string;

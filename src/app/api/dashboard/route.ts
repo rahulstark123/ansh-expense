@@ -46,6 +46,7 @@ export async function GET(req: Request) {
       title: c.title,
       category: c.category,
       amount: c.amount,
+      currency: c.currency,
       date: c.date,
       status: c.status,
       reason: c.reason,

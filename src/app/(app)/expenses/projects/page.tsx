@@ -413,14 +413,14 @@ export default function ProjectsPage() {
                 type="button"
                 variant="secondary"
                 onClick={() => setOpen(false)}
-                className="rounded-2xl"
+                className="h-11 px-6 rounded-2xl font-bold"
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
                 disabled={submitting}
-                className="btn-primary rounded-2xl gap-2"
+                className="btn-primary h-11 px-6 rounded-2xl font-black border-0 gap-2"
               >
                 {submitting ? (
                   <>
@@ -451,24 +451,24 @@ export default function ProjectsPage() {
             Are you sure you want to delete this project? Existing expense claims mapped to this project will be unassigned (set to None), but historical claims will NOT be deleted.
           </p>
 
-          <DialogFooter className="mt-5 grid grid-cols-2 gap-3 pb-0">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => setDeletingId(null)}
-              className="rounded-2xl"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="button"
-              disabled={deleting}
-              onClick={() => deletingId && handleDeleteProject(deletingId)}
-              className="bg-rose-500 hover:bg-rose-400 text-white font-bold h-11 rounded-2xl border-0 shadow-lg shadow-rose-500/25 cursor-pointer shrink-0"
-            >
-              {deleting ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : "Delete Mapping"}
-            </Button>
-          </DialogFooter>
+            <DialogFooter className="mt-5 grid grid-cols-2 gap-3 pb-0">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setDeletingId(null)}
+                className="h-11 rounded-2xl font-bold w-full"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                disabled={deleting}
+                onClick={() => deletingId && handleDeleteProject(deletingId)}
+                className="bg-rose-500 hover:bg-rose-450 text-white font-bold h-11 rounded-2xl border-0 shadow-lg shadow-rose-500/25 cursor-pointer shrink-0 w-full"
+              >
+                {deleting ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : "Delete Mapping"}
+              </Button>
+            </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

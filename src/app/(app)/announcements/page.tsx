@@ -594,14 +594,14 @@ export default function AnnouncementsPage() {
                 type="button"
                 variant="secondary"
                 onClick={() => setCreateOpen(false)}
-                className="rounded-2xl"
+                className="h-11 px-6 rounded-2xl font-bold"
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
                 disabled={submitting}
-                className="btn-primary rounded-2xl gap-2 border-0"
+                className="btn-primary h-11 px-6 rounded-2xl font-black gap-2 border-0"
               >
                 {submitting ? (
                   <>
@@ -679,14 +679,14 @@ export default function AnnouncementsPage() {
                 type="button"
                 variant="secondary"
                 onClick={() => setEditOpen(false)}
-                className="rounded-2xl"
+                className="h-11 px-6 rounded-2xl font-bold"
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
                 disabled={submitting}
-                className="btn-primary rounded-2xl gap-2 border-0"
+                className="btn-primary h-11 px-6 rounded-2xl font-black gap-2 border-0"
               >
                 {submitting ? (
                   <>
@@ -719,14 +719,14 @@ export default function AnnouncementsPage() {
             <Button
               variant="secondary"
               onClick={() => setDeleteOpen(false)}
-              className="rounded-2xl w-full sm:w-auto"
+              className="h-11 px-6 rounded-2xl font-bold w-full sm:w-auto"
             >
               Cancel
             </Button>
             <Button
               onClick={handleDelete}
               disabled={submitting}
-              className="rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs gap-2 border-0 w-full sm:w-auto"
+              className="h-11 px-6 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black text-xs gap-2 border-0 w-full sm:w-auto flex items-center justify-center"
             >
               {submitting ? (
                 <>

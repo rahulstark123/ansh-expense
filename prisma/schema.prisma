@@ -53,6 +53,7 @@ model ExpenseClaim {
   title          String
   category       String          // "Travel" | "Meals" | "Software" | "Office Supplies" | "Mileage" | "Other"
   amount         Float
+  currency       String          @default("USD")
   date           String          // Date string "YYYY-MM-DD"
   status         String          // "Pending" | "Approved" | "Rejected" | "NeedsInfo"
   reason         String          @default("")
