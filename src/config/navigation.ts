@@ -48,18 +48,6 @@ export const mainNav: MainNavItem[] = [
     icon: LayoutDashboard,
   },
   {
-    id: "activity",
-    label: "Activity Feed",
-    href: "/activity",
-    icon: History,
-  },
-  {
-    id: "announcements",
-    label: "Announcements",
-    href: "/announcements",
-    icon: Megaphone,
-  },
-  {
     id: "expenses",
     label: "Expense Tracker",
     href: "/expenses",
@@ -75,6 +63,18 @@ export const mainNav: MainNavItem[] = [
     label: "Team Directory",
     href: "/team",
     icon: UsersRound,
+  },
+  {
+    id: "activity",
+    label: "Activity Feed",
+    href: "/activity",
+    icon: History,
+  },
+  {
+    id: "announcements",
+    label: "Announcements",
+    href: "/announcements",
+    icon: Megaphone,
   },
   {
     id: "reports",
