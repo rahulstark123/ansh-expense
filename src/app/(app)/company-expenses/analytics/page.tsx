@@ -1,23 +1,28 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import { PageHeader } from "@/components/crm/page-header";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useExpenseStore } from "@/stores/expense-store";
 import {
   TrendingUp,
   TrendingDown,
-  ArrowUpRight,
   ShieldAlert,
   Loader2,
-  Calendar,
-  DollarSign,
-  PieChart,
   Activity,
-  Layers,
-  Percent,
 } from "lucide-react";
+
+// Dynamic import of Recharts component with SSR disabled
+const CompanyCharts = dynamic(() => import("@/components/analytics/company-charts"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-[350px] items-center justify-center">
+      <Loader2 className="h-7 w-7 animate-spin text-primary" />
+    </div>
+  ),
+});
 
 interface CompanyExpenseEntry {
   id: string;
@@ -72,8 +77,6 @@ export default function CompanyExpensesAnalyticsPage() {
   const [loading, setLoading] = useState(true);
   const [expenses, setExpenses] = useState<CompanyExpenseEntry[]>([]);
   const [workspaceCurrency, setWorkspaceCurrency] = useState("USD");
-  const [hoveredMonth, setHoveredMonth] = useState<{ month: string; amount: number } | null>(null);
-  const [activeCategorySlice, setActiveCategorySlice] = useState<string | null>(null);
 
   const userRole = currentUser?.role?.toLowerCase() || "";
   const isAuthorized = ["admin", "manager", "owner", "hr", "hr manager"].includes(userRole);
@@ -166,13 +169,10 @@ export default function CompanyExpensesAnalyticsPage() {
       return sum + convertToWorkspaceCurrency(e.amount, e.currency, workspaceCurrency);
     }, 0);
     
-    // Label as "Jan", "Feb" etc
     const dateObj = new Date(m + "-02");
     const name = dateObj.toLocaleDateString("en-US", { month: "short" });
-    return { month: name, rawMonth: m, amount: total };
+    return { month: name, amount: total };
   });
-
-  const maxTrendAmount = Math.max(...trendData.map((t) => t.amount), 1000);
 
   // 2. Process Categories Allocation Mix
   const categoryMap: Record<string, number> = {};
@@ -190,16 +190,6 @@ export default function CompanyExpensesAnalyticsPage() {
     }))
     .sort((a, b) => b.value - a.value);
 
-  // Colors mapping for donut chart slices
-  const categoryColors: Record<string, string> = {
-    "Rent & Utilities": "#3b82f6", // Blue
-    "SaaS & Software": "#6366f1", // Indigo
-    "Marketing & Advertising": "#ec4899", // Pink
-    "Office Operations & Equipment": "#f59e0b", // Orange
-    "Salaries & Payroll": "#10b981", // Emerald
-    "Other": "#64748b", // Slate
-  };
-
   // 3. Payment Method mix
   const paymentMethodMap: Record<string, number> = {};
   expenses.forEach((e) => {
@@ -207,7 +197,10 @@ export default function CompanyExpensesAnalyticsPage() {
     paymentMethodMap[e.paymentMethod] = (paymentMethodMap[e.paymentMethod] || 0) + amt;
   });
 
-  const maxMethodAmount = Math.max(...Object.values(paymentMethodMap), 1000);
+  const paymentMethodData = Object.entries(paymentMethodMap).map(([name, value]) => ({
+    name,
+    value,
+  }));
 
   // Calculations for KPI Cards
   const currentMonthValue = trendData[trendData.length - 1].amount;
@@ -240,42 +233,14 @@ export default function CompanyExpensesAnalyticsPage() {
     });
   }
 
-  // Draw Area chart curve SVG
-  const width = 500;
-  const height = 180;
-  const padding = 35;
-  const chartW = width - padding * 2;
-  const chartH = height - padding * 2;
-
-  const points = trendData.map((d, i) => {
-    const x = padding + (i / (trendData.length - 1)) * chartW;
-    const y = padding + chartH - (d.amount / maxTrendAmount) * chartH;
-    return { x, y, label: d.month, amount: d.amount };
-  });
-
-  let dPath = "";
-  let dArea = "";
-  if (points.length > 0) {
-    dPath = `M ${points[0].x} ${points[0].y}`;
-    points.forEach((p, idx) => {
-      if (idx > 0) {
-        // Curve construction using bezier control points
-        const cpX1 = points[idx - 1].x + chartW / 12;
-        const cpY1 = points[idx - 1].y;
-        const cpX2 = p.x - chartW / 12;
-        const cpY2 = p.y;
-        dPath += ` C ${cpX1} ${cpY1}, ${cpX2} ${cpY2}, ${p.x} ${p.y}`;
-      }
-    });
-
-    dArea = `${dPath} L ${points[points.length - 1].x} ${height - padding} L ${points[0].x} ${height - padding} Z`;
-  }
-
-  // Donut chart calculations
-  let accumulatedAngle = 0;
-  const donutCenter = 75;
-  const donutRadius = 55;
-  const donutCircumference = 2 * Math.PI * donutRadius;
+  const getCurrencySymbol = (cur: string) => {
+    switch (cur) {
+      case "INR": return "₹";
+      case "EUR": return "€";
+      case "GBP": return "£";
+      default: return "$";
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -343,198 +308,38 @@ export default function CompanyExpensesAnalyticsPage() {
         </Card>
       </div>
 
-      <div className="grid gap-6 grid-cols-1 lg:grid-cols-3">
-        {/* SPENDING TREND AREA GRAPH */}
-        <Card className="crm-card lg:col-span-2 p-5 bg-card/60 backdrop-blur-md shadow-sm rounded-3xl">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white">Runway Capital Spending Curve</h3>
-              <p className="text-[11px] text-slate-450 mt-0.5">Estimated general ledger payments aggregated over 6 months.</p>
-            </div>
-            {hoveredMonth && (
-              <div className="text-right animate-in fade-in duration-200">
-                <span className="text-[10px] font-bold text-slate-400 block uppercase">{hoveredMonth.month} spend</span>
-                <span className="text-xs font-black text-primary">{formatCurrency(hoveredMonth.amount, workspaceCurrency)}</span>
+      {/* MODERN CHARTS COMPONENT */}
+      <CompanyCharts
+        trendData={trendData}
+        categoryData={categoryData.map(c => ({ name: c.name, value: c.value }))}
+        paymentMethodData={paymentMethodData}
+        currencySymbol={getCurrencySymbol(workspaceCurrency)}
+      />
+
+      {/* OPTIMIZATION INSIGHTS */}
+      <Card className="crm-card p-5 bg-card/60 backdrop-blur-md shadow-sm rounded-3xl border border-border/60">
+        <h3 className="text-sm font-bold text-slate-900 dark:text-white">Ledger Optimizations & Insights</h3>
+        <p className="text-[11px] text-slate-450 mt-0.5">System flagged points to improve company runway management.</p>
+        <div className="space-y-3 mt-4">
+          {alerts.map((al, idx) => (
+            <div
+              key={idx}
+              className={`flex gap-3 p-4 rounded-2xl border text-xs leading-relaxed font-semibold ${
+                al.type === "warning"
+                  ? "bg-rose-500/5 border-rose-500/20 text-rose-600 dark:text-rose-400"
+                  : al.type === "success"
+                  ? "bg-emerald-500/5 border-emerald-500/20 text-emerald-600 dark:text-emerald-400"
+                  : "bg-indigo-500/5 border-indigo-500/20 text-indigo-600 dark:text-indigo-400"
+              }`}
+            >
+              <div className="shrink-0 mt-0.5">
+                <Activity className="h-4 w-4" />
               </div>
-            )}
-          </div>
-
-          <div className="relative w-full h-[200px] flex items-center justify-center">
-            {points.length > 0 ? (
-              <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full">
-                <defs>
-                  <linearGradient id="chart-grad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="var(--color-primary, #6366f1)" stopOpacity="0.25" />
-                    <stop offset="100%" stopColor="var(--color-primary, #6366f1)" stopOpacity="0.0" />
-                  </linearGradient>
-                </defs>
-
-                {/* Horizontal grid lines */}
-                {[0, 0.25, 0.5, 0.75, 1.0].map((ratio) => {
-                  const y = padding + chartH * ratio;
-                  return (
-                    <line
-                      key={ratio}
-                      x1={padding}
-                      y1={y}
-                      x2={width - padding}
-                      y2={y}
-                      stroke="currentColor"
-                      className="text-slate-200 dark:text-slate-800"
-                      strokeWidth="0.5"
-                      strokeDasharray="4 4"
-                    />
-                  );
-                })}
-
-                {/* Filled Area */}
-                <path d={dArea} fill="url(#chart-grad)" />
-
-                {/* Path Outline */}
-                <path d={dPath} fill="none" stroke="var(--color-primary, #6366f1)" strokeWidth="2.5" />
-
-                {/* Data Points */}
-                {points.map((p, idx) => (
-                  <g key={idx}>
-                    <circle
-                      cx={p.x}
-                      cy={p.y}
-                      r="4.5"
-                      fill="var(--color-primary, #6366f1)"
-                      className="cursor-pointer stroke-white dark:stroke-slate-900 hover:scale-125 transition-transform"
-                      strokeWidth="1.5"
-                      onMouseEnter={() => setHoveredMonth({ month: p.label, amount: p.amount })}
-                      onMouseLeave={() => setHoveredMonth(null)}
-                    />
-                    <text
-                      x={p.x}
-                      y={height - 10}
-                      textAnchor="middle"
-                      className="fill-slate-400 dark:fill-slate-650 text-[10px] font-bold"
-                    >
-                      {p.label}
-                    </text>
-                  </g>
-                ))}
-              </svg>
-            ) : (
-              <span className="text-xs text-slate-400 italic">No trend data compiled. Log some company expenses.</span>
-            )}
-          </div>
-        </Card>
-
-        {/* DONUT MIX CHART */}
-        <Card className="crm-card lg:col-span-1 p-5 bg-card/60 backdrop-blur-md shadow-sm rounded-3xl flex flex-col justify-between">
-          <div>
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Capital Allocation Chart</h3>
-            <p className="text-[11px] text-slate-450 mt-0.5">Allocation by ledger category accounts.</p>
-
-            <div className="relative flex items-center justify-center h-[160px] mt-4">
-              {categoryData.length > 0 ? (
-                <>
-                  <svg width="150" height="150" className="transform -rotate-90">
-                    {categoryData.map((slice) => {
-                      const strokeDash = donutCircumference;
-                      const strokeOffset = donutCircumference - (slice.percent / 100) * donutCircumference;
-                      const currentAngle = accumulatedAngle;
-                      accumulatedAngle += (slice.percent / 100) * 360;
-
-                      const col = categoryColors[slice.name] || "#64748b";
-                      const isHovered = activeCategorySlice === slice.name;
-
-                      return (
-                        <circle
-                          key={slice.name}
-                          cx={donutCenter}
-                          cy={donutCenter}
-                          r={donutRadius}
-                          fill="transparent"
-                          stroke={col}
-                          strokeWidth={isHovered ? "16" : "12"}
-                          strokeDasharray={strokeDash}
-                          strokeDashoffset={strokeOffset}
-                          className="transition-all duration-300 cursor-pointer origin-center"
-                          style={{
-                            transform: `rotate(${currentAngle}deg)`,
-                          }}
-                          onMouseEnter={() => setActiveCategorySlice(slice.name)}
-                          onMouseLeave={() => setActiveCategorySlice(null)}
-                        />
-                      );
-                    })}
-                  </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none animate-in fade-in duration-300">
-                    <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">
-                      {activeCategorySlice ? activeCategorySlice : "Total Spend"}
-                    </span>
-                    <span className="text-sm font-black text-slate-950 dark:text-white mt-0.5">
-                      {activeCategorySlice
-                        ? formatCurrency(categoryMap[activeCategorySlice] || 0, workspaceCurrency)
-                        : formatCurrency(totalAllTime, workspaceCurrency)}
-                    </span>
-                  </div>
-                </>
-              ) : (
-                <span className="text-xs text-slate-400 italic">No breakdown available.</span>
-              )}
+              <div>{al.message}</div>
             </div>
-          </div>
-        </Card>
-      </div>
-
-      <div className="grid gap-6 grid-cols-1 lg:grid-cols-3">
-        {/* PAYMENT METHOD BAR CHART */}
-        <Card className="crm-card lg:col-span-1 p-5 bg-card/60 backdrop-blur-md shadow-sm rounded-3xl">
-          <h3 className="text-sm font-bold text-slate-900 dark:text-white">Outflow Channels</h3>
-          <p className="text-[11px] text-slate-450 mt-0.5">Spending aggregates grouped by payment channel.</p>
-
-          <div className="space-y-4 mt-6">
-            {Object.entries(paymentMethodMap).map(([method, val]) => {
-              const pct = maxMethodAmount > 0 ? (val / maxMethodAmount) * 100 : 0;
-              return (
-                <div key={method} className="space-y-1">
-                  <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-350">
-                    <span>{method}</span>
-                    <span>{formatCurrency(val, workspaceCurrency)}</span>
-                  </div>
-                  <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-indigo-500 rounded-full"
-                      style={{ width: `${pct}%` }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </Card>
-
-        {/* AUDITING ALERTS & INSIGHTS */}
-        <Card className="crm-card lg:col-span-2 p-5 bg-card/60 backdrop-blur-md shadow-sm rounded-3xl">
-          <h3 className="text-sm font-bold text-slate-900 dark:text-white">Ledger Optimizations & Insights</h3>
-          <p className="text-[11px] text-slate-450 mt-0.5">System flagged points to improve company runway management.</p>
-
-          <div className="space-y-3.5 mt-6">
-            {alerts.map((al, idx) => (
-              <div
-                key={idx}
-                className={`flex gap-3 p-4 rounded-2xl border text-xs leading-relaxed font-semibold ${
-                  al.type === "warning"
-                    ? "bg-rose-500/5 border-rose-500/20 text-rose-600 dark:text-rose-400"
-                    : al.type === "success"
-                    ? "bg-emerald-500/5 border-emerald-500/20 text-emerald-600 dark:text-emerald-400"
-                    : "bg-indigo-500/5 border-indigo-500/20 text-indigo-600 dark:text-indigo-400"
-                }`}
-              >
-                <div className="shrink-0 mt-0.5">
-                  <Activity className="h-4 w-4" />
-                </div>
-                <div>{al.message}</div>
-              </div>
-            ))}
-          </div>
-        </Card>
-      </div>
+          ))}
+        </div>
+      </Card>
     </div>
   );
 }
