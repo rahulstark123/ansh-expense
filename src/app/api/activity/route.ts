@@ -179,7 +179,7 @@ export async function GET(req: Request) {
         actorName: ann.authorName,
         actorInitials: ann.authorName.split(" ").map((n) => n[0]).join("").substring(0, 2).toUpperCase(),
         timestamp: ann.createdAt.toISOString(),
-        link: `/dashboard/announcements`,
+        link: `/announcements`,
       });
     });
 

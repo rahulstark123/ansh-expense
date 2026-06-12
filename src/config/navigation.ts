@@ -17,6 +17,8 @@ import {
 
 export type NavSectionId =
   | "dashboard"
+  | "activity"
+  | "announcements"
   | "expenses"
   | "team"
   | "reports"
@@ -44,11 +46,18 @@ export const mainNav: MainNavItem[] = [
     label: "Dashboard",
     href: "/dashboard",
     icon: LayoutDashboard,
-    subNav: [
-      { id: "overview", label: "Overview", href: "/dashboard", icon: LayoutDashboard },
-      { id: "activity", label: "Activity Feed", href: "/dashboard/activity", icon: History },
-      { id: "announcements", label: "Announcements", href: "/dashboard/announcements", icon: Megaphone },
-    ],
+  },
+  {
+    id: "activity",
+    label: "Activity Feed",
+    href: "/activity",
+    icon: History,
+  },
+  {
+    id: "announcements",
+    label: "Announcements",
+    href: "/announcements",
+    icon: Megaphone,
   },
   {
     id: "expenses",

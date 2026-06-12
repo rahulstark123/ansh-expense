@@ -263,13 +263,48 @@ export default function ExpensesPage() {
 
   if (loading) {
     return (
-      <div className="flex h-[50vh] w-full items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <span className="text-xs font-bold uppercase tracking-widest text-slate-400">
-            Loading your claims...
-          </span>
+      <div className="space-y-8 animate-pulse">
+        {/* Skeleton Header */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="space-y-2">
+            <div className="h-4 w-28 bg-slate-200 dark:bg-slate-800 rounded-lg" />
+            <div className="h-8 w-56 bg-slate-200 dark:bg-slate-800 rounded-xl" />
+            <div className="h-4 w-96 bg-slate-200 dark:bg-slate-800 rounded-lg" />
+          </div>
+          <div className="h-10 w-36 bg-slate-200 dark:bg-slate-800 rounded-xl shrink-0" />
         </div>
+
+        {/* Skeleton Summary tiles */}
+        <div className="grid gap-6 grid-cols-1 sm:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Card key={i} className="crm-card border border-border/40 opacity-70">
+              <CardContent className="p-6 space-y-3">
+                <div className="h-3.5 w-36 bg-slate-200 dark:bg-slate-800 rounded" />
+                <div className="h-6 w-24 bg-slate-200 dark:bg-slate-800 rounded-lg" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Skeleton Table */}
+        <Card className="crm-card border border-border/40 opacity-70">
+          <CardContent className="p-0">
+            <div className="px-6 py-4 border-b border-border/40">
+              <div className="h-4 w-44 bg-slate-200 dark:bg-slate-800 rounded" />
+            </div>
+            <div className="divide-y divide-border/40 px-6 py-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="py-4 flex items-center justify-between">
+                  <div className="space-y-2 flex-1 min-w-0">
+                    <div className="h-4 w-1/3 bg-slate-200 dark:bg-slate-800 rounded" />
+                    <div className="h-3.5 w-1/4 bg-slate-200 dark:bg-slate-800 rounded" />
+                  </div>
+                  <div className="h-4 w-20 bg-slate-200 dark:bg-slate-800 rounded" />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }

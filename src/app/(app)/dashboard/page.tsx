@@ -124,12 +124,70 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="flex h-[50vh] w-full items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <span className="text-xs font-bold uppercase tracking-widest text-slate-400">
-            Loading dashboard data...
-          </span>
+      <div className="space-y-8 animate-pulse">
+        {/* Skeleton Header */}
+        <div className="space-y-3">
+          <div className="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded-lg" />
+          <div className="h-8 w-64 bg-slate-200 dark:bg-slate-800 rounded-xl" />
+          <div className="h-4 w-96 bg-slate-200 dark:bg-slate-800 rounded-lg" />
+        </div>
+
+        {/* Skeleton Stats Grid */}
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Card key={i} className="crm-card border border-border/40 opacity-70">
+              <CardContent className="p-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="h-3 w-28 bg-slate-200 dark:bg-slate-800 rounded" />
+                  <div className="h-4 w-4 bg-slate-200 dark:bg-slate-800 rounded-full" />
+                </div>
+                <div className="h-8 w-36 bg-slate-200 dark:bg-slate-800 rounded-lg" />
+                <div className="h-3 w-44 bg-slate-200 dark:bg-slate-800 rounded" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Skeleton Charts Grid */}
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* Spend Category Card */}
+          <Card className="crm-card border border-border/40 opacity-70">
+            <CardContent className="p-6 space-y-6">
+              <div className="space-y-2">
+                <div className="h-4 w-48 bg-slate-200 dark:bg-slate-800 rounded" />
+                <div className="h-3 w-72 bg-slate-200 dark:bg-slate-800 rounded" />
+              </div>
+              <div className="flex items-center justify-around gap-6 py-4">
+                <div className="h-32 w-32 rounded-full border-[12px] border-slate-200 dark:border-slate-800 flex items-center justify-center" />
+                <div className="space-y-3 flex-1">
+                  {Array.from({ length: 3 }).map((_, j) => (
+                    <div key={j} className="flex justify-between items-center">
+                      <div className="h-3 w-16 bg-slate-200 dark:bg-slate-800 rounded" />
+                      <div className="h-3 w-10 bg-slate-200 dark:bg-slate-800 rounded" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Spend Trend Card */}
+          <Card className="crm-card border border-border/40 opacity-70">
+            <CardContent className="p-6 space-y-6">
+              <div className="space-y-2">
+                <div className="h-4 w-48 bg-slate-200 dark:bg-slate-800 rounded" />
+                <div className="h-3 w-72 bg-slate-200 dark:bg-slate-800 rounded" />
+              </div>
+              <div className="h-32 w-full flex items-end justify-between gap-4 pt-4 px-2">
+                {Array.from({ length: 6 }).map((_, j) => (
+                  <div key={j} className="flex-1 flex flex-col items-center gap-2">
+                    <div className="w-full bg-slate-200 dark:bg-slate-800 rounded-t-md" style={{ height: `${20 + (j % 3) * 30}%` }} />
+                    <div className="h-3 w-8 bg-slate-200 dark:bg-slate-800 rounded" />
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
