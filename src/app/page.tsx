@@ -18,7 +18,9 @@ import {
   ChevronRight,
   HelpCircle,
   TrendingUp,
-  Info
+  Info,
+  Briefcase,
+  MessageSquare
 } from "lucide-react";
 
 type MockTab = "submit" | "analytics" | "approvals";
@@ -568,48 +570,106 @@ export default function LandingPage() {
 
       {/* Comparison Matrix */}
       <section id="comparison" className="relative z-10 mx-auto max-w-7xl px-6 py-24 space-y-16">
-        <div className="text-center max-w-2xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-2.5 rounded-full border border-sky-500/25 bg-sky-500/5 px-4.5 py-1.5">
-            <span className="text-[10px] font-bold tracking-widest uppercase text-sky-400">
-              Why Teams Switch
-            </span>
+        <div className="text-center max-w-3xl mx-auto space-y-4">
+          <div className="inline-flex items-center gap-2.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 px-4.5 py-1.5 text-[10px] font-bold text-indigo-400 uppercase tracking-widest">
+            <Layers className="h-3.5 w-3.5" />
+            Why Teams Switch
           </div>
-          <h2 className="text-3xl font-extrabold text-white tracking-tight sm:text-4xl">
-            Why Teams choose ANSH Expense over bloated platforms
+          <h2 className="text-3xl font-black text-white tracking-tight sm:text-4xl bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
+            Why MSMEs choose ANSH Expense over Zoho Expense, Concur, Expensify, and Excel
           </h2>
-          <p className="text-sm text-slate-400 leading-relaxed">
-            ANSH Expense is built for founders who value speed, responsive views, clean tax calculations, and seat monetization that handles payouts transparently.
+          <p className="text-sm text-slate-400 leading-relaxed max-w-2xl mx-auto">
+            We are built for small & medium businesses that want real expense automation, cleaner audit compliance, and zero setup friction in one product.
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
-          <div className="rounded-2xl border border-slate-800 bg-[#0A1016]/40 p-6 space-y-4">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-              <Layers className="h-4 w-4" />
+        {/* 3 Column Comparison */}
+        <div className="grid gap-8 md:grid-cols-3">
+          {/* Column 1: Zoho */}
+          <div className="rounded-3xl border border-white/5 bg-[#070D14]/60 p-8 space-y-6 flex flex-col justify-start hover:border-white/10 transition-all duration-300">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/25">
+              <FileText className="h-5 w-5" />
             </div>
-            <h3 className="text-sm font-bold text-slate-200">SaaS Project Mappings</h3>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              Tag claims directly to workspace project scopes. Avoid disjointed client accounting registers and spreadsheets.
+            <div className="space-y-2">
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider">Compared to Zoho Expense</h3>
+              <p className="text-xs text-slate-500 font-semibold leading-normal">
+                Built for modern expense auditing, not rigid corporate suites.
+              </p>
+            </div>
+            <ul className="space-y-4 pt-2 text-xs font-semibold leading-relaxed">
+              <li className="flex gap-2.5 items-start">
+                <Check className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" strokeWidth={3} />
+                <span className="text-slate-400 text-[11px]">Zoho Expense has a stuffy enterprise interface with rigid, complex workflow setups.</span>
+              </li>
+              <li className="flex gap-2.5 items-start">
+                <Check className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" strokeWidth={3} />
+                <span className="text-slate-300 text-[11px]">ANSH Expense is visual, lightweight, and combines claims, tax splits, and receipts natively.</span>
+              </li>
+            </ul>
+          </div>
+
+          {/* Column 2: ClickUp & Monday */}
+          <div className="rounded-3xl border border-white/5 bg-[#070D14]/60 p-8 space-y-6 flex flex-col justify-start hover:border-white/10 transition-all duration-300">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/25">
+              <Briefcase className="h-5 w-5" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider">Compared to Concur & Expensify</h3>
+              <p className="text-xs text-slate-500 font-semibold leading-normal">
+                Save thousands on seat licenses without dashboard lag.
+              </p>
+            </div>
+            <ul className="space-y-4 pt-2 text-xs font-semibold leading-relaxed">
+              <li className="flex gap-2.5 items-start">
+                <Check className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" strokeWidth={3} />
+                <span className="text-slate-400 text-[11px]">Concur & Expensify are highly customizable but get expensive quickly and suffer from heavy loading lag.</span>
+              </li>
+              <li className="flex gap-2.5 items-start">
+                <Check className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" strokeWidth={3} />
+                <span className="text-slate-300 text-[11px]">ANSH Expense is lightweight, highly performant, and packs claims tracking, project allocation, and reports under one fixed-rate plan.</span>
+              </li>
+            </ul>
+          </div>
+
+          {/* Column 3: Trello & Slack */}
+          <div className="rounded-3xl border border-white/5 bg-[#070D14]/60 p-8 space-y-6 flex flex-col justify-start hover:border-white/10 transition-all duration-300">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/25">
+              <MessageSquare className="h-5 w-5" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider">Compared to Excel & Slack</h3>
+              <p className="text-xs text-slate-500 font-semibold leading-normal">
+                No more paying for multiple tools or manual entry.
+              </p>
+            </div>
+            <ul className="space-y-4 pt-2 text-xs font-semibold leading-relaxed">
+              <li className="flex gap-2.5 items-start">
+                <Check className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" strokeWidth={3} />
+                <span className="text-slate-400 text-[11px]">Excel is too manual (no receipt upload/auditing), while Slack is just messaging (no status tracking)—leading to lost receipts.</span>
+              </li>
+              <li className="flex gap-2.5 items-start">
+                <Check className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" strokeWidth={3} />
+                <span className="text-slate-300 text-[11px]">ANSH Expense integrates receipt tracking, audit trails, and comment feeds in one unified workspace.</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Bottom Models comparison */}
+        <div className="grid gap-6 md:grid-cols-12 pt-6">
+          {/* Card Left: ANSH model */}
+          <div className="md:col-span-7 rounded-3xl border border-indigo-500/20 bg-gradient-to-r from-indigo-500/5 to-transparent p-8 space-y-4 flex flex-col justify-center">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block">THE ANSH EXPENSE MODEL FOR MSMES</span>
+            <p className="text-xs text-slate-300 leading-relaxed font-semibold">
+              A unified tool that any employee can adopt in minutes. Expense claims, mileage calculator, project budgets, and support desks all live together. No hidden setups or extra license costs.
             </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-800 bg-[#0A1016]/40 p-6 space-y-4">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-              <Wallet className="h-4 w-4" />
-            </div>
-            <h3 className="text-sm font-bold text-slate-200">Calculated VAT & Mileage</h3>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              No manual calculations. Select your base rate or mileage multiplier, and let our logger handle percentages.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-slate-800 bg-[#0A1016]/40 p-6 space-y-4">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-              <Lock className="h-4 w-4" />
-            </div>
-            <h3 className="text-sm font-bold text-slate-200">Comment Feed Audits</h3>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              Review submission logs. Leave comments requesting clarification, keeping communications isolated inside specific claims.
+          {/* Card Right: Bloated model */}
+          <div className="md:col-span-5 rounded-3xl border border-white/5 bg-[#070D14]/40 p-8 space-y-4 flex flex-col justify-center">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">THE BLOATED ENTERPRISE TOOL MODEL</span>
+            <p className="text-xs text-slate-400 leading-relaxed font-semibold">
+              Steep learning curves, complicated configurations (e.g. Zoho setup / SAP Concur workflows), expensive per-user licenses, and separate bills for receipt tracking, project accounting, and support ticketing.
             </p>
           </div>
         </div>
