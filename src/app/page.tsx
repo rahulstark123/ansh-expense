@@ -616,47 +616,128 @@ export default function LandingPage() {
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="relative z-10 mx-auto max-w-4xl px-6 py-24 space-y-12">
-        <div className="text-center space-y-4">
-          <h2 className="text-3xl font-extrabold text-white tracking-tight sm:text-4xl">
+      <section id="faq" className="relative z-10 mx-auto max-w-5xl px-6 py-24 space-y-16">
+        <div className="text-center space-y-4 max-w-2xl mx-auto">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 px-3.5 py-1 text-[10px] font-bold text-indigo-400 uppercase tracking-widest">
+            <HelpCircle className="h-3.5 w-3.5" />
+            Support Center
+          </div>
+          <h2 className="text-3xl font-black text-white tracking-tight sm:text-4xl bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
             Frequently Asked Questions
           </h2>
-          <p className="text-sm text-slate-400">
-            Got questions about ANSH Expense? Find quick answers below.
+          <p className="text-xs text-slate-500 leading-relaxed font-bold uppercase tracking-wider">
+            Clear answers to help you navigate automated expense logging, audit compliance, and seat upgrades.
           </p>
         </div>
 
-        <div className="space-y-4">
-          {[
-            {
-              q: "What is included in the Free plan?",
-              a: "Free workspaces support up to 5 users. You can log expenses with custom categories, calculate tax amounts, and review your personal claim submission registry."
-            },
-            {
-              q: "How does the seat license checkout work?",
-              a: "When you upgrade, you subscribe to a Pro plan using our Razorpay integration. You can configure monthly or yearly billing and increase your workspace seats dynamically."
-            },
-            {
-              q: "How are attachments stored?",
-              a: "S3 integrations are configured in your backend. In case S3 keys are left empty, the application falls back to local and mock files smoothly."
-            }
-          ].map((faq, idx) => (
-            <div
-              key={idx}
-              className="rounded-2xl border border-slate-800 bg-[#070D14]/80 p-5 space-y-2.5 cursor-pointer"
-              onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-            >
-              <div className="flex justify-between items-center">
-                <h3 className="text-sm font-bold text-slate-200">{faq.q}</h3>
-                <ChevronRight className={`h-4 w-4 text-slate-500 transition-transform ${openFaq === idx ? "rotate-90 text-indigo-400" : ""}`} />
+        <div className="grid gap-8 lg:grid-cols-3">
+          {/* Left Feature Promo Card */}
+          <div className="lg:col-span-1 rounded-3xl border border-white/5 bg-gradient-to-b from-[#0A101D] to-[#04080F] p-8 flex flex-col justify-between relative overflow-hidden group">
+            <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-indigo-500/5 blur-3xl group-hover:bg-indigo-500/10 transition-all duration-500" />
+            <div className="space-y-6 relative z-10">
+              <div className="h-12 w-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
+                <Sparkles className="h-6 w-6" />
               </div>
-              {openFaq === idx && (
-                <p className="text-xs text-slate-400 leading-relaxed animate-in fade-in duration-200">
-                  {faq.a}
+              <div className="space-y-2.5">
+                <h3 className="text-base font-black text-white uppercase tracking-wider">Still have questions?</h3>
+                <p className="text-xs text-slate-400 leading-relaxed font-semibold">
+                  Can't find the answers you're looking for? Reach out to our dedicated Support Ticket Desk inside the application Help Center.
                 </p>
-              )}
+              </div>
             </div>
-          ))}
+            
+            <div className="pt-8 border-t border-white/5 mt-8 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="h-2 w-2 rounded-full bg-emerald-500 animate-ping" />
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Support agents online</span>
+              </div>
+              <Link
+                href="/login"
+                className="flex items-center justify-between w-full h-11 bg-indigo-500 text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl px-5 hover:bg-indigo-400 hover:scale-[1.01] active:scale-[0.99] transition-all"
+              >
+                <span>Go to Support Desk</span>
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Right Accordion List */}
+          <div className="lg:col-span-2 space-y-4">
+            {[
+              {
+                category: "Features",
+                q: "What core features does ANSH Expense offer?",
+                a: "ANSH Expense is a premium tool offering multi-currency claim logging, automatic VAT calculations, mileage reimbursement multipliers, dynamic client/project cost allocation, interactive spend analytics, and a multi-role workspace audit system (Employee, Manager, Admin, Owner).",
+                icon: Wallet
+              },
+              {
+                category: "Security",
+                q: "How secure is my financial data?",
+                a: "Security is built in. All user sessions are authenticated securely via Supabase. Workspaces are strictly isolated at the database level using Prisma. Every action log is audited, and file uploads are handled with secure backend integrations.",
+                icon: Lock
+              },
+              {
+                category: "Billing",
+                q: "How does the seat license checkout work?",
+                a: "Upgrading to a Pro plan is managed securely via our integrated Razorpay subscription portal. Workspace owners can dynamically add or remove seat licenses monthly or yearly. Payment statuses are tracked in real-time with instant access provisioning.",
+                icon: CheckCircle
+              },
+              {
+                category: "Uploads",
+                q: "Where are receipt images and attachments stored?",
+                a: "Attachments are uploaded to a preconfigured secure AWS S3 bucket. If the S3 integration keys are not set, the platform uses a robust base64 Data URL fallback. Uploaded images are compressed client-side to keep storage lightweight.",
+                icon: FileText
+              },
+              {
+                category: "Support",
+                q: "How does the Help Center and Ticketing work?",
+                a: "Users can raise tickets directly in the app's Help Center, attaching up to 3 compressed images. Support managers can manage, reply to, or delete tickets using the dedicated administrative Support Panel dashboard.",
+                icon: HelpCircle
+              }
+            ].map((faq, idx) => {
+              const Icon = faq.icon;
+              const isCurrent = openFaq === idx;
+              return (
+                <div
+                  key={idx}
+                  className={`rounded-2xl border transition-all duration-300 overflow-hidden cursor-pointer ${
+                    isCurrent
+                      ? "bg-slate-950 border-indigo-500/30 shadow-lg shadow-indigo-500/5"
+                      : "bg-[#070D14]/60 border-white/5 hover:border-white/10 hover:bg-[#070D14]/90"
+                  }`}
+                  onClick={() => setOpenFaq(isCurrent ? null : idx)}
+                >
+                  <div className="p-5 flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-4.5 min-w-0">
+                      <div className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 border transition-colors ${
+                        isCurrent
+                          ? "bg-indigo-500/10 border-indigo-500/30 text-indigo-400"
+                          : "bg-slate-950/60 border-white/5 text-slate-500"
+                      }`}>
+                        <Icon className="h-4 w-4" />
+                      </div>
+                      <div className="text-left space-y-1">
+                        <span className={`text-[8.5px] font-extrabold uppercase tracking-widest ${
+                          isCurrent ? "text-indigo-400" : "text-slate-500"
+                        }`}>{faq.category}</span>
+                        <h3 className="text-xs font-bold text-slate-200 tracking-wide leading-tight">{faq.q}</h3>
+                      </div>
+                    </div>
+                    <ChevronRight className={`h-4.5 w-4.5 text-slate-500 shrink-0 transition-transform duration-300 ${
+                      isCurrent ? "rotate-90 text-indigo-400" : ""
+                    }`} />
+                  </div>
+                  {isCurrent && (
+                    <div className="px-5 pb-5 pt-1 text-left pl-18 animate-in fade-in slide-in-from-top-1 duration-250">
+                      <p className="text-xs text-slate-400 leading-relaxed font-semibold">
+                        {faq.a}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </section>
 
