@@ -19,7 +19,8 @@ import {
   ChevronRight,
   ShieldCheck,
   RefreshCw,
-  Building
+  Building,
+  Paperclip
 } from "lucide-react";
 
 interface Ticket {
@@ -30,6 +31,7 @@ interface Ticket {
   category: "IT Support" | "HR Support" | "Finance & Payouts" | "General Inquiry";
   status: "Open" | "In Progress" | "Resolved";
   resolution: string | null;
+  attachmentUrl: string | null;
   employeeId: string;
   createdAt: string;
   employee: {
@@ -482,6 +484,27 @@ export default function AdminPanelPage() {
                     {selectedTicket.description}
                   </p>
                 </div>
+
+                {/* Attachments */}
+                {selectedTicket.attachmentUrl && selectedTicket.attachmentUrl.split(",").filter(Boolean).length > 0 && (
+                  <div className="space-y-1.5 text-xs">
+                    <span className="block text-[9px] font-bold text-slate-500 uppercase tracking-widest">Attached Files</span>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedTicket.attachmentUrl.split(",").filter(Boolean).map((url, idx) => (
+                        <a
+                          key={url}
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20 px-3.5 py-2 font-bold text-indigo-400 hover:bg-indigo-500/15 transition-all text-xs"
+                        >
+                          <Paperclip className="h-3.5 w-3.5" />
+                          Attachment #{idx + 1}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Historical resolution message */}
                 {selectedTicket.resolution && (

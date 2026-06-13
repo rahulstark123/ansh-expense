@@ -170,6 +170,7 @@ model SupportTicket {
   category    String   // "IT Support" | "HR Support" | "Finance & Payouts" | "General Inquiry"
   status      String   @default("Open") // "Open" | "In Progress" | "Resolved"
   resolution  String?  // Optional resolution notes
+  attachmentUrl String? // Comma-separated S3 or base64 URLs of attachments (up to 3)
   employeeId  String
   employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   wid         Int      @default(1)

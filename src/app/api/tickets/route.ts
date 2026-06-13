@@ -68,7 +68,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { subject, description, priority, category } = body;
+    const { subject, description, priority, category, attachmentUrl } = body;
 
     if (!subject?.trim() || !description?.trim() || !priority || !category) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -88,6 +88,7 @@ export async function POST(req: Request) {
         priority,
         category,
         status: "Open",
+        attachmentUrl: attachmentUrl || null,
         employeeId: employee.id,
         wid: employee.wid ?? 1,
       },

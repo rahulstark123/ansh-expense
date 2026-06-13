@@ -29,6 +29,7 @@ import {
   Building,
   Car,
   BarChart3,
+  Paperclip,
 } from "lucide-react";
 
 type ActiveTab = "guides" | "tickets";
@@ -42,6 +43,7 @@ interface Ticket {
   category: "IT Support" | "HR Support" | "Finance & Payouts" | "General Inquiry";
   status: "Open" | "In Progress" | "Resolved";
   resolution: string | null;
+  attachmentUrl: string | null;
   employeeId: string;
   createdAt: string;
   employee: {
@@ -233,6 +235,68 @@ const GUIDE_STEPS: Record<GuideKey, { title: string; description: string; elemen
   ],
 };
 
+function compressImage(file: File, maxWidth = 1000, maxHeight = 1000, quality = 0.7): Promise<File> {
+  return new Promise((resolve) => {
+    if (!file.type.startsWith("image/")) {
+      resolve(file);
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target?.result as string;
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          resolve(file);
+          return;
+        }
+
+        ctx.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              const compressedFile = new File([blob], file.name, {
+                type: file.type,
+                lastModified: Date.now(),
+              });
+              resolve(compressedFile);
+            } else {
+              resolve(file);
+            }
+          },
+          file.type,
+          quality
+        );
+      };
+      img.onerror = () => resolve(file);
+    };
+    reader.onerror = () => resolve(file);
+  });
+}
+
 export default function HelpCenterPage() {
   const { currentUser, initialize } = useExpenseStore();
   const [activeTab, setActiveTab] = useState<ActiveTab>("guides");
@@ -249,6 +313,53 @@ export default function HelpCenterPage() {
   const [ticketFilter, setTicketFilter] = useState("All");
   const [ticketSearch, setTicketSearch] = useState("");
   const [ticketListTab, setTicketListTab] = useState<"my" | "workspace">("my");
+
+  // Support ticket attachments states
+  const [attachments, setAttachments] = useState<{ name: string; url: string }[]>([]);
+  const [uploadingAttachment, setUploadingAttachment] = useState(false);
+
+  const handleAttachmentUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const fileList = e.target.files;
+    if (!fileList || fileList.length === 0) return;
+
+    if (attachments.length + fileList.length > 3) {
+      alert("You can attach a maximum of 3 files.");
+      return;
+    }
+
+    setUploadingAttachment(true);
+    try {
+      for (let i = 0; i < fileList.length; i++) {
+        const file = fileList[i];
+        const compressed = await compressImage(file);
+
+        const formData = new FormData();
+        formData.append("file", compressed);
+
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${sessionStorage.getItem("ansh_auth_token")}`,
+          },
+          body: formData,
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setAttachments((prev) => [...prev, { name: file.name, url: data.url }]);
+        } else {
+          console.error("Failed to upload file:", file.name);
+          alert(`Failed to upload ${file.name}`);
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error uploading file.");
+    } finally {
+      setUploadingAttachment(false);
+      e.target.value = "";
+    }
+  };
 
   // Ticket Detail Dialog states
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
@@ -343,6 +454,7 @@ export default function HelpCenterPage() {
           description: ticketDescription.trim(),
           priority: ticketPriority,
           category: ticketCategory,
+          attachmentUrl: attachments.map(a => a.url).join(","),
         }),
       });
 
@@ -355,6 +467,7 @@ export default function HelpCenterPage() {
       setTicketDescription("");
       setTicketPriority("Medium");
       setTicketCategory("IT Support");
+      setAttachments([]);
       setSuccessMsg("Support ticket raised successfully!");
       loadTickets();
       setTimeout(() => setSuccessMsg(""), 4000);
@@ -684,6 +797,57 @@ export default function HelpCenterPage() {
                     />
                   </div>
 
+                  {/* Attachments Section */}
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                      Attachments (Max 3, Images Compressed)
+                    </label>
+
+                    <div className="space-y-2">
+                      {attachments.length < 3 && (
+                        <label className="flex h-11 items-center justify-center gap-2 rounded-2xl border border-dashed border-border px-4 text-xs font-semibold hover:bg-slate-500/5 dark:hover:bg-slate-900/50 cursor-pointer w-full transition-colors">
+                          <Paperclip className="h-4 w-4 text-slate-400" />
+                          {uploadingAttachment ? "Uploading & Compressing..." : "Attach Files (Max 3)"}
+                          <input
+                            type="file"
+                            multiple
+                            accept="image/*,application/pdf"
+                            onChange={handleAttachmentUpload}
+                            disabled={uploadingAttachment}
+                            className="hidden"
+                          />
+                        </label>
+                      )}
+
+                      {attachments.length > 0 && (
+                        <div className="space-y-1.5">
+                          {attachments.map((att, idx) => (
+                            <div
+                              key={idx}
+                              className="flex items-center justify-between rounded-xl bg-indigo-500/5 border border-indigo-500/10 px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-350"
+                            >
+                              <div className="flex items-center gap-2 min-w-0">
+                                <Paperclip className="h-3.5 w-3.5 text-indigo-400 shrink-0" />
+                                <span className="truncate" title={att.name}>
+                                  {att.name}
+                                </span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setAttachments((prev) => prev.filter((_, i) => i !== idx));
+                                }}
+                                className="text-slate-455 hover:text-rose-500 transition-colors cursor-pointer p-0.5 ml-2 bg-transparent border-0"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
                   <Button
                     type="submit"
                     disabled={submittingTicket}
@@ -990,6 +1154,29 @@ export default function HelpCenterPage() {
                   {selectedTicket.description}
                 </p>
               </div>
+
+              {/* Ticket Attachments */}
+              {selectedTicket.attachmentUrl && selectedTicket.attachmentUrl.split(",").filter(Boolean).length > 0 && (
+                <div className="space-y-2 text-xs">
+                  <span className="block font-black text-[10px] uppercase tracking-widest text-slate-400">
+                    Attached Files
+                  </span>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedTicket.attachmentUrl.split(",").filter(Boolean).map((url, idx) => (
+                      <a
+                        key={url}
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20 px-3.5 py-2 font-bold text-indigo-400 hover:bg-indigo-500/15 transition-all text-xs"
+                      >
+                        <Paperclip className="h-3.5 w-3.5" />
+                        Attachment #{idx + 1}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Resolution Notes Log (If resolved or has comment) */}
               {selectedTicket.resolution && (
