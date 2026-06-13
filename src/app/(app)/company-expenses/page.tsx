@@ -1208,19 +1208,11 @@ export default function CompanyExpensesPage() {
               />
             </div>
 
-            <DialogFooter className="pt-2 border-t border-border/40 gap-2">
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => setOpen(false)}
-                className="h-11 px-6 rounded-2xl font-bold"
-              >
-                Cancel
-              </Button>
+            <DialogFooter className="pt-2 border-t border-border/40">
               <Button
                 type="submit"
                 disabled={submitting}
-                className="btn-primary h-11 px-6 rounded-2xl font-black border-0 gap-2"
+                className="btn-primary h-11 px-6 rounded-2xl font-black border-0 gap-2 w-full"
               >
                 {submitting ? (
                   <>
