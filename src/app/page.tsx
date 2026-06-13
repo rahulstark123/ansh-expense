@@ -22,7 +22,8 @@ import {
   Briefcase,
   MessageSquare,
   Zap,
-  Mail
+  Mail,
+  ExternalLink
 } from "lucide-react";
 
 type MockTab = "submit" | "analytics" | "approvals";
@@ -130,84 +131,100 @@ export default function LandingPage() {
       <section className="relative z-10 mx-auto max-w-7xl px-6 pt-16 pb-24">
         <div className="grid gap-12 lg:grid-cols-12 lg:items-center">
           {/* Hero Left */}
-          <div className="lg:col-span-7 space-y-7 text-left">
-            <div className="inline-flex items-center gap-2.5 rounded-full border border-indigo-500/20 bg-indigo-50/5 px-4.5 py-1.5 backdrop-blur-md">
-              <Sparkles className="h-4.5 w-4.5 text-indigo-400 animate-pulse" />
-              <span className="text-[10px] font-bold tracking-widest uppercase text-indigo-400">
-                Next-Gen Expense & Reimbursement Logs
-              </span>
-            </div>
-
+          <div className="lg:col-span-7 space-y-8 text-left">
             <h1 className="font-sans text-4xl sm:text-5xl lg:text-6xl font-black leading-[1.1] tracking-tight text-white">
-              Automated Expense Management for{" "}
-              <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                Scaling Teams
-              </span>
+              Run Your Entire Team's{" "}
+              <span className="bg-gradient-to-r from-teal-400 to-emerald-400 bg-clip-text text-transparent">
+                Expense & Spend Operations
+              </span>{" "}
+              in One Simple Workspace
             </h1>
 
-            <p className="text-sm sm:text-base text-slate-400 leading-relaxed max-w-xl">
-              ANSH Expense streamlines receipt logging, tax/VAT calculations, mileage tracking, project costing, and multi-stage manager approvals into a premium, blazing-fast dashboard.
+            <p className="text-sm sm:text-base text-slate-400 leading-relaxed max-w-xl font-semibold">
+              ANSH Expense combines receipt logging, mileage tracking, project costing, approval pipelines, activity feeds, and workspace announcements into a unified, high-performance workspace.
             </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-              <div className="flex items-start gap-3">
-                <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-indigo-500/10 text-indigo-400 mt-0.5">
-                  <Check className="h-3.5 w-3.5" strokeWidth={3} />
+            {/* Feature Highlights Grid Container */}
+            <div className="rounded-3xl border border-white/5 bg-[#070D14]/80 p-6 grid gap-6 sm:grid-cols-2 text-left">
+              {/* Feature 1 */}
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
+                  <h4 className="text-xs font-bold text-slate-200">Automated Expense Claims</h4>
                 </div>
-                <div>
-                  <h4 className="text-xs font-bold text-slate-200">Interactive Expense Logger</h4>
-                  <p className="text-[10px] text-slate-500 mt-0.5">Select category, tax rates, project, and attach receipts.</p>
-                </div>
+                <p className="text-[10px] text-slate-450 leading-relaxed font-semibold pl-6">
+                  Log travel, meals, software subscriptions, office supplies, and calculate tax/VAT rates automatically.
+                </p>
               </div>
 
-              <div className="flex items-start gap-3">
-                <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-indigo-500/10 text-indigo-400 mt-0.5">
-                  <Check className="h-3.5 w-3.5" strokeWidth={3} />
+              {/* Feature 2 */}
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
+                  <h4 className="text-xs font-bold text-slate-200">Mileage & Travel Tracker</h4>
                 </div>
-                <div>
-                  <h4 className="text-xs font-bold text-slate-200">Mileage Tracker</h4>
-                  <p className="text-[10px] text-slate-500 mt-0.5">Compute mileage cost instantly using distances and rates.</p>
-                </div>
+                <p className="text-[10px] text-slate-450 leading-relaxed font-semibold pl-6">
+                  Compute mileage reimbursement instantly using exact distances and custom travel rates.
+                </p>
               </div>
 
-              <div className="flex items-start gap-3">
-                <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-indigo-500/10 text-indigo-400 mt-0.5">
-                  <Check className="h-3.5 w-3.5" strokeWidth={3} />
+              {/* Feature 3 */}
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
+                  <h4 className="text-xs font-bold text-slate-200">Real-time Activity Feed</h4>
                 </div>
-                <div>
-                  <h4 className="text-xs font-bold text-slate-200">Team Approval Workflows</h4>
-                  <p className="text-[10px] text-slate-500 mt-0.5">Review, approve, reject, or comment on claims.</p>
-                </div>
+                <p className="text-[10px] text-slate-450 leading-relaxed font-semibold pl-6">
+                  Track every expense status update, project budget shift, and teammate action instantly.
+                </p>
               </div>
 
-              <div className="flex items-start gap-3">
-                <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-indigo-500/10 text-indigo-400 mt-0.5">
-                  <Check className="h-3.5 w-3.5" strokeWidth={3} />
+              {/* Feature 4 */}
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
+                  <h4 className="text-xs font-bold text-slate-200">Workspace Announcements</h4>
                 </div>
-                <div>
-                  <h4 className="text-xs font-bold text-slate-200">Razorpay Seat Billing</h4>
-                  <p className="text-[10px] text-slate-500 mt-0.5">Multi-tenant seat licenses with secure checkouts.</p>
+                <p className="text-[10px] text-slate-450 leading-relaxed font-semibold pl-6">
+                  Broadcast expense deadlines, policy updates, and pinned workspace notices to all staff.
+                </p>
+              </div>
+
+              {/* Feature 5 */}
+              <div className="space-y-1 sm:col-span-2">
+                <div className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
+                  <h4 className="text-xs font-bold text-slate-200">Integrated Help Desk</h4>
                 </div>
+                <p className="text-[10px] text-slate-450 leading-relaxed font-semibold pl-6">
+                  Raise support tickets, attach receipt photos, and resolve queries natively inside the portal.
+                </p>
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center gap-4 pt-4">
-              <Link href="/login" className="w-full sm:w-auto">
-                <button className="inline-flex h-12 w-full sm:w-auto items-center justify-center rounded-2xl bg-indigo-500 px-8 text-sm font-bold text-slate-950 shadow-xl shadow-indigo-500/15 hover:shadow-indigo-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer">
-                  Launch ANSH Expense
-                  <Play className="ml-2 h-4 w-4 fill-current" />
+            {/* Buttons Row */}
+            <div className="flex flex-wrap items-center gap-4 pt-2">
+              <Link href="/signup" className="w-full sm:w-auto">
+                <button className="inline-flex h-12 w-full sm:w-auto items-center justify-center rounded-2xl bg-[#00D8A5] px-8 text-xs font-black uppercase tracking-wider text-slate-950 hover:bg-[#00F5D4] transition-all cursor-pointer shadow-lg shadow-teal-500/10 hover:shadow-teal-500/25 active:scale-[0.98]">
+                  Start 14-Day Free Trial
+                  <ArrowRight className="ml-2 h-4 w-4 text-slate-950" strokeWidth={3} />
                 </button>
               </Link>
-              <a href="#features" className="w-full sm:w-auto">
-                <button className="inline-flex h-12 w-full sm:w-auto items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-8 text-sm font-bold text-slate-200 hover:bg-white/10 hover:text-white transition-all cursor-pointer">
-                  Explore Features
+              <Link href="/login" className="w-full sm:w-auto">
+                <button className="inline-flex h-12 w-full sm:w-auto items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-8 text-xs font-black uppercase tracking-wider text-slate-200 hover:bg-white/10 hover:text-white transition-all cursor-pointer active:scale-[0.98]">
+                  Visit ANSH
+                  <ExternalLink className="ml-2 h-3.5 w-3.5 text-slate-400" />
                 </button>
-              </a>
+              </Link>
             </div>
 
-            <div className="pt-6 border-t border-white/5">
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                Engineered for High-Performance Teams — designed with <span className="text-indigo-400">Electric Indigo Aesthetics</span>
+            {/* Slogan Branding */}
+            <div className="pt-6 border-t border-white/5 space-y-1">
+              <h5 className="text-xs sm:text-sm font-extrabold text-white tracking-wide uppercase">
+                Built from Bharat for the World
+              </h5>
+              <p className="text-[10px] sm:text-xs font-extrabold text-[#00D8A5] tracking-widest uppercase">
+                encouraging Vasudhaiva Kutumbakam
               </p>
             </div>
           </div>
