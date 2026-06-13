@@ -26,7 +26,10 @@ import {
   ExternalLink,
   X,
   Shield,
-  ArrowUpRight
+  ArrowUpRight,
+  Sun,
+  Monitor,
+  Moon
 } from "lucide-react";
 
 type MockTab = "submit" | "analytics" | "approvals";
@@ -37,6 +40,7 @@ export default function LandingPage() {
   const [activeTab, setActiveTab] = useState<MockTab>("submit");
   const [activeAccent, setActiveAccent] = useState<AccentTheme>("emerald");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [activeTheme, setActiveTheme] = useState<"light" | "system" | "dark">("system");
 
   useEffect(() => {
     const session = sessionStorage.getItem("ansh_auth_session");
@@ -112,6 +116,43 @@ export default function LandingPage() {
           </nav>
 
           <div className="flex items-center gap-4">
+            {/* Theme Switcher Toggle */}
+            <div className="flex items-center gap-1 bg-[#070D14]/80 border border-white/5 p-1 rounded-xl">
+              <button
+                onClick={() => setActiveTheme("light")}
+                className={`p-1.5 rounded-lg transition-all cursor-pointer ${
+                  activeTheme === "light"
+                    ? "bg-white/5 text-[#00D8A5]"
+                    : "text-slate-500 hover:text-slate-300"
+                }`}
+                title="Light Mode"
+              >
+                <Sun className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => setActiveTheme("system")}
+                className={`p-1.5 rounded-lg transition-all cursor-pointer ${
+                  activeTheme === "system"
+                    ? "bg-white/5 text-[#00D8A5]"
+                    : "text-slate-500 hover:text-slate-300"
+                }`}
+                title="System Preference"
+              >
+                <Monitor className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => setActiveTheme("dark")}
+                className={`p-1.5 rounded-lg transition-all cursor-pointer ${
+                  activeTheme === "dark"
+                    ? "bg-white/5 text-[#00D8A5]"
+                    : "text-slate-500 hover:text-slate-300"
+                }`}
+                title="Dark Mode"
+              >
+                <Moon className="h-4 w-4" />
+              </button>
+            </div>
+
             {sessionActive ? (
               <Link href="/dashboard">
                 <button className="inline-flex h-10 items-center justify-center rounded-xl bg-[#00D8A5] px-6 text-xs font-black uppercase tracking-wider text-slate-950 shadow-lg shadow-teal-500/10 hover:bg-[#00F5D4] hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer">
