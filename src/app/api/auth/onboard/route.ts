@@ -25,9 +25,11 @@ export async function POST(req: Request) {
     });
 
     let newWid: number;
-    if (isManagerOrAdmin) {
+    if (existingEmployee && existingEmployee.wid) {
+      newWid = existingEmployee.wid;
+    } else {
       const workspace = await createWorkspaceWithTrial(
-        companyName || "New Workspace"
+        companyName?.trim() || `${name}'s Workspace`
       );
       newWid = workspace.id;
 
@@ -49,12 +51,12 @@ export async function POST(req: Request) {
 
       const initialSettingsJson = JSON.stringify({
         companyProfile: {
-          name: companyName?.trim() || "",
+          name: companyName?.trim() || `${name}'s Workspace`,
           address: companyAddress?.trim() || "",
           employeeCount: employeeCount || "1-10",
         },
         workspaceSettings: {
-          name: companyName?.trim() || "",
+          name: companyName?.trim() || `${name}'s Workspace`,
           currency: defaultCurrency,
           mileageRate: defaultMileageRate,
           wfhAllowed: true,
@@ -67,10 +69,6 @@ export async function POST(req: Request) {
           settingsJson: initialSettingsJson
         }
       });
-    } else if (existingEmployee && existingEmployee.wid) {
-      newWid = existingEmployee.wid;
-    } else {
-      newWid = 1;
     }
 
     let employee;
