@@ -504,7 +504,7 @@ export default function LandingPage() {
                   </li>
                   <li className="flex items-center gap-2.5">
                     <Check className="h-4 w-4 text-indigo-400 shrink-0" strokeWidth={3} />
-                    <span>Basic expense logging</span>
+                    <span>20 logged expense claims per month</span>
                   </li>
                   <li className="flex items-center gap-2.5">
                     <Check className="h-4 w-4 text-indigo-400 shrink-0" strokeWidth={3} />
@@ -512,7 +512,7 @@ export default function LandingPage() {
                   </li>
                   <li className="flex items-center gap-2.5">
                     <Check className="h-4 w-4 text-indigo-400 shrink-0" strokeWidth={3} />
-                    <span>Default expense categories</span>
+                    <span>Mileage & distance calculations</span>
                   </li>
                   <li className="flex items-center gap-2.5">
                     <Check className="h-4 w-4 text-indigo-400 shrink-0" strokeWidth={3} />
@@ -539,7 +539,11 @@ export default function LandingPage() {
                 <ul className="space-y-3.5 pt-4 text-xs font-medium text-slate-300">
                   <li className="flex items-center gap-2.5">
                     <Check className="h-4 w-4 text-indigo-400 shrink-0" strokeWidth={3} />
-                    <span>Unlimited seats / team scale</span>
+                    <span>Add team members based on paid seats</span>
+                  </li>
+                  <li className="flex items-center gap-2.5">
+                    <Check className="h-4 w-4 text-indigo-400 shrink-0" strokeWidth={3} />
+                    <span>Unlimited expense claims logging</span>
                   </li>
                   <li className="flex items-center gap-2.5">
                     <Check className="h-4 w-4 text-indigo-400 shrink-0" strokeWidth={3} />
@@ -556,10 +560,6 @@ export default function LandingPage() {
                   <li className="flex items-center gap-2.5">
                     <Check className="h-4 w-4 text-indigo-400 shrink-0" strokeWidth={3} />
                     <span>Advanced spending reports & CSV exports</span>
-                  </li>
-                  <li className="flex items-center gap-2.5">
-                    <Check className="h-4 w-4 text-indigo-400 shrink-0" strokeWidth={3} />
-                    <span>Customizable accent colors & styles</span>
                   </li>
                 </ul>
               </div>
@@ -616,7 +616,7 @@ export default function LandingPage() {
             <div className="space-y-2">
               <h3 className="text-sm font-bold text-white uppercase tracking-wider">Compared to Concur & Expensify</h3>
               <p className="text-xs text-slate-500 font-semibold leading-normal">
-                Save thousands on seat licenses without dashboard lag.
+                Add paid seats as you scale without enterprise sales traps.
               </p>
             </div>
             <ul className="space-y-4 pt-2 text-xs font-semibold leading-relaxed">
@@ -626,7 +626,7 @@ export default function LandingPage() {
               </li>
               <li className="flex gap-2.5 items-start">
                 <Check className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" strokeWidth={3} />
-                <span className="text-slate-300 text-[11px]">ANSH Expense is lightweight, highly performant, and packs claims tracking, project allocation, and reports under one fixed-rate plan.</span>
+                <span className="text-slate-300 text-[11px]">ANSH Expense is lightweight, highly performant, and packs claims tracking, project allocation, and reports under an affordable per-user tier.</span>
               </li>
             </ul>
           </div>
