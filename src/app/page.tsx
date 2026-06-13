@@ -909,7 +909,7 @@ export default function LandingPage() {
               HANDLED BY 
               <img src="/logoAnshapps.png" alt="Ansh Apps" className="h-4 w-4 object-contain" />
             </span>
-            <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-black tracking-tight bg-gradient-to-r from-cyan-400 via-indigo-500 to-fuchsia-500 bg-clip-text text-transparent">
+            <h1 className="text-8xl sm:text-9xl md:text-[11rem] lg:text-[15rem] xl:text-[18rem] font-black tracking-tighter leading-none bg-gradient-to-r from-cyan-400 via-indigo-500 to-fuchsia-500 bg-clip-text text-transparent">
               Ansh Apps
             </h1>
           </div>
