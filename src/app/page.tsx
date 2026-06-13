@@ -490,7 +490,7 @@ export default function LandingPage() {
       </section>
 
       {/* Features Grid */}
-      <section id="features" className={`relative z-10 border-t ${themeBorder} ${isDark ? "bg-[#03060C]/60" : "bg-slate-100/50"} py-24`}>
+      <section id="features" className={`relative z-10 border-t ${themeBorder} ${isDark ? "bg-[#080E16]/90" : "bg-slate-100/80"} py-24`}>
         <div className="mx-auto max-w-7xl px-6 space-y-16">
           <div className="text-center max-w-2xl mx-auto space-y-4">
             <h2 className={`text-3xl font-extrabold ${isDark ? "text-white" : "text-slate-900"} tracking-tight sm:text-4xl`}>
@@ -572,7 +572,7 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className={`relative z-10 border-t ${themeBorder} ${isDark ? "bg-[#03060C]/60" : "bg-slate-100/50"} py-24`}>
+      <section id="pricing" className={`relative z-10 border-t ${themeBorder} py-24`}>
         <div className="mx-auto max-w-7xl px-6 space-y-16">
           <div className="text-center max-w-2xl mx-auto space-y-3">
             <div className="inline-flex items-center gap-1.5 rounded-full border border-[#00D8A5]/20 bg-[#00D8A5]/5 px-3.5 py-1.5">
@@ -612,7 +612,7 @@ export default function LandingPage() {
                 {/* Downgrade/Start Button */}
                 <Link href="/login" className="block w-full">
                   <button className={`w-full h-11 text-xs font-black uppercase tracking-widest rounded-2xl ${isDark ? "bg-white text-slate-950 hover:bg-slate-100" : "bg-slate-900 text-white hover:bg-slate-800"} transition-colors shadow-lg cursor-pointer`}>
-                    DOWNGRADE TO FREE
+                    START FOR FREE
                   </button>
                 </Link>
 
@@ -732,7 +732,7 @@ export default function LandingPage() {
                       Corporate card feeds integration
                       <span className={`px-1.5 py-0.5 text-[9px] font-black uppercase ${isDark ? "bg-slate-800 text-slate-400" : "bg-slate-100 text-slate-500"} rounded`}>Soon</span>
                     </span>
-                  </li>
+              </li>
                 </ul>
               </div>
             </div>
@@ -741,294 +741,300 @@ export default function LandingPage() {
       </section>
 
       {/* Comparison Matrix */}
-      <section id="comparison" className="relative z-10 mx-auto max-w-7xl px-6 py-24 space-y-16">
-        <div className="text-center max-w-3xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-2.5 rounded-full bg-[#00D8A5]/10 border border-[#00D8A5]/20 px-4.5 py-1.5 text-[10px] font-black text-[#00D8A5] uppercase tracking-widest">
-            <Layers className="h-3.5 w-3.5" />
-            Why Teams Switch
-          </div>
-          <h2 className={`text-3xl font-black tracking-tight sm:text-4xl ${isDark ? "bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent" : "text-slate-900"}`}>
-            Why teams choose ANSH Expense over Zoho Expense, Concur, Expensify, and Excel
-          </h2>
-          <p className={`text-sm sm:text-base font-semibold ${themeTextMuted} leading-relaxed max-w-2xl mx-auto`}>
-            We are built for scaling teams that want real expense automation, cleaner audit compliance, and zero setup friction in one product.
-          </p>
-        </div>
-
-        {/* 3 Column Comparison */}
-        <div className="grid gap-8 md:grid-cols-3">
-          {/* Column 1: Zoho */}
-          <div className={`rounded-3xl border ${isDark ? "border-white/5 bg-[#070D14]/60 hover:border-white/10" : "border-slate-200 bg-white/70 shadow-sm hover:border-slate-300 hover:shadow"} p-8 space-y-6 flex flex-col justify-start transition-all duration-300`}>
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00D8A5]/10 text-[#00D8A5] border border-[#00D8A5]/20">
-              <FileText className="h-5 w-5" />
+      <section id="comparison" className={`relative z-10 border-t ${themeBorder} ${isDark ? "bg-[#080E16]/90" : "bg-slate-100/80"} py-24`}>
+        <div className="mx-auto max-w-7xl px-6 space-y-16">
+          <div className="text-center max-w-3xl mx-auto space-y-4">
+            <div className="inline-flex items-center gap-2.5 rounded-full bg-[#00D8A5]/10 border border-[#00D8A5]/20 px-4.5 py-1.5 text-[10px] font-black text-[#00D8A5] uppercase tracking-widest">
+              <Layers className="h-3.5 w-3.5" />
+              Why Teams Switch
             </div>
-            <div className="space-y-2">
-              <h3 className={`text-base font-black uppercase tracking-wider ${isDark ? "text-white" : "text-slate-850"}`}>Compared to Zoho Expense</h3>
-              <p className={`text-[11px] sm:text-xs ${isDark ? "text-slate-500" : "text-slate-550"} font-extrabold leading-normal`}>
-                Built for modern expense auditing, not rigid corporate suites.
-              </p>
-            </div>
-            <ul className="space-y-4 pt-2 text-xs sm:text-[13px] font-semibold leading-relaxed">
-              <li className="flex gap-2.5 items-start">
-                <Check className="h-4 w-4 text-[#00D8A5] shrink-0 mt-0.5" strokeWidth={3} />
-                <span className={`${isDark ? "text-slate-400" : "text-slate-600"}`}>Zoho Expense has a stuffy enterprise interface with rigid, complex workflow setups.</span>
-              </li>
-              <li className="flex gap-2.5 items-start">
-                <Check className="h-4 w-4 text-[#00D8A5] shrink-0 mt-0.5" strokeWidth={3} />
-                <span className={`${isDark ? "text-slate-300" : "text-slate-800"}`}>ANSH Expense is visual, lightweight, and combines claims, tax splits, and receipts natively.</span>
-              </li>
-            </ul>
-          </div>
-
-          {/* Column 2: ClickUp & Monday */}
-          <div className={`rounded-3xl border ${isDark ? "border-white/5 bg-[#070D14]/60 hover:border-white/10" : "border-slate-200 bg-white/70 shadow-sm hover:border-slate-300 hover:shadow"} p-8 space-y-6 flex flex-col justify-start transition-all duration-300`}>
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00D8A5]/10 text-[#00D8A5] border border-[#00D8A5]/20">
-              <Briefcase className="h-5 w-5" />
-            </div>
-            <div className="space-y-2">
-              <h3 className={`text-base font-black uppercase tracking-wider ${isDark ? "text-white" : "text-slate-850"}`}>Compared to Concur & Expensify</h3>
-              <p className={`text-[11px] sm:text-xs ${isDark ? "text-slate-500" : "text-slate-550"} font-extrabold leading-normal`}>
-                Add paid seats as you scale without enterprise sales traps.
-              </p>
-            </div>
-            <ul className="space-y-4 pt-2 text-xs sm:text-[13px] font-semibold leading-relaxed">
-              <li className="flex gap-2.5 items-start">
-                <Check className="h-4 w-4 text-[#00D8A5] shrink-0 mt-0.5" strokeWidth={3} />
-                <span className={`${isDark ? "text-slate-400" : "text-slate-600"}`}>Concur & Expensify are highly customizable but get expensive quickly and suffer from heavy loading lag.</span>
-              </li>
-              <li className="flex gap-2.5 items-start">
-                <Check className="h-4 w-4 text-[#00D8A5] shrink-0 mt-0.5" strokeWidth={3} />
-                <span className={`${isDark ? "text-slate-300" : "text-slate-800"}`}>ANSH Expense is lightweight, highly performant, and packs claims tracking, project allocation, and reports under an affordable per-user tier.</span>
-              </li>
-            </ul>
-          </div>
-
-          {/* Column 3: Trello & Slack */}
-          <div className={`rounded-3xl border ${isDark ? "border-white/5 bg-[#070D14]/60 hover:border-white/10" : "border-slate-200 bg-white/70 shadow-sm hover:border-slate-300 hover:shadow"} p-8 space-y-6 flex flex-col justify-start transition-all duration-300`}>
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00D8A5]/10 text-[#00D8A5] border border-[#00D8A5]/20">
-              <MessageSquare className="h-5 w-5" />
-            </div>
-            <div className="space-y-2">
-              <h3 className={`text-base font-black uppercase tracking-wider ${isDark ? "text-white" : "text-slate-850"}`}>Compared to Excel & Slack</h3>
-              <p className={`text-[11px] sm:text-xs ${isDark ? "text-slate-500" : "text-slate-555"} font-extrabold leading-normal`}>
-                No more paying for multiple tools or manual entry.
-              </p>
-            </div>
-            <ul className="space-y-4 pt-2 text-xs sm:text-[13px] font-semibold leading-relaxed">
-              <li className="flex gap-2.5 items-start">
-                <Check className="h-4 w-4 text-[#00D8A5] shrink-0 mt-0.5" strokeWidth={3} />
-                <span className={`${isDark ? "text-slate-400" : "text-slate-600"}`}>Excel is too manual (no receipt upload/auditing), while Slack is just messaging (no status tracking)—leading to lost receipts.</span>
-              </li>
-              <li className="flex gap-2.5 items-start">
-                <Check className="h-4 w-4 text-[#00D8A5] shrink-0 mt-0.5" strokeWidth={3} />
-                <span className={`${isDark ? "text-slate-300" : "text-slate-800"}`}>ANSH Expense integrates receipt tracking, audit trails, and comment feeds in one unified workspace.</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Bottom Models comparison */}
-        <div className="grid gap-6 md:grid-cols-12 pt-6">
-          {/* Card Left: ANSH model */}
-          <div className={`md:col-span-7 rounded-3xl border ${isDark ? "border-[#00D8A5]/20 bg-gradient-to-r from-[#00D8A5]/5" : "border-[#00D8A5]/35 bg-gradient-to-r from-[#00D8A5]/10"} to-transparent p-8 space-y-4 flex flex-col justify-center`}>
-            <span className="text-[11px] font-black uppercase tracking-wider text-[#00D8A5] block">THE ANSH EXPENSE MODEL FOR TEAMS</span>
-            <p className={`text-xs sm:text-sm ${isDark ? "text-slate-300" : "text-slate-750"} leading-relaxed font-semibold`}>
-              A unified tool that any employee can adopt in minutes. Expense claims, mileage calculator, project budgets, and support desks all live together. No hidden setups or extra license costs.
+            <h2 className={`text-3xl font-black tracking-tight sm:text-4xl ${isDark ? "bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent" : "text-slate-900"}`}>
+              Why teams choose ANSH Expense over Zoho Expense, Concur, Expensify, and Excel
+            </h2>
+            <p className={`text-sm sm:text-base font-semibold ${themeTextMuted} leading-relaxed max-w-2xl mx-auto`}>
+              We are built for scaling teams that want real expense automation, cleaner audit compliance, and zero setup friction in one product.
             </p>
           </div>
 
-          {/* Card Right: Bloated model */}
-          <div className={`md:col-span-5 rounded-3xl border ${isDark ? "border-white/5 bg-[#070D14]/40" : "border-slate-200 bg-white/40 shadow-sm"} p-8 space-y-4 flex flex-col justify-center`}>
-            <span className="text-[11px] font-black uppercase tracking-wider text-slate-500 block">THE BLOATED ENTERPRISE TOOL MODEL</span>
-            <p className={`text-xs sm:text-sm ${isDark ? "text-slate-400" : "text-slate-650"} leading-relaxed font-semibold`}>
-              Steep learning curves, complicated configurations (e.g. Zoho setup / SAP Concur workflows), expensive per-user licenses, and separate bills for receipt tracking, project accounting, and support ticketing.
-            </p>
+          {/* 3 Column Comparison */}
+          <div className="grid gap-8 md:grid-cols-3">
+            {/* Column 1: Zoho */}
+            <div className={`rounded-3xl border ${isDark ? "border-white/5 bg-[#070D14]/60 hover:border-white/10" : "border-slate-200 bg-white/70 shadow-sm hover:border-slate-300 hover:shadow"} p-8 space-y-6 flex flex-col justify-start transition-all duration-300`}>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00D8A5]/10 text-[#00D8A5] border border-[#00D8A5]/20">
+                <FileText className="h-5 w-5" />
+              </div>
+              <div className="space-y-2">
+                <h3 className={`text-base font-black uppercase tracking-wider ${isDark ? "text-white" : "text-slate-850"}`}>Compared to Zoho Expense</h3>
+                <p className={`text-[11px] sm:text-xs ${isDark ? "text-slate-500" : "text-slate-550"} font-extrabold leading-normal`}>
+                  Built for modern expense auditing, not rigid corporate suites.
+                </p>
+              </div>
+              <ul className="space-y-4 pt-2 text-xs sm:text-[13px] font-semibold leading-relaxed">
+                <li className="flex gap-2.5 items-start">
+                  <Check className="h-4 w-4 text-[#00D8A5] shrink-0 mt-0.5" strokeWidth={3} />
+                  <span className={`${isDark ? "text-slate-400" : "text-slate-600"}`}>Zoho Expense has a stuffy enterprise interface with rigid, complex workflow setups.</span>
+                </li>
+                <li className="flex gap-2.5 items-start">
+                  <Check className="h-4 w-4 text-[#00D8A5] shrink-0 mt-0.5" strokeWidth={3} />
+                  <span className={`${isDark ? "text-slate-300" : "text-slate-800"}`}>ANSH Expense is visual, lightweight, and combines claims, tax splits, and receipts natively.</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Column 2: ClickUp & Monday */}
+            <div className={`rounded-3xl border ${isDark ? "border-white/5 bg-[#070D14]/60 hover:border-white/10" : "border-slate-200 bg-white/70 shadow-sm hover:border-slate-300 hover:shadow"} p-8 space-y-6 flex flex-col justify-start transition-all duration-300`}>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00D8A5]/10 text-[#00D8A5] border border-[#00D8A5]/20">
+                <Briefcase className="h-5 w-5" />
+              </div>
+              <div className="space-y-2">
+                <h3 className={`text-base font-black uppercase tracking-wider ${isDark ? "text-white" : "text-slate-850"}`}>Compared to Concur & Expensify</h3>
+                <p className={`text-[11px] sm:text-xs ${isDark ? "text-slate-500" : "text-slate-555"} font-extrabold leading-normal`}>
+                  Add paid seats as you scale without enterprise sales traps.
+                </p>
+              </div>
+              <ul className="space-y-4 pt-2 text-xs sm:text-[13px] font-semibold leading-relaxed">
+                <li className="flex gap-2.5 items-start">
+                  <Check className="h-4 w-4 text-[#00D8A5] shrink-0 mt-0.5" strokeWidth={3} />
+                  <span className={`${isDark ? "text-slate-400" : "text-slate-600"}`}>Concur & Expensify are highly customizable but get expensive quickly and suffer from heavy loading lag.</span>
+                </li>
+                <li className="flex gap-2.5 items-start">
+                  <Check className="h-4 w-4 text-[#00D8A5] shrink-0 mt-0.5" strokeWidth={3} />
+                  <span className={`${isDark ? "text-slate-300" : "text-slate-800"}`}>ANSH Expense is lightweight, highly performant, and packs claims tracking, project allocation, and reports under an affordable per-user tier.</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Column 3: Trello & Slack */}
+            <div className={`rounded-3xl border ${isDark ? "border-white/5 bg-[#070D14]/60 hover:border-white/10" : "border-slate-200 bg-white/70 shadow-sm hover:border-slate-300 hover:shadow"} p-8 space-y-6 flex flex-col justify-start transition-all duration-300`}>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00D8A5]/10 text-[#00D8A5] border border-[#00D8A5]/20">
+                <MessageSquare className="h-5 w-5" />
+              </div>
+              <div className="space-y-2">
+                <h3 className={`text-base font-black uppercase tracking-wider ${isDark ? "text-white" : "text-slate-850"}`}>Compared to Excel & Slack</h3>
+                <p className={`text-[11px] sm:text-xs ${isDark ? "text-slate-500" : "text-slate-555"} font-extrabold leading-normal`}>
+                  No more paying for multiple tools or manual entry.
+                </p>
+              </div>
+              <ul className="space-y-4 pt-2 text-xs sm:text-[13px] font-semibold leading-relaxed">
+                <li className="flex gap-2.5 items-start">
+                  <Check className="h-4 w-4 text-[#00D8A5] shrink-0 mt-0.5" strokeWidth={3} />
+                  <span className={`${isDark ? "text-slate-400" : "text-slate-600"}`}>Excel is too manual (no receipt upload/auditing), while Slack is just messaging (no status tracking)—leading to lost receipts.</span>
+                </li>
+                <li className="flex gap-2.5 items-start">
+                  <Check className="h-4 w-4 text-[#00D8A5] shrink-0 mt-0.5" strokeWidth={3} />
+                  <span className={`${isDark ? "text-slate-300" : "text-slate-800"}`}>ANSH Expense integrates receipt tracking, audit trails, and comment feeds in one unified workspace.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Bottom Models comparison */}
+          <div className="grid gap-6 md:grid-cols-12 pt-6">
+            {/* Card Left: ANSH model */}
+            <div className={`md:col-span-7 rounded-3xl border ${isDark ? "border-[#00D8A5]/20 bg-gradient-to-r from-[#00D8A5]/5" : "border-[#00D8A5]/35 bg-gradient-to-r from-[#00D8A5]/10"} to-transparent p-8 space-y-4 flex flex-col justify-center`}>
+              <span className="text-[11px] font-black uppercase tracking-wider text-[#00D8A5] block">THE ANSH EXPENSE MODEL FOR TEAMS</span>
+              <p className={`text-xs sm:text-sm ${isDark ? "text-slate-300" : "text-slate-750"} leading-relaxed font-semibold`}>
+                A unified tool that any employee can adopt in minutes. Expense claims, mileage calculator, project budgets, and support desks all live together. No hidden setups or extra license costs.
+              </p>
+            </div>
+
+            {/* Card Right: Bloated model */}
+            <div className={`md:col-span-5 rounded-3xl border ${isDark ? "border-white/5 bg-[#070D14]/40" : "border-slate-200 bg-white/40 shadow-sm"} p-8 space-y-4 flex flex-col justify-center`}>
+              <span className="text-[11px] font-black uppercase tracking-wider text-slate-500 block">THE BLOATED ENTERPRISE TOOL MODEL</span>
+              <p className={`text-xs sm:text-sm ${isDark ? "text-slate-400" : "text-slate-650"} leading-relaxed font-semibold`}>
+                Steep learning curves, complicated configurations (e.g. Zoho setup / SAP Concur workflows), expensive per-user licenses, and separate bills for receipt tracking, project accounting, and support ticketing.
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Activity Feed & Announcements Section */}
-      <section className={`relative z-10 mx-auto max-w-7xl px-6 py-24 border-t ${themeBorder}`}>
-        <div className="grid gap-12 lg:grid-cols-2 items-center">
-          {/* Left: Interactive Mockup Feed */}
-          <div className={`border ${isDark ? "bg-[#070D14]/90 border-white/5" : "bg-white border-slate-200/80"} rounded-3xl p-6 relative overflow-hidden shadow-2xl`}>
-            {/* Ambient background glow inside the window */}
-            <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-[#00D8A5]/5 blur-3xl" />
+      <section className={`relative z-10 border-t ${themeBorder} py-24`}>
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="grid gap-12 lg:grid-cols-2 items-center">
+            {/* Left: Interactive Mockup Feed */}
+            <div className={`border ${isDark ? "bg-[#070D14]/90 border-white/5" : "bg-white border-slate-200/80"} rounded-3xl p-6 relative overflow-hidden shadow-2xl`}>
+              {/* Ambient background glow inside the window */}
+              <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-[#00D8A5]/5 blur-3xl" />
 
-            {/* Header row */}
-            <div className={`flex justify-between items-center border-b ${themeBorder} pb-4`}>
-              <div className="flex gap-1.5">
-                <div className="h-3 w-3 rounded-full bg-rose-500/80" />
-                <div className="h-3 w-3 rounded-full bg-amber-500/80" />
-                <div className="h-3 w-3 rounded-full bg-emerald-500/80" />
-              </div>
-              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Activity Feed</span>
-            </div>
-
-            {/* List items */}
-            <div className="space-y-3 mt-4">
-              {[
-                {
-                  title: "Claim approved: Software Licenses",
-                  desc: "Approved by Priya S. · Finance project",
-                  time: "12m ago",
-                  iconColor: "bg-[#00D8A5]/10 border-[#00D8A5]/20 text-[#00D8A5]"
-                },
-                {
-                  title: "Announcement: Q3 Policy Updates",
-                  desc: "Posted by Vikram M. · Pinned notice for all staff",
-                  time: "1h ago",
-                  iconColor: "bg-[#00D8A5]/10 border-[#00D8A5]/20 text-[#00D8A5]"
-                },
-                {
-                  title: "Priya Sharma joined the workspace",
-                  desc: "Role: Manager (Engineering)",
-                  time: "2h ago",
-                  iconColor: "bg-[#00D8A5]/10 border-[#00D8A5]/20 text-[#00D8A5]"
-                },
-                {
-                  title: "Project created: Acme Web Portal",
-                  desc: "Client: Acme Corp · Budget allocated",
-                  time: "3h ago",
-                  iconColor: "bg-[#00D8A5]/10 border-[#00D8A5]/20 text-[#00D8A5]"
-                }
-              ].map((item, idx) => (
-                <div key={idx} className={`border ${isDark ? "bg-[#020408]/60 border-white/5 hover:bg-[#020408]/80" : "bg-slate-50 border-slate-200/80 hover:bg-slate-100/80"} rounded-2xl p-4 flex gap-4 items-start transition-colors`}>
-                  <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 border ${item.iconColor}`}>
-                    <Zap className="h-4 w-4" />
-                  </div>
-                  <div className="min-w-0 flex-1 text-left space-y-1">
-                    <div className="flex justify-between items-baseline gap-2">
-                      <span className={`text-xs font-black ${isDark ? "text-slate-200" : "text-slate-800"} block truncate`}>{item.title}</span>
-                      <span className="text-[10px] font-black text-slate-500 uppercase whitespace-nowrap shrink-0">{item.time}</span>
-                    </div>
-                    <span className={`block text-[11px] ${themeTextMutedLighter} leading-relaxed font-semibold truncate`}>{item.desc}</span>
-                  </div>
+              {/* Header row */}
+              <div className={`flex justify-between items-center border-b ${themeBorder} pb-4`}>
+                <div className="flex gap-1.5">
+                  <div className="h-3 w-3 rounded-full bg-rose-500/80" />
+                  <div className="h-3 w-3 rounded-full bg-amber-500/80" />
+                  <div className="h-3 w-3 rounded-full bg-emerald-500/80" />
                 </div>
-              ))}
+                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Activity Feed</span>
+              </div>
+
+              {/* List items */}
+              <div className="space-y-3 mt-4">
+                {[
+                  {
+                    title: "Claim approved: Software Licenses",
+                    desc: "Approved by Priya S. · Finance project",
+                    time: "12m ago",
+                    iconColor: "bg-[#00D8A5]/10 border-[#00D8A5]/20 text-[#00D8A5]"
+                  },
+                  {
+                    title: "Announcement: Q3 Policy Updates",
+                    desc: "Posted by Vikram M. · Pinned notice for all staff",
+                    time: "1h ago",
+                    iconColor: "bg-[#00D8A5]/10 border-[#00D8A5]/20 text-[#00D8A5]"
+                  },
+                  {
+                    title: "Priya Sharma joined the workspace",
+                    desc: "Role: Manager (Engineering)",
+                    time: "2h ago",
+                    iconColor: "bg-[#00D8A5]/10 border-[#00D8A5]/20 text-[#00D8A5]"
+                  },
+                  {
+                    title: "Project created: Acme Web Portal",
+                    desc: "Client: Acme Corp · Budget allocated",
+                    time: "3h ago",
+                    iconColor: "bg-[#00D8A5]/10 border-[#00D8A5]/20 text-[#00D8A5]"
+                  }
+                ].map((item, idx) => (
+                  <div key={idx} className={`border ${isDark ? "bg-[#020408]/60 border-white/5 hover:bg-[#020408]/80" : "bg-slate-50 border-slate-200/80 hover:bg-slate-100/80"} rounded-2xl p-4 flex gap-4 items-start transition-colors`}>
+                    <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 border ${item.iconColor}`}>
+                      <Zap className="h-4 w-4" />
+                    </div>
+                    <div className="min-w-0 flex-1 text-left space-y-1">
+                      <div className="flex justify-between items-baseline gap-2">
+                        <span className={`text-xs font-black ${isDark ? "text-slate-200" : "text-slate-800"} block truncate`}>{item.title}</span>
+                        <span className="text-[10px] font-black text-slate-500 uppercase whitespace-nowrap shrink-0">{item.time}</span>
+                      </div>
+                      <span className={`block text-[11px] ${themeTextMutedLighter} leading-relaxed font-semibold truncate`}>{item.desc}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
 
-          {/* Right: Copy & Bullet Points */}
-          <div className="space-y-6 text-left lg:pl-6">
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-[#00D8A5]/10 border border-[#00D8A5]/20 px-3.5 py-1.5 text-[10px] font-black text-[#00D8A5] uppercase tracking-widest">
-              <Zap className="h-3.5 w-3.5" />
-              Workspace Updates
+            {/* Right: Copy & Bullet Points */}
+            <div className="space-y-6 text-left lg:pl-6">
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-[#00D8A5]/10 border border-[#00D8A5]/20 px-3.5 py-1.5 text-[10px] font-black text-[#00D8A5] uppercase tracking-widest">
+                <Zap className="h-3.5 w-3.5" />
+                Workspace Updates
+              </div>
+
+              <h2 className={`text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl leading-tight ${isDark ? "bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent" : "text-slate-900"}`}>
+                Stay Aligned with Activity Feed & Announcements
+              </h2>
+
+              <p className={`text-sm sm:text-base ${themeTextMuted} leading-relaxed font-semibold`}>
+                Replace scattered email threads with a clean workspace timeline. The activity feed logs what changed across expenses, projects, and support tickets, while announcements let administrators pin critical notices for the entire team.
+              </p>
+
+              <ul className="space-y-4 pt-4 text-xs sm:text-sm font-semibold leading-relaxed">
+                <li className="flex gap-3 items-center">
+                  <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
+                  <span className={`${isDark ? "text-slate-300" : "text-slate-700"}`}>Automatic timeline — expenses, projects, support tickets, and team joins</span>
+                </li>
+                <li className="flex gap-3 items-center">
+                  <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
+                  <span className={`${isDark ? "text-slate-300" : "text-slate-700"}`}>Pinned announcements for expense deadlines, workspace policies, and updates</span>
+                </li>
+                <li className="flex gap-3 items-center">
+                  <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
+                  <span className={`${isDark ? "text-slate-300" : "text-slate-700"}`}>Included on Pro — no extra tracking tool subscription required</span>
+                </li>
+              </ul>
             </div>
-
-            <h2 className={`text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl leading-tight ${isDark ? "bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent" : "text-slate-900"}`}>
-              Stay Aligned with Activity Feed & Announcements
-            </h2>
-
-            <p className={`text-sm sm:text-base ${themeTextMuted} leading-relaxed font-semibold`}>
-              Replace scattered email threads with a clean workspace timeline. The activity feed logs what changed across expenses, projects, and support tickets, while announcements let administrators pin critical notices for the entire team.
-            </p>
-
-            <ul className="space-y-4 pt-4 text-xs sm:text-sm font-semibold leading-relaxed">
-              <li className="flex gap-3 items-center">
-                <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
-                <span className={`${isDark ? "text-slate-300" : "text-slate-700"}`}>Automatic timeline — expenses, projects, support tickets, and team joins</span>
-              </li>
-              <li className="flex gap-3 items-center">
-                <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
-                <span className={`${isDark ? "text-slate-300" : "text-slate-700"}`}>Pinned announcements for expense deadlines, workspace policies, and updates</span>
-              </li>
-              <li className="flex gap-3 items-center">
-                <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
-                <span className={`${isDark ? "text-slate-300" : "text-slate-700"}`}>Included on Pro — no extra tracking tool subscription required</span>
-              </li>
-            </ul>
           </div>
         </div>
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="relative z-10 mx-auto max-w-5xl px-6 py-24 space-y-16">
-        <div className="text-center space-y-4 max-w-2xl mx-auto">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-[#00D8A5]/10 border border-[#00D8A5]/20 px-3.5 py-1.5 text-[10px] font-black text-[#00D8A5] uppercase tracking-widest">
-            <HelpCircle className="h-3.5 w-3.5" />
-            Support Center
+      <section id="faq" className={`relative z-10 border-t ${themeBorder} ${isDark ? "bg-[#080E16]/90" : "bg-slate-100/80"} py-24`}>
+        <div className="mx-auto max-w-5xl px-6 space-y-16">
+          <div className="text-center space-y-4 max-w-2xl mx-auto">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-[#00D8A5]/10 border border-[#00D8A5]/20 px-3.5 py-1.5 text-[10px] font-black text-[#00D8A5] uppercase tracking-widest">
+              <HelpCircle className="h-3.5 w-3.5" />
+              Support Center
+            </div>
+            <h2 className={`text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl ${isDark ? "bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent" : "text-slate-900"}`}>
+              Frequently Asked Questions
+            </h2>
+            <p className={`text-xs sm:text-sm ${isDark ? "text-slate-500" : "text-slate-550"} font-black tracking-widest leading-relaxed uppercase`}>
+              Clear answers to help you navigate automated expense logging, audit compliance, and seat upgrades.
+            </p>
           </div>
-          <h2 className={`text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl ${isDark ? "bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent" : "text-slate-900"}`}>
-            Frequently Asked Questions
-          </h2>
-          <p className={`text-xs sm:text-sm ${isDark ? "text-slate-500" : "text-slate-550"} font-black tracking-widest leading-relaxed uppercase`}>
-            Clear answers to help you navigate automated expense logging, audit compliance, and seat upgrades.
-          </p>
-        </div>
 
-        {/* Accordion List (Full Centered Width) */}
-        <div className="max-w-3xl mx-auto space-y-4">
-          {[
-            {
-              category: "Features",
-              q: "What core features does ANSH Expense offer?",
-              a: "ANSH Expense is a premium tool offering multi-currency claim logging, automatic VAT calculations, mileage reimbursement multipliers, dynamic client/project cost allocation, interactive spend analytics, and a multi-role workspace audit system (Employee, Manager, Admin, Owner).",
-              icon: Wallet
-            },
-            {
-              category: "Security",
-              q: "How secure is my financial data?",
-              a: "Security is built in. All user sessions are authenticated securely via Supabase. Workspaces are strictly isolated at the database level using Prisma. Every action log is audited, and file uploads are handled with secure backend integrations.",
-              icon: Lock
-            },
-            {
-              category: "Billing",
-              q: "How does the seat license checkout work?",
-              a: "Upgrading to a Pro plan is managed securely via our integrated Razorpay subscription portal. Workspace owners can dynamically add or remove seat licenses monthly or yearly. Payment statuses are tracked in real-time with instant access provisioning.",
-              icon: CheckCircle
-            },
-            {
-              category: "Uploads",
-              q: "Where are receipt images and attachments stored?",
-              a: "Attachments are uploaded to a preconfigured secure AWS S3 bucket. If the S3 integration keys are not set, the platform uses a robust base64 Data URL fallback. Uploaded images are compressed client-side to keep storage lightweight.",
-              icon: FileText
-            },
-            {
-              category: "Support",
-              q: "How does the Help Center and Ticketing work?",
-              a: "Users can raise tickets directly in the app's Help Center, attaching up to 3 compressed images. Support managers can manage, reply to, or delete tickets using the dedicated administrative Support Panel dashboard.",
-              icon: HelpCircle
-            }
-          ].map((faq, idx) => {
-            const Icon = faq.icon;
-            const isCurrent = openFaq === idx;
-            return (
-              <div
-                key={idx}
-                className={`rounded-2xl border transition-all duration-300 overflow-hidden cursor-pointer ${isCurrent
-                  ? `${isDark ? "bg-slate-950 border-[#00D8A5]/30 shadow-lg shadow-[#00D8A5]/5" : "bg-white border-[#00D8A5]/35 shadow-sm"}`
-                  : `${isDark ? "bg-[#070D14]/60 border-white/5 hover:border-white/10 hover:bg-[#070D14]/90" : "bg-white border-slate-200 hover:border-slate-300 shadow-sm"}`
-                  }`}
-                onClick={() => setOpenFaq(isCurrent ? null : idx)}
-              >
-                <div className="p-5 flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-4.5 min-w-0">
-                    <div className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 border transition-colors ${isCurrent
-                      ? "bg-[#00D8A5]/10 border-[#00D8A5]/30 text-[#00D8A5]"
-                      : `${isDark ? "bg-slate-950/60 border-white/5" : "bg-slate-100 border-slate-200"} text-slate-500`
-                      }`}>
-                      <Icon className="h-4 w-4" />
+          {/* Accordion List (Full Centered Width) */}
+          <div className="max-w-3xl mx-auto space-y-4">
+            {[
+              {
+                category: "Features",
+                q: "What core features does ANSH Expense offer?",
+                a: "ANSH Expense is a premium tool offering multi-currency claim logging, automatic VAT calculations, mileage reimbursement multipliers, dynamic client/project cost allocation, interactive spend analytics, and a multi-role workspace audit system (Employee, Manager, Admin, Owner).",
+                icon: Wallet
+              },
+              {
+                category: "Security",
+                q: "How secure is my financial data?",
+                a: "Security is built in. All user sessions are authenticated securely via Supabase. Workspaces are strictly isolated at the database level using Prisma. Every action log is audited, and file uploads are handled with secure backend integrations.",
+                icon: Lock
+              },
+              {
+                category: "Billing",
+                q: "How does the seat license checkout work?",
+                a: "Upgrading to a Pro plan is managed securely via our integrated Razorpay subscription portal. Workspace owners can dynamically add or remove seat licenses monthly or yearly. Payment statuses are tracked in real-time with instant access provisioning.",
+                icon: CheckCircle
+              },
+              {
+                category: "Uploads",
+                q: "Where are receipt images and attachments stored?",
+                a: "Attachments are uploaded to a preconfigured secure AWS S3 bucket. If the S3 integration keys are not set, the platform uses a robust base64 Data URL fallback. Uploaded images are compressed client-side to keep storage lightweight.",
+                icon: FileText
+              },
+              {
+                category: "Support",
+                q: "How does the Help Center and Ticketing work?",
+                a: "Users can raise tickets directly in the app's Help Center, attaching up to 3 compressed images. Support managers can manage, reply to, or delete tickets using the dedicated administrative Support Panel dashboard.",
+                icon: HelpCircle
+              }
+            ].map((faq, idx) => {
+              const Icon = faq.icon;
+              const isCurrent = openFaq === idx;
+              return (
+                <div
+                  key={idx}
+                  className={`rounded-2xl border transition-all duration-300 overflow-hidden cursor-pointer ${isCurrent
+                    ? `${isDark ? "bg-slate-950 border-[#00D8A5]/30 shadow-lg shadow-[#00D8A5]/5" : "bg-white border-[#00D8A5]/35 shadow-sm"}`
+                    : `${isDark ? "bg-[#070D14]/60 border-white/5 hover:border-white/10 hover:bg-[#070D14]/90" : "bg-white border-slate-200 hover:border-slate-300 shadow-sm"}`
+                    }`}
+                  onClick={() => setOpenFaq(isCurrent ? null : idx)}
+                >
+                  <div className="p-5 flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-4.5 min-w-0">
+                      <div className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 border transition-colors ${isCurrent
+                        ? "bg-[#00D8A5]/10 border-[#00D8A5]/30 text-[#00D8A5]"
+                        : `${isDark ? "bg-slate-950/60 border-white/5" : "bg-slate-100 border-slate-200"} text-slate-500`
+                        }`}>
+                        <Icon className="h-4 w-4" />
+                      </div>
+                      <div className="text-left space-y-1">
+                        <span className={`text-[10px] font-black uppercase tracking-wider ${isCurrent ? "text-[#00D8A5]" : "text-slate-500"
+                          }`}>{faq.category}</span>
+                        <h3 className={`text-xs sm:text-sm font-black tracking-wide leading-tight ${isDark ? "text-slate-200" : "text-slate-800"}`}>{faq.q}</h3>
+                      </div>
                     </div>
-                    <div className="text-left space-y-1">
-                      <span className={`text-[10px] font-black uppercase tracking-wider ${isCurrent ? "text-[#00D8A5]" : "text-slate-500"
-                        }`}>{faq.category}</span>
-                      <h3 className={`text-xs sm:text-sm font-black tracking-wide leading-tight ${isDark ? "text-slate-200" : "text-slate-800"}`}>{faq.q}</h3>
-                    </div>
+                    <ChevronRight className={`h-4.5 w-4.5 text-slate-500 shrink-0 transition-transform duration-300 ${isCurrent ? "rotate-90 text-[#00D8A5]" : ""
+                      }`} />
                   </div>
-                  <ChevronRight className={`h-4.5 w-4.5 text-slate-500 shrink-0 transition-transform duration-300 ${isCurrent ? "rotate-90 text-[#00D8A5]" : ""
-                    }`} />
+                  {isCurrent && (
+                    <div className="px-5 pb-5 pt-1 text-left pl-18 animate-in fade-in slide-in-from-top-1 duration-250">
+                      <p className={`text-xs sm:text-[13px] ${themeTextMutedLighter} leading-relaxed font-semibold`}>
+                        {faq.a}
+                      </p>
+                    </div>
+                  )}
                 </div>
-                {isCurrent && (
-                  <div className="px-5 pb-5 pt-1 text-left pl-18 animate-in fade-in slide-in-from-top-1 duration-250">
-                    <p className={`text-xs sm:text-[13px] ${themeTextMutedLighter} leading-relaxed font-semibold`}>
-                      {faq.a}
-                    </p>
-                  </div>
-                )}
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </section>
 

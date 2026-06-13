@@ -649,16 +649,10 @@ export default function BillingSettingPage() {
                 <div className="pt-2 border-t border-border/30">
                   <button
                     type="button"
-                    disabled={!isPro || isUpgrading || !canManageBilling}
-                    onClick={() => handlePlanChange("Free")}
-                    className={cn(
-                      "w-full text-xs font-bold uppercase tracking-wider py-2.5 rounded-xl cursor-pointer transition-all",
-                      !isPro
-                        ? "bg-slate-100 dark:bg-slate-850 text-slate-400 cursor-not-allowed border border-border"
-                        : "bg-slate-900 text-white hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100 shadow-sm"
-                    )}
+                    disabled
+                    className="w-full text-xs font-bold uppercase tracking-wider py-2.5 rounded-xl cursor-not-allowed border border-border bg-slate-100 dark:bg-slate-850 text-slate-400"
                   >
-                    {!isPro ? "Current Plan" : "Downgrade to Free"}
+                    {!isPro ? "Current Plan" : "Downgrade Unavailable"}
                   </button>
                 </div>
 
