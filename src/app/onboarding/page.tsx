@@ -211,7 +211,7 @@ export default function OnboardingPage() {
   const header = getStepHeader();
 
   return (
-    <div className="flex min-h-screen bg-slate-950 font-sans text-slate-100 overflow-hidden select-none">
+    <div className="dark flex min-h-screen bg-slate-950 font-sans text-slate-100 overflow-hidden select-none">
       <title>Onboarding Setup | Ansh Expense</title>
       <meta name="description" content="Set up your profile, create or join a workspace, and invite teammates to start using Ansh Expense." />
       
