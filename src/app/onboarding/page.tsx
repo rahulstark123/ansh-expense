@@ -231,12 +231,12 @@ export default function OnboardingPage() {
           <div className="absolute -right-20 bottom-1/4 h-[300px] w-[300px] rounded-full bg-sky-500/10 blur-[120px] opacity-20" />
         </div>
 
-        <div className="relative z-10 flex items-center gap-3.5">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 border border-white/10">
+        <div className="relative z-10 flex items-center gap-2">
+          <div className="flex h-13 w-13 items-center justify-center rounded-full bg-white/10 border border-white/10">
             <img
               src="/logoAnshapps.png"
               alt="Ansh Apps Logo"
-              className="h-10 w-10 object-contain"
+              className="h-11 w-11 object-contain"
             />
           </div>
           <div>

@@ -43,9 +43,9 @@ export function MainSidebar() {
         mainSidebarCollapsed ? "w-[72px]" : "w-[240px]"
       )}
     >
-      <div className="flex h-16 items-center gap-3.5 px-4 border-b border-border/50">
-        <div className="relative flex h-10 w-10 shrink-0 items-center justify-center">
-          <img src="/logoAnshapps.png" alt="Ansh Expense" className="h-9 w-9 object-contain" />
+      <div className="flex h-16 items-center gap-2 px-4 border-b border-border/50">
+        <div className="relative flex h-11 w-11 shrink-0 items-center justify-center">
+          <img src="/logoAnshapps.png" alt="Ansh Expense" className="h-10.5 w-10.5 object-contain" />
         </div>
         {!mainSidebarCollapsed && (
           <div className="min-w-0 animate-in fade-in duration-300">

@@ -87,8 +87,8 @@ export default function LandingPage() {
       {/* Navigation Header */}
       <header className="sticky top-0 z-50 border-b border-white/5 backdrop-blur-md bg-[#04080F]/85">
         <div className="mx-auto max-w-7xl px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <img src="/logoAnshapps.png" alt="Ansh Expense Logo" className="h-9 w-9 object-contain" />
+          <div className="flex items-center gap-2">
+            <img src="/logoAnshapps.png" alt="Ansh Expense Logo" className="h-10.5 w-10.5 object-contain" />
             <div>
               <span className="font-extrabold text-sm tracking-wider uppercase text-white block">
                 ANSH EXPENSE
