@@ -23,7 +23,10 @@ import {
   MessageSquare,
   Zap,
   Mail,
-  ExternalLink
+  ExternalLink,
+  X,
+  Shield,
+  ArrowUpRight
 } from "lucide-react";
 
 type MockTab = "submit" | "analytics" | "approvals";
@@ -73,7 +76,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-[#04080F] font-sans text-slate-100 selection:bg-[#00D8A5]/20 selection:text-[#00D8A5]">
       <title>Ansh Expense - Automated Team Expense & Reimbursement Tracker</title>
-      <meta name="description" content="ANSH Expense streamlines receipt logging, tax/VAT calculations, mileage tracking, project costing, and multi-stage manager approvals into a premium, blazing-fast dashboard." />
+      <meta name="description" content="ANSH Expense streamlines receipt logging, tax/VAT calculations, project costing, and multi-stage manager approvals into a premium, blazing-fast dashboard." />
       {/* Symmetrical Background Glow Effects */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         <div className="absolute -left-1/4 top-0 h-[600px] w-[600px] rounded-full bg-[#00D8A5]/5 blur-[160px]" />
@@ -141,7 +144,7 @@ export default function LandingPage() {
             </h1>
 
             <p className="text-sm sm:text-base text-slate-400 leading-relaxed max-w-xl font-semibold">
-              ANSH Expense combines receipt logging, mileage tracking, project costing, approval pipelines, activity feeds, and workspace announcements into a unified, high-performance workspace.
+              ANSH Expense combines receipt logging, project costing, approval pipelines, activity feeds, and workspace announcements into a unified, high-performance workspace.
             </p>
 
             {/* Feature Highlights Grid Container */}
@@ -252,11 +255,10 @@ export default function LandingPage() {
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
-                    className={`flex-1 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all cursor-pointer ${
-                      activeTab === tab
-                        ? `${accentBgClass} text-slate-950 font-black shadow-md`
-                        : "text-slate-400 hover:text-slate-200"
-                    }`}
+                    className={`flex-1 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all cursor-pointer ${activeTab === tab
+                      ? `${accentBgClass} text-slate-950 font-black shadow-md`
+                      : "text-slate-400 hover:text-slate-200"
+                      }`}
                   >
                     {tab === "submit" ? "Submit Claim" : tab === "analytics" ? "Spending View" : "Approvals"}
                   </button>
@@ -302,7 +304,7 @@ export default function LandingPage() {
               {activeTab === "analytics" && (
                 <div className="space-y-4 py-2 animate-in fade-in duration-200">
                   <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider block">CATEGORY DISTRIBUTION</span>
-                  
+
                   {/* Custom SVG/CSS Bar Chart */}
                   <div className="space-y-3">
                     <div className="space-y-1">
@@ -342,7 +344,7 @@ export default function LandingPage() {
               {activeTab === "approvals" && (
                 <div className="space-y-2.5 py-1 animate-in fade-in duration-200">
                   <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider block">PENDING TEAM CLAIMS</span>
-                  
+
                   <div className="bg-slate-950/40 rounded-xl p-2.5 border border-slate-800/50 flex justify-between items-center text-xs">
                     <div className="flex items-center gap-2.5">
                       <div className={`flex h-7 w-7 items-center justify-center rounded-lg ${accentBgClass} text-slate-950 font-black text-[10px]`}>
@@ -391,9 +393,8 @@ export default function LandingPage() {
                       <button
                         key={theme}
                         onClick={() => setActiveAccent(theme)}
-                        className={`h-4.5 w-4.5 rounded-full ${bgCircle} cursor-pointer transition-all hover:scale-125 ${
-                          activeAccent === theme ? "ring-2 ring-white ring-offset-2 ring-offset-slate-950 scale-110" : "opacity-80"
-                        }`}
+                        className={`h-4.5 w-4.5 rounded-full ${bgCircle} cursor-pointer transition-all hover:scale-125 ${activeAccent === theme ? "ring-2 ring-white ring-offset-2 ring-offset-slate-950 scale-110" : "opacity-80"
+                          }`}
                       />
                     );
                   })}
@@ -503,20 +504,36 @@ export default function LandingPage() {
 
           <div className="grid gap-6 max-w-3xl mx-auto sm:grid-cols-2">
             {/* Free Plan */}
-            <div className="rounded-3xl border border-slate-800 bg-[#070D14] p-8 flex flex-col justify-between space-y-6 relative hover:border-[#00D8A5]/25 transition-all">
-              <div className="space-y-4">
-                <div className="inline-flex rounded-lg bg-slate-900 border border-slate-800 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-slate-400">
-                  For Solo / Small Teams
+            <div className="rounded-3xl border border-slate-800 bg-[#070D14] p-8 flex flex-col justify-between space-y-6 relative hover:border-[#00D8A5]/25 transition-all text-left">
+              <div className="space-y-6">
+                
+                {/* Badge/Header */}
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400">
+                    <Shield className="h-5 w-5" />
+                  </div>
+                  <div className="text-left">
+                    <span className="block text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">PLAN</span>
+                    <span className="text-lg font-black text-white leading-tight">Free</span>
+                  </div>
                 </div>
-                <div className="space-y-1">
-                  <h3 className="text-xl font-black text-white">Free Plan</h3>
-                  <p className="text-[11px] text-slate-500 font-semibold leading-normal">Ideal for small workspaces and startup teams.</p>
+
+                <div className="space-y-1 text-left">
+                  <div className="flex items-baseline text-white">
+                    <span className="text-4xl font-black tracking-tight">₹0</span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 font-extrabold leading-normal">Forever free · no credit card required.</p>
                 </div>
-                <div className="flex items-baseline text-white">
-                  <span className="text-4xl font-black tracking-tight">₹0</span>
-                  <span className="ml-1.5 text-[13px] font-bold text-slate-500">/ workspace</span>
-                </div>
-                <ul className="space-y-3.5 pt-4 text-[13px] font-semibold text-slate-350">
+
+                {/* Downgrade/Start Button */}
+                <Link href="/login" className="block w-full">
+                  <button className="w-full h-11 text-xs font-black uppercase tracking-widest rounded-2xl bg-white text-slate-950 hover:bg-slate-100 transition-colors shadow-lg cursor-pointer">
+                    DOWNGRADE TO FREE
+                  </button>
+                </Link>
+
+                {/* Features List */}
+                <ul className="space-y-3.5 pt-2 text-[13px] font-semibold text-slate-350">
                   <li className="flex items-center gap-2.5">
                     <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
                     <span>Up to 5 teammates</span>
@@ -527,7 +544,7 @@ export default function LandingPage() {
                   </li>
                   <li className="flex items-center gap-2.5">
                     <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
-                    <span>Calculations (Base + Tax/VAT)</span>
+                    <span>Basic claims & category tracking</span>
                   </li>
                   <li className="flex items-center gap-2.5">
                     <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
@@ -535,30 +552,63 @@ export default function LandingPage() {
                   </li>
                   <li className="flex items-center gap-2.5">
                     <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
-                    <span>Personal claims logs registry</span>
+                    <span>Standard receipt uploads</span>
+                  </li>
+                  <li className="flex items-center gap-2.5">
+                    <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
+                    <span>Basic manager review comments</span>
+                  </li>
+                  <li className="flex gap-2.5 items-start text-slate-500">
+                    <X className="h-4 w-4 text-slate-600 shrink-0 mt-0.5" strokeWidth={3} />
+                    <span>No Client mapping, advanced reports, or team analytics</span>
                   </li>
                 </ul>
               </div>
             </div>
 
             {/* Pro Plan */}
-            <div className="rounded-3xl border border-[#00D8A5]/25 bg-[#070D14] p-8 flex flex-col justify-between space-y-6 relative hover:border-[#00D8A5]/50 transition-all shadow-xl shadow-emerald-950/5">
-              <div className="space-y-4">
-                <div className="inline-flex rounded-lg bg-[#00D8A5]/10 border border-[#00D8A5]/20 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-[#00D8A5]">
-                  Best for Scaling Teams
+            <div className="rounded-3xl border border-[#00D8A5]/25 bg-[#070D14] p-8 flex flex-col justify-between space-y-6 relative hover:border-[#00D8A5]/50 transition-all shadow-xl shadow-emerald-950/5 text-left">
+              <div className="space-y-6">
+                
+                {/* Active Badge at Top Right */}
+                <div className="absolute top-8 right-8">
+                  <span className="bg-[#00D8A5]/10 border border-[#00D8A5]/20 text-[#00D8A5] text-[9px] font-black tracking-widest uppercase px-2 py-0.5 rounded">
+                    ACTIVE
+                  </span>
                 </div>
-                <div className="space-y-1">
-                  <h3 className="text-xl font-black text-white">Pro Plan</h3>
-                  <p className="text-[11px] text-slate-500 font-semibold leading-normal">Invite your entire workforce. Empower department heads to approve.</p>
+
+                {/* Badge/Header */}
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-[#00D8A5]/10 border border-[#00D8A5]/25 flex items-center justify-center text-[#00D8A5]">
+                    <Zap className="h-5 w-5 fill-[#00D8A5]/10" />
+                  </div>
+                  <div className="text-left">
+                    <span className="block text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">PLAN</span>
+                    <span className="text-lg font-black text-white leading-tight">Pro</span>
+                  </div>
                 </div>
-                <div className="flex items-baseline text-white">
-                  <span className="text-4xl font-black tracking-tight">₹199</span>
-                  <span className="ml-1.5 text-[13px] font-bold text-slate-500">/ user / month</span>
+
+                <div className="space-y-1 text-left">
+                  <div className="flex items-baseline text-white">
+                    <span className="text-4xl font-black tracking-tight">₹199</span>
+                    <span className="ml-1 text-[13px] font-semibold text-slate-500">/ user / month</span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 font-extrabold leading-normal">₹199/user/month. Switch to yearly to save 19%.</p>
                 </div>
-                <ul className="space-y-3.5 pt-4 text-[13px] font-semibold text-slate-350">
+
+                {/* Subscribe Button */}
+                <Link href="/login" className="block w-full">
+                  <button className="w-full h-11 text-xs font-black uppercase tracking-wider rounded-2xl bg-[#00D8A5] text-slate-950 hover:bg-[#00F5D4] transition-colors shadow-lg cursor-pointer flex items-center justify-center gap-1.5">
+                    <span>SUBSCRIBE — STARTS AFTER TRIAL</span>
+                    <ArrowUpRight className="h-4 w-4 text-slate-950" strokeWidth={3} />
+                  </button>
+                </Link>
+
+                {/* Features List */}
+                <ul className="space-y-3.5 pt-2 text-[13px] font-semibold text-slate-350">
                   <li className="flex items-center gap-2.5">
                     <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
-                    <span>Add team members based on paid seats</span>
+                    <span>Per-user pricing — scales with your team size</span>
                   </li>
                   <li className="flex items-center gap-2.5">
                     <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
@@ -566,19 +616,38 @@ export default function LandingPage() {
                   </li>
                   <li className="flex items-center gap-2.5">
                     <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
-                    <span>Map expenses to Projects & Clients</span>
+                    <span>Client & Project contract mapping</span>
                   </li>
                   <li className="flex items-center gap-2.5">
                     <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
-                    <span>Manager reviews and comment pipelines</span>
+                    <span>Multiple manager review & approval chains</span>
                   </li>
                   <li className="flex items-center gap-2.5">
                     <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
-                    <span>Secure AWS S3 receipt photo uploads</span>
+                    <span>Interactive query/needs-info discussions</span>
                   </li>
                   <li className="flex items-center gap-2.5">
                     <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
-                    <span>Advanced spending reports & CSV exports</span>
+                    <span>Detailed category spending dashboards</span>
+                  </li>
+                  <li className="flex items-center gap-2.5">
+                    <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
+                    <span>Tax breakdown & compliance tools</span>
+                  </li>
+                  <li className="flex items-center gap-2.5">
+                    <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
+                    <span>CSV / Excel data logs exports</span>
+                  </li>
+                  <li className="flex items-center gap-2.5">
+                    <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
+                    <span>Priority billing & support assistance</span>
+                  </li>
+                  <li className="flex items-center gap-2.5">
+                    <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
+                    <span className="flex items-center gap-1.5">
+                      Corporate card feeds integration
+                      <span className="px-1.5 py-0.5 text-[9px] font-black uppercase bg-slate-800 text-slate-400 rounded">Soon</span>
+                    </span>
                   </li>
                 </ul>
               </div>
@@ -701,7 +770,7 @@ export default function LandingPage() {
           <div className="bg-[#070D14]/90 border border-white/5 rounded-3xl p-6 relative overflow-hidden shadow-2xl">
             {/* Ambient background glow inside the window */}
             <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-[#00D8A5]/5 blur-3xl" />
-            
+
             {/* Header row */}
             <div className="flex justify-between items-center border-b border-white/5 pb-4">
               <div className="flex gap-1.5">
@@ -762,11 +831,11 @@ export default function LandingPage() {
               <Zap className="h-3.5 w-3.5" />
               Workspace Updates
             </div>
-            
+
             <h2 className="text-3xl font-black text-white tracking-tight sm:text-4xl lg:text-5xl leading-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
               Stay Aligned with Activity Feed & Announcements
             </h2>
-            
+
             <p className="text-sm sm:text-base text-slate-400 leading-relaxed font-semibold">
               Replace scattered email threads with a clean workspace timeline. The activity feed logs what changed across expenses, projects, and support tickets, while announcements let administrators pin critical notices for the entire team.
             </p>
@@ -843,32 +912,28 @@ export default function LandingPage() {
             return (
               <div
                 key={idx}
-                className={`rounded-2xl border transition-all duration-300 overflow-hidden cursor-pointer ${
-                  isCurrent
-                    ? "bg-slate-950 border-[#00D8A5]/30 shadow-lg shadow-[#00D8A5]/5"
-                    : "bg-[#070D14]/60 border-white/5 hover:border-white/10 hover:bg-[#070D14]/90"
-                }`}
+                className={`rounded-2xl border transition-all duration-300 overflow-hidden cursor-pointer ${isCurrent
+                  ? "bg-slate-950 border-[#00D8A5]/30 shadow-lg shadow-[#00D8A5]/5"
+                  : "bg-[#070D14]/60 border-white/5 hover:border-white/10 hover:bg-[#070D14]/90"
+                  }`}
                 onClick={() => setOpenFaq(isCurrent ? null : idx)}
               >
                 <div className="p-5 flex items-center justify-between gap-4">
                   <div className="flex items-center gap-4.5 min-w-0">
-                    <div className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 border transition-colors ${
-                      isCurrent
-                        ? "bg-[#00D8A5]/10 border-[#00D8A5]/30 text-[#00D8A5]"
-                        : "bg-slate-950/60 border-white/5 text-slate-500"
-                    }`}>
+                    <div className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 border transition-colors ${isCurrent
+                      ? "bg-[#00D8A5]/10 border-[#00D8A5]/30 text-[#00D8A5]"
+                      : "bg-slate-950/60 border-white/5 text-slate-500"
+                      }`}>
                       <Icon className="h-4 w-4" />
                     </div>
                     <div className="text-left space-y-1">
-                      <span className={`text-[10px] font-black uppercase tracking-wider ${
-                        isCurrent ? "text-[#00D8A5]" : "text-slate-500"
-                      }`}>{faq.category}</span>
+                      <span className={`text-[10px] font-black uppercase tracking-wider ${isCurrent ? "text-[#00D8A5]" : "text-slate-500"
+                        }`}>{faq.category}</span>
                       <h3 className="text-xs sm:text-sm font-black text-slate-200 tracking-wide leading-tight">{faq.q}</h3>
                     </div>
                   </div>
-                  <ChevronRight className={`h-4.5 w-4.5 text-slate-500 shrink-0 transition-transform duration-300 ${
-                    isCurrent ? "rotate-90 text-[#00D8A5]" : ""
-                  }`} />
+                  <ChevronRight className={`h-4.5 w-4.5 text-slate-500 shrink-0 transition-transform duration-300 ${isCurrent ? "rotate-90 text-[#00D8A5]" : ""
+                    }`} />
                 </div>
                 {isCurrent && (
                   <div className="px-5 pb-5 pt-1 text-left pl-18 animate-in fade-in slide-in-from-top-1 duration-250">
@@ -889,7 +954,7 @@ export default function LandingPage() {
         <div className="absolute inset-0 z-0 pointer-events-none flex items-center justify-center">
           <div className="h-[300px] w-[600px] rounded-full bg-[#00D8A5]/[0.05] blur-[120px]" />
         </div>
-        
+
         <div className="relative z-10 mx-auto max-w-4xl px-6 text-center space-y-6">
           {/* Centered Check Icon */}
           <div className="h-10 w-10 bg-[#00D8A5]/10 border border-[#00D8A5]/20 text-[#00D8A5] rounded-xl flex items-center justify-center mx-auto">
@@ -919,11 +984,11 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="relative z-10 border-t border-white/5 bg-[#03060C] pt-20 pb-12 overflow-hidden">
         <div className="mx-auto max-w-7xl px-6 space-y-16">
-          
+
           {/* Giant Logo Text Section */}
           <div className="text-center space-y-4 select-none">
             <span className="text-[10px] font-bold tracking-widest text-slate-500 uppercase flex items-center justify-center gap-1.5">
-              HANDLED BY 
+              HANDLED BY
               <img src="/logoAnshapps.png" alt="Ansh Apps" className="h-4 w-4 object-contain" />
             </span>
             <h1 className="text-[10vw] sm:text-[11vw] md:text-[10vw] lg:text-[11rem] xl:text-[13rem] font-black tracking-tighter leading-none whitespace-nowrap bg-gradient-to-r from-cyan-400 via-indigo-500 to-fuchsia-500 bg-clip-text text-transparent">
