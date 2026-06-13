@@ -25,9 +25,7 @@ export async function POST(req: Request) {
     });
 
     let newWid: number;
-    if (existingEmployee && existingEmployee.wid) {
-      newWid = existingEmployee.wid;
-    } else if (isManagerOrAdmin) {
+    if (isManagerOrAdmin) {
       const workspace = await createWorkspaceWithTrial(
         companyName || "New Workspace"
       );
@@ -69,6 +67,8 @@ export async function POST(req: Request) {
           settingsJson: initialSettingsJson
         }
       });
+    } else if (existingEmployee && existingEmployee.wid) {
+      newWid = existingEmployee.wid;
     } else {
       newWid = 1;
     }
