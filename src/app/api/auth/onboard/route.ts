@@ -11,9 +11,9 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { name, department, role, companyName, companyAddress, employeeCount, country } = body;
+    const { name, department, role, phoneNumber, companyName, companyAddress, employeeCount, country } = body;
 
-    if (!name || !department || !role) {
+    if (!name || !department || !role || !phoneNumber) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
@@ -92,6 +92,7 @@ export async function POST(req: Request) {
             role: role,
             department: department,
             avatarInitials: avatarInitials,
+            phoneNumber: phoneNumber,
             status: existingEmployee.status || "Active",
             companyName: isManagerOrAdmin ? companyName : null,
             companyAddress: isManagerOrAdmin ? companyAddress : null,
@@ -133,6 +134,7 @@ export async function POST(req: Request) {
           role: role,
           department: department,
           avatarInitials: avatarInitials,
+          phoneNumber: phoneNumber,
           status: "Active",
           companyName: isManagerOrAdmin ? companyName : null,
           companyAddress: isManagerOrAdmin ? companyAddress : null,

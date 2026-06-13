@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, ArrowRight, ArrowLeft, Sparkles, Briefcase, Shield, User, CheckCircle2, Circle, Building, MapPin, Users, ChevronDown } from "lucide-react";
+import { Loader2, ArrowRight, ArrowLeft, Sparkles, Briefcase, Shield, User, CheckCircle2, Circle, Building, MapPin, Users, ChevronDown, Phone } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
+import PhoneInput from "react-phone-number-input";
+import "react-phone-number-input/style.css";
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -11,6 +13,7 @@ export default function OnboardingPage() {
   const [name, setName] = useState("");
   const [department, setDepartment] = useState("Engineering");
   const [role, setRole] = useState("Employee");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [companyAddress, setCompanyAddress] = useState("");
   const [employeeCount, setEmployeeCount] = useState("1-10");
@@ -20,7 +23,7 @@ export default function OnboardingPage() {
   const [errorMsg, setErrorMsg] = useState("");
   const [step, setStep] = useState(1);
 
-  const isManagerOrAdmin = role === "Admin" || role === "Manager";
+  const isManagerOrAdmin = role === "Admin" || role === "Manager" || role === "Owner";
 
   useEffect(() => {
     // If role is employee, ensure we don't end up on step 3
@@ -70,6 +73,10 @@ export default function OnboardingPage() {
       setErrorMsg("Please enter your name.");
       return;
     }
+    if (!phoneNumber || !phoneNumber.trim()) {
+      setErrorMsg("Phone number (with country code) is required.");
+      return;
+    }
     setStep(2);
   };
 
@@ -85,6 +92,12 @@ export default function OnboardingPage() {
 
     if (!name.trim()) {
       setErrorMsg("Please enter your name.");
+      setStep(1);
+      return;
+    }
+
+    if (!phoneNumber || !phoneNumber.trim()) {
+      setErrorMsg("Phone number (with country code) is required.");
       setStep(1);
       return;
     }
@@ -130,6 +143,7 @@ export default function OnboardingPage() {
           name: name.trim(),
           department,
           role,
+          phoneNumber: phoneNumber.trim(),
           companyName: isManagerOrAdmin ? companyName.trim() : null,
           companyAddress: isManagerOrAdmin ? companyAddress.trim() : null,
           employeeCount: isManagerOrAdmin ? employeeCount : null,
@@ -379,6 +393,22 @@ export default function OnboardingPage() {
                   </p>
                 </div>
 
+                {/* PHONE NUMBER */}
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2">
+                    Phone Number (Mandatory)
+                  </label>
+                  <div className="phone-input-container">
+                    <PhoneInput
+                      international
+                      defaultCountry="US"
+                      placeholder="Enter phone number"
+                      value={phoneNumber}
+                      onChange={(val) => setPhoneNumber(val || "")}
+                    />
+                  </div>
+                </div>
+
                 {/* DEPARTMENT */}
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">
@@ -425,11 +455,12 @@ export default function OnboardingPage() {
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2">
                     Account Permission Role
                   </label>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-2 gap-2">
                     {[
                       { value: "Employee", label: "Employee", desc: "View & log claims" },
                       { value: "Manager", label: "Manager", desc: "Approve claims" },
-                      { value: "Admin", label: "Admin", desc: "Full privileges & billing" }
+                      { value: "Admin", label: "Admin", desc: "Full privileges & settings" },
+                      { value: "Owner", label: "Owner", desc: "Workspace control & billing" }
                     ].map((item) => {
                       const active = role === item.value;
                       return (
