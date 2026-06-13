@@ -1003,85 +1003,17 @@ export default function HelpCenterPage() {
                 </div>
               )}
 
-              {/* Management Admin Status controls */}
-              {isManagement && (
-                <form
-                  onSubmit={(e) => handleUpdateTicket(e, selectedTicket.id)}
-                  className="space-y-4 pt-4 border-t border-border/40"
-                >
-                  <span className="block font-black text-[10px] uppercase tracking-widest text-primary">
-                    Support Desk Actions (Admin/HR)
-                  </span>
-
-                  <div className="grid gap-4 grid-cols-2">
-                    <div>
-                      <label className="block text-[9px] font-bold uppercase tracking-widest text-slate-500">
-                        Update Ticket Status
-                      </label>
-                      <div className="mt-2 relative">
-                        <select
-                          value={adminStatus}
-                          onChange={(e) => setAdminStatus(e.target.value as any)}
-                          className="block w-full rounded-xl border border-border bg-card dark:bg-slate-900/60 px-3.5 pr-8 py-2.5 text-xs text-foreground outline-none appearance-none cursor-pointer"
-                        >
-                          <option value="Open">Open</option>
-                          <option value="In Progress">In Progress</option>
-                          <option value="Resolved">Resolved</option>
-                        </select>
-                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-500">
-                          <svg className="fill-current h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                          </svg>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-[9px] font-bold uppercase tracking-widest text-slate-500">
-                      Resolution Message / Notes
-                    </label>
-                    <textarea
-                      rows={3}
-                      value={adminResolution}
-                      onChange={(e) => setAdminResolution(e.target.value)}
-                      placeholder="e.g. Restarted IT server nodes. The claim is now verified."
-                      className="mt-2 block w-full rounded-xl border border-border bg-transparent px-3 py-2.5 text-xs text-foreground outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/40"
-                    />
-                  </div>
-
-                  <Button
-                    type="submit"
-                    disabled={updatingTicketId === selectedTicket.id}
-                    className="btn-primary w-full h-10 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    {updatingTicketId === selectedTicket.id ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Updating Status...
-                      </>
-                    ) : (
-                      "Save Ticket Status Log"
-                    )}
-                  </Button>
-                </form>
-              )}
             </div>
 
-            {/* Bottom Actions - Delete ticket */}
-            <div className="pt-4 border-t border-border/40 mt-8 flex gap-3">
-              {(currentUser?.role === "Admin" ||
-                currentUser?.role === "Owner" ||
-                selectedTicket.employeeId === currentUser?.id) && (
-                <Button
-                  onClick={() => handleDeleteTicket(selectedTicket.id)}
-                  variant="ghost"
-                  className="h-10 text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 w-full rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer"
-                >
-                  <Trash2 className="h-4.5 w-4.5" />
-                  Delete Ticket
-                </Button>
-              )}
+            {/* Bottom Actions - Close */}
+            <div className="pt-4 border-t border-border/40 mt-8">
+              <Button
+                onClick={() => setSelectedTicket(null)}
+                variant="secondary"
+                className="w-full h-11 rounded-2xl text-xs font-bold uppercase tracking-wider cursor-pointer"
+              >
+                Close Ticket View
+              </Button>
             </div>
           </div>
         </div>
