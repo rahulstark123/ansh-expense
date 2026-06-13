@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search, ChevronDown, LogOut, User, FolderOpen, Wallet, Settings } from "lucide-react";
+import { Search, ChevronDown, LogOut, User, FolderOpen, Wallet, Settings, Loader2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import { Button } from "@/components/ui/button";
@@ -121,16 +121,29 @@ export function AppHeader() {
             <Avatar className="h-8 w-8 rounded-lg">
               <AvatarImage src="/logoAnshapps.png" alt={currentUser.name} className="object-cover" />
               <AvatarFallback className="rounded-lg bg-primary text-[11px] font-bold text-primary-foreground">
-                {currentUser.avatarInitials}
+                {currentUser.id === "loading-user" ? (
+                  <Loader2 className="h-3 w-3 animate-spin text-white" />
+                ) : (
+                  currentUser.avatarInitials
+                )}
               </AvatarFallback>
             </Avatar>
             <div className="hidden min-w-0 flex-col text-left sm:flex">
-              <p className="truncate text-sm font-bold text-slate-900 dark:text-white max-w-[120px]">
-                {currentUser.name}
-              </p>
-              <p className="truncate text-[10px] font-bold uppercase tracking-wider text-primary">
-                {currentUser.role}
-              </p>
+              {currentUser.id === "loading-user" ? (
+                <div className="space-y-1">
+                  <div className="h-3 w-16 bg-slate-200 dark:bg-slate-850 rounded animate-pulse" />
+                  <div className="h-2 w-10 bg-slate-100 dark:bg-slate-900 rounded animate-pulse" />
+                </div>
+              ) : (
+                <>
+                  <p className="truncate text-sm font-bold text-slate-900 dark:text-white max-w-[120px]">
+                    {currentUser.name}
+                  </p>
+                  <p className="truncate text-[10px] font-bold uppercase tracking-wider text-primary">
+                    {currentUser.role}
+                  </p>
+                </>
+              )}
             </div>
             <ChevronDown className="h-3.5 w-3.5 text-slate-400 shrink-0" />
           </DropdownMenuTrigger>
@@ -144,15 +157,28 @@ export function AppHeader() {
             {/* User Details info */}
             <div className="px-2.5 py-2 flex items-center gap-2.5 border-b border-border/40 mb-1">
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-[11px] font-bold text-primary-foreground">
-                {currentUser.avatarInitials}
+                {currentUser.id === "loading-user" ? (
+                  <Loader2 className="h-3 w-3 animate-spin text-white" />
+                ) : (
+                  currentUser.avatarInitials
+                )}
               </span>
               <div className="min-w-0 flex-1">
-                <span className="block truncate text-xs font-bold text-slate-900 dark:text-white leading-tight">
-                  {currentUser.name}
-                </span>
-                <span className="block truncate text-[10px] font-bold uppercase tracking-wider text-primary leading-none mt-0.5">
-                  {currentUser.role}
-                </span>
+                {currentUser.id === "loading-user" ? (
+                  <div className="space-y-1">
+                    <div className="h-3 w-20 bg-slate-200 dark:bg-slate-850 rounded animate-pulse" />
+                    <div className="h-2 w-12 bg-slate-100 dark:bg-slate-900 rounded animate-pulse" />
+                  </div>
+                ) : (
+                  <>
+                    <span className="block truncate text-xs font-bold text-slate-900 dark:text-white leading-tight">
+                      {currentUser.name}
+                    </span>
+                    <span className="block truncate text-[10px] font-bold uppercase tracking-wider text-primary leading-none mt-0.5">
+                      {currentUser.role}
+                    </span>
+                  </>
+                )}
               </div>
             </div>
 

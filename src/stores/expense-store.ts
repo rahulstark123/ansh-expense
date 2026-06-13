@@ -202,13 +202,23 @@ const getHeaders = () => {
   };
 };
 
+const loadingEmployee: Employee = {
+  id: "loading-user",
+  name: "",
+  email: "",
+  role: "Employee",
+  department: "",
+  avatarInitials: "",
+  status: "Active",
+};
+
 export const useExpenseStore = create<ExpenseState>()(
   persist(
     (set, get) => ({
       employees: initialEmployees,
       expenses: initialExpenses,
       projects: initialProjects,
-      currentUser: initialEmployees[0],
+      currentUser: loadingEmployee,
 
       initialize: async () => {
         try {
