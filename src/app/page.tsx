@@ -20,7 +20,9 @@ import {
   TrendingUp,
   Info,
   Briefcase,
-  MessageSquare
+  MessageSquare,
+  Zap,
+  Mail
 } from "lucide-react";
 
 type MockTab = "submit" | "analytics" | "approvals";
@@ -675,6 +677,101 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Activity Feed & Announcements Section */}
+      <section className="relative z-10 mx-auto max-w-7xl px-6 py-24 border-t border-white/5">
+        <div className="grid gap-12 lg:grid-cols-2 items-center">
+          {/* Left: Interactive Mockup Feed */}
+          <div className="bg-[#070D14]/90 border border-white/5 rounded-3xl p-6 relative overflow-hidden shadow-2xl">
+            {/* Ambient background glow inside the window */}
+            <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-indigo-500/5 blur-3xl" />
+            
+            {/* Header row */}
+            <div className="flex justify-between items-center border-b border-white/5 pb-4">
+              <div className="flex gap-1.5">
+                <div className="h-3 w-3 rounded-full bg-rose-500/80" />
+                <div className="h-3 w-3 rounded-full bg-amber-500/80" />
+                <div className="h-3 w-3 rounded-full bg-emerald-500/80" />
+              </div>
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Activity Feed</span>
+            </div>
+
+            {/* List items */}
+            <div className="space-y-3 mt-4">
+              {[
+                {
+                  title: "Claim approved: Software Licenses",
+                  desc: "Approved by Priya S. · Finance project",
+                  time: "12m ago",
+                  iconColor: "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+                },
+                {
+                  title: "Announcement: Q3 Policy Updates",
+                  desc: "Posted by Vikram M. · Pinned notice for all staff",
+                  time: "1h ago",
+                  iconColor: "bg-indigo-500/10 border-indigo-500/20 text-indigo-400"
+                },
+                {
+                  title: "Priya Sharma joined the workspace",
+                  desc: "Role: Manager (Engineering)",
+                  time: "2h ago",
+                  iconColor: "bg-sky-500/10 border-sky-500/20 text-sky-400"
+                },
+                {
+                  title: "Project created: Acme Web Portal",
+                  desc: "Client: Acme Corp · Budget allocated",
+                  time: "3h ago",
+                  iconColor: "bg-purple-500/10 border-purple-500/20 text-purple-400"
+                }
+              ].map((item, idx) => (
+                <div key={idx} className="bg-[#020408]/60 border border-white/5 rounded-2xl p-4 flex gap-4 items-start hover:bg-[#020408]/80 transition-colors">
+                  <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 border ${item.iconColor}`}>
+                    <Zap className="h-4 w-4" />
+                  </div>
+                  <div className="min-w-0 flex-1 text-left space-y-1">
+                    <div className="flex justify-between items-baseline gap-2">
+                      <span className="text-xs font-bold text-slate-200 block truncate">{item.title}</span>
+                      <span className="text-[9px] font-bold text-slate-500 uppercase whitespace-nowrap shrink-0">{item.time}</span>
+                    </div>
+                    <span className="block text-[10px] text-slate-450 leading-relaxed font-semibold truncate">{item.desc}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right: Copy & Bullet Points */}
+          <div className="space-y-6 text-left lg:pl-6">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 px-3.5 py-1 text-[10px] font-bold text-indigo-400 uppercase tracking-widest">
+              <Zap className="h-3.5 w-3.5" />
+              Workspace Updates
+            </div>
+            
+            <h2 className="text-3xl font-black text-white tracking-tight sm:text-4xl leading-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
+              Stay Aligned with Activity Feed & Announcements
+            </h2>
+            
+            <p className="text-sm text-slate-400 leading-relaxed font-semibold">
+              Replace scattered email threads with a clean workspace timeline. The activity feed logs what changed across expenses, projects, and support tickets, while announcements let administrators pin critical notices for the entire team.
+            </p>
+
+            <ul className="space-y-4 pt-4 text-xs font-semibold leading-relaxed">
+              <li className="flex gap-3 items-center">
+                <Check className="h-4 w-4 text-emerald-500 shrink-0" strokeWidth={3} />
+                <span className="text-slate-300">Automatic timeline — expenses, projects, support tickets, and team joins</span>
+              </li>
+              <li className="flex gap-3 items-center">
+                <Check className="h-4 w-4 text-emerald-500 shrink-0" strokeWidth={3} />
+                <span className="text-slate-300">Pinned announcements for expense deadlines, workspace policies, and updates</span>
+              </li>
+              <li className="flex gap-3 items-center">
+                <Check className="h-4 w-4 text-emerald-500 shrink-0" strokeWidth={3} />
+                <span className="text-slate-300">Included on Pro — no extra tracking tool subscription required</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       {/* FAQ */}
       <section id="faq" className="relative z-10 mx-auto max-w-5xl px-6 py-24 space-y-16">
         <div className="text-center space-y-4 max-w-2xl mx-auto">
@@ -769,15 +866,114 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="relative z-10 border-t border-white/5 bg-[#03060C] py-8">
-        <div className="mx-auto max-w-7xl px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-[10px] text-slate-500">
-            © 2026 ANSH Expense. All rights reserved.
+      {/* Action CTA Section */}
+      <section className="relative z-10 border-t border-white/5 py-24 bg-gradient-to-b from-transparent to-[#050A11]/30">
+        {/* Radial backing glow */}
+        <div className="absolute inset-0 z-0 pointer-events-none flex items-center justify-center">
+          <div className="h-[300px] w-[600px] rounded-full bg-emerald-500/[0.03] blur-[120px]" />
+        </div>
+        
+        <div className="relative z-10 mx-auto max-w-4xl px-6 text-center space-y-6">
+          {/* Centered Check Icon */}
+          <div className="h-10 w-10 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl flex items-center justify-center mx-auto">
+            <Check className="h-5 w-5" strokeWidth={3} />
+          </div>
+
+          <h2 className="text-3xl font-black text-white tracking-tight sm:text-4xl leading-tight">
+            Ready to accelerate your team's workflow?
+          </h2>
+
+          <p className="text-xs text-slate-400 leading-relaxed font-semibold max-w-lg mx-auto">
+            Create your free workspace in under two minutes. No credit card required. Experience automated receipt matching, mileage logging, and quick approvals.
           </p>
-          <div className="flex gap-6 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-            <Link href="/terms" className="hover:text-slate-350">Terms</Link>
-            <Link href="/privacy" className="hover:text-slate-350">Privacy</Link>
+
+          <div className="pt-4">
+            <Link
+              href="/signup"
+              className="inline-flex items-center gap-2 bg-[#00D8A5] hover:bg-[#00F5D4] text-[#04080F] font-black uppercase text-xs tracking-wider px-7 py-3.5 rounded-xl shadow-lg shadow-emerald-500/10 hover:shadow-emerald-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
+            >
+              <span>Start 14-Day Free Trial</span>
+              <ArrowRight className="h-4 w-4 text-[#04080F]" strokeWidth={2.5} />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="relative z-10 border-t border-white/5 bg-[#03060C] pt-20 pb-12 overflow-hidden">
+        <div className="mx-auto max-w-7xl px-6 space-y-16">
+          
+          {/* Giant Logo Text Section */}
+          <div className="text-center space-y-4 select-none">
+            <span className="text-[10px] font-bold tracking-widest text-slate-500 uppercase flex items-center justify-center gap-1.5">
+              HANDLED BY 
+              <img src="/logoAnshapps.png" alt="Ansh Apps" className="h-4 w-4 object-contain" />
+            </span>
+            <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-black tracking-tight bg-gradient-to-r from-cyan-400 via-indigo-500 to-fuchsia-500 bg-clip-text text-transparent">
+              Ansh Apps
+            </h1>
+          </div>
+
+          {/* Footer Columns */}
+          <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-4 pt-12 border-t border-white/5">
+            {/* Col 1 */}
+            <div className="space-y-4 text-left">
+              <div className="flex items-center gap-2">
+                <img src="/logoAnshapps.png" alt="ANSH Expense" className="h-6 w-6 object-contain" />
+                <span className="font-extrabold text-xs tracking-wider text-white uppercase">ANSH Expense</span>
+              </div>
+              <p className="text-[11px] text-slate-450 leading-relaxed font-semibold">
+                The ultimate expense tracking & auditing platform designed for teams who manage business spend and payouts daily.
+              </p>
+            </div>
+
+            {/* Col 2 */}
+            <div className="space-y-4 text-left">
+              <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Product</span>
+              <ul className="space-y-2 text-[11px] font-semibold text-slate-400">
+                <li><Link href="/login" className="hover:text-white transition-colors">Expense Claims</Link></li>
+                <li><Link href="/login" className="hover:text-white transition-colors">Mileage Tracking</Link></li>
+                <li><Link href="/login" className="hover:text-white transition-colors">Project Mapping</Link></li>
+                <li><Link href="/login" className="hover:text-white transition-colors">Activity Feed</Link></li>
+                <li><Link href="/login" className="hover:text-white transition-colors">Announcements</Link></li>
+                <li><Link href="/login" className="hover:text-white transition-colors">Support Desk</Link></li>
+              </ul>
+            </div>
+
+            {/* Col 3 */}
+            <div className="space-y-4 text-left">
+              <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Account</span>
+              <ul className="space-y-2 text-[11px] font-semibold text-slate-400">
+                <li><Link href="/login" className="hover:text-white transition-colors">Sign In</Link></li>
+                <li><Link href="/signup" className="hover:text-white transition-colors">Sign Up</Link></li>
+                <li><Link href="/adminpanel" className="hover:text-white transition-colors">Admin Desk</Link></li>
+              </ul>
+            </div>
+
+            {/* Col 4 */}
+            <div className="space-y-4 text-left">
+              <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Get in touch</span>
+              <p className="text-[11px] text-slate-450 leading-relaxed font-semibold font-sans">
+                Have questions or need custom business plans? Talk to our creators.
+              </p>
+              <a
+                href="mailto:hello@anshapps.com"
+                className="inline-flex items-center gap-2 text-[11px] font-bold text-emerald-400 hover:text-emerald-300 transition-colors pt-1"
+              >
+                <Mail className="h-3.5 w-3.5" />
+                hello@anshapps.com
+              </a>
+            </div>
+          </div>
+
+          {/* Sub-footer bottom bar */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-white/5 text-[10px] font-semibold text-slate-500">
+            <span>© 2026 ANSH Expense. All rights reserved.</span>
+            <div className="flex gap-6 uppercase tracking-wider">
+              <Link href="/privacy" className="hover:text-slate-350 transition-colors">Privacy Policy</Link>
+              <Link href="/terms" className="hover:text-slate-350 transition-colors">Terms of Service</Link>
+              <Link href="/help" className="hover:text-slate-350 transition-colors">Contact Us</Link>
+            </div>
           </div>
         </div>
       </footer>
