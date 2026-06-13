@@ -81,6 +81,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+    const prevHtmlOverflow = html.style.overflow;
+    const prevBodyOverflow = body.style.overflow;
+
+    html.style.overflow = "hidden";
+    body.style.overflow = "hidden";
+
+    return () => {
+      html.style.overflow = prevHtmlOverflow;
+      body.style.overflow = prevBodyOverflow;
+    };
+  }, []);
+
+  useEffect(() => {
     const mobileQuery = window.matchMedia("(max-width: 767px)");
 
     const handleMobileChange = (e: MediaQueryListEvent | MediaQueryList) => {
@@ -134,16 +149,22 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <div className="flex h-screen overflow-hidden bg-background">
       <MainSidebar />
       <SubSidebar />
-      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         <TrialBanner />
         <AppHeader />
-        <main className={isWorkspace ? "mesh-gradient flex-1 flex flex-col overflow-hidden" : "mesh-gradient flex-1 overflow-y-auto"}>
+        <main
+          className={
+            isWorkspace
+              ? "mesh-gradient flex min-h-0 flex-1 flex-col overflow-hidden"
+              : "mesh-gradient min-h-0 flex-1 overflow-y-auto overscroll-contain"
+          }
+        >
           {isWorkspace ? (
-            <div className="flex-1 w-full h-full min-h-0 flex flex-col">
+            <div className="flex h-full min-h-0 w-full flex-1 flex-col">
               {children}
             </div>
           ) : (
-            <div className="mx-auto max-w-7xl p-6 md:p-10 lg:p-12">
+            <div className="mx-auto w-full max-w-7xl p-6 md:p-10 lg:p-12">
               {children}
             </div>
           )}

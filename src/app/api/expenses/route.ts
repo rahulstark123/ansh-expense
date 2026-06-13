@@ -40,13 +40,38 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing required fields or invalid amount" }, { status: 400 });
     }
 
+    let targetCurrency = "USD";
+    const workspace = await prisma.workspace.findUnique({
+      where: { id: wid },
+    });
+    if (workspace?.settingsJson) {
+      try {
+        const parsed = JSON.parse(workspace.settingsJson);
+        if (parsed.workspaceSettings?.currency) {
+          targetCurrency = parsed.workspaceSettings.currency;
+        }
+      } catch (e) {}
+    }
+
+    const sourceCurrency = currency || "USD";
+    let finalAmount = amount;
+    let finalTaxAmount = Number(taxAmount || 0);
+
+    if (sourceCurrency.toUpperCase() !== targetCurrency.toUpperCase()) {
+      const { convertToWorkspaceCurrency } = require("@/lib/currency");
+      finalAmount = convertToWorkspaceCurrency(amount, sourceCurrency, targetCurrency);
+      if (finalTaxAmount > 0) {
+        finalTaxAmount = convertToWorkspaceCurrency(finalTaxAmount, sourceCurrency, targetCurrency);
+      }
+    }
+
     const created = await prisma.expenseClaim.create({
       data: {
         employeeId: employeeId || employee.id,
         title: title.trim(),
         category,
-        amount,
-        currency: currency || "USD",
+        amount: finalAmount,
+        currency: targetCurrency,
         date: date || new Date().toISOString().slice(0, 10),
         status: "Pending",
         reason: reason?.trim() || "",
@@ -55,7 +80,7 @@ export async function POST(req: Request) {
         mileageRate: isMileage ? Number(mileageRate) : null,
         distanceKm: isMileage ? Number(distanceKm) : null,
         taxPercent: Number(taxPercent || 0),
-        taxAmount: Number(taxAmount || 0),
+        taxAmount: finalTaxAmount,
         projectId: projectId || null,
         wid,
       },

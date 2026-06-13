@@ -79,9 +79,12 @@ export default function CompanyExpensesSettingsPage() {
     run();
   }, []);
 
-  const handleSaveSettings = async () => {
-    if (saving) return;
-    setSaving(true);
+  const saveSettings = async (
+    updatedCompany: string[],
+    updatedVendors: string[],
+    updatedCycles: string[],
+    updatedStatuses: string[]
+  ) => {
     try {
       const token = sessionStorage.getItem("ansh_auth_token");
       const res = await fetch("/api/company-expenses/settings", {
@@ -91,24 +94,22 @@ export default function CompanyExpensesSettingsPage() {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          companyCategories,
-          vendorCategories,
-          billingCycles,
-          paymentStatuses,
+          companyCategories: updatedCompany,
+          vendorCategories: updatedVendors,
+          billingCycles: updatedCycles,
+          paymentStatuses: updatedStatuses,
         }),
       });
 
       if (res.ok) {
-        setToast({ message: "Settings saved successfully!", type: "success" });
+        setToast({ message: "Settings synced successfully!", type: "success" });
       } else {
         const data = await res.json();
-        throw new Error(data.error || "Failed to save settings.");
+        throw new Error(data.error || "Failed to sync settings.");
       }
     } catch (e: any) {
       console.error(e);
-      setToast({ message: e.message || "Failed to save settings", type: "error" });
-    } finally {
-      setSaving(false);
+      setToast({ message: e.message || "Failed to sync settings", type: "error" });
     }
   };
 
@@ -116,56 +117,101 @@ export default function CompanyExpensesSettingsPage() {
   const addCompanyCategory = () => {
     const val = newCompanyCategory.trim();
     if (val && !companyCategories.includes(val)) {
-      setCompanyCategories([...companyCategories, val]);
+      const updated = [...companyCategories, val];
+      setCompanyCategories(updated);
       setNewCompanyCategory("");
+      saveSettings(updated, vendorCategories, billingCycles, paymentStatuses);
     }
   };
 
   const addVendorCategory = () => {
     const val = newVendorCategory.trim();
     if (val && !vendorCategories.includes(val)) {
-      setVendorCategories([...vendorCategories, val]);
+      const updated = [...vendorCategories, val];
+      setVendorCategories(updated);
       setNewVendorCategory("");
+      saveSettings(companyCategories, updated, billingCycles, paymentStatuses);
     }
   };
 
   const addBillingCycle = () => {
     const val = newBillingCycle.trim();
     if (val && !billingCycles.includes(val)) {
-      setBillingCycles([...billingCycles, val]);
+      const updated = [...billingCycles, val];
+      setBillingCycles(updated);
       setNewBillingCycle("");
+      saveSettings(companyCategories, vendorCategories, updated, paymentStatuses);
     }
   };
 
   const addPaymentStatus = () => {
     const val = newPaymentStatus.trim();
     if (val && !paymentStatuses.includes(val)) {
-      setPaymentStatuses([...paymentStatuses, val]);
+      const updated = [...paymentStatuses, val];
+      setPaymentStatuses(updated);
       setNewPaymentStatus("");
+      saveSettings(companyCategories, vendorCategories, billingCycles, updated);
     }
   };
 
   // Helper deletions
   const removeCompanyCategory = (item: string) => {
-    setCompanyCategories(companyCategories.filter((c) => c !== item));
+    const updated = companyCategories.filter((c) => c !== item);
+    setCompanyCategories(updated);
+    saveSettings(updated, vendorCategories, billingCycles, paymentStatuses);
   };
 
   const removeVendorCategory = (item: string) => {
-    setVendorCategories(vendorCategories.filter((c) => c !== item));
+    const updated = vendorCategories.filter((c) => c !== item);
+    setVendorCategories(updated);
+    saveSettings(companyCategories, updated, billingCycles, paymentStatuses);
   };
 
   const removeBillingCycle = (item: string) => {
-    setBillingCycles(billingCycles.filter((c) => c !== item));
+    const updated = billingCycles.filter((c) => c !== item);
+    setBillingCycles(updated);
+    saveSettings(companyCategories, vendorCategories, updated, paymentStatuses);
   };
 
   const removePaymentStatus = (item: string) => {
-    setPaymentStatuses(paymentStatuses.filter((c) => c !== item));
+    const updated = paymentStatuses.filter((c) => c !== item);
+    setPaymentStatuses(updated);
+    saveSettings(companyCategories, vendorCategories, billingCycles, updated);
   };
 
   if (loading) {
     return (
-      <div className="flex h-[60dvh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="space-y-6 animate-pulse">
+        {/* PageHeader Skeleton */}
+        <div className="space-y-3">
+          <div className="h-3.5 w-32 bg-slate-200 dark:bg-slate-800 rounded-lg animate-pulse" />
+          <div className="h-7 w-64 bg-slate-200 dark:bg-slate-800 rounded-xl animate-pulse" />
+          <div className="h-3.5 w-96 bg-slate-200 dark:bg-slate-800 rounded-lg animate-pulse" />
+        </div>
+
+        {/* Grid of Settings sections Skeleton */}
+        <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Card key={i} className="crm-card border border-border/40 opacity-75 p-5 space-y-4">
+              <div className="flex items-center gap-3 border-b border-border/40 pb-3">
+                <div className="h-10 w-10 bg-slate-200 dark:bg-slate-800 rounded-2xl" />
+                <div className="space-y-1.5 flex-1">
+                  <div className="h-3.5 w-32 bg-slate-200 dark:bg-slate-800 rounded" />
+                  <div className="h-2 w-52 bg-slate-200 dark:bg-slate-800 rounded" />
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2 py-2">
+                {Array.from({ length: 4 }).map((_, j) => (
+                  <div key={j} className="h-6 w-16 bg-slate-200 dark:bg-slate-800 rounded-2xl" />
+                ))}
+              </div>
+              <div className="pt-4 border-t border-border/40 mt-4 flex gap-2">
+                <div className="h-10 bg-slate-100 dark:bg-slate-900 rounded-xl flex-1" />
+                <div className="h-10 w-16 bg-slate-200 dark:bg-slate-800 rounded-xl" />
+              </div>
+            </Card>
+          ))}
+        </div>
       </div>
     );
   }
@@ -193,8 +239,8 @@ export default function CompanyExpensesSettingsPage() {
     <div className="space-y-6">
       {toast && (
         <div className="fixed top-5 right-5 z-55 animate-in fade-in slide-in-from-top-4 duration-300">
-          <Card className={`p-4 shadow-xl border-l-4 rounded-2xl ${
-            toast.type === "success" ? "border-l-emerald-500 bg-emerald-500/5" : "border-l-rose-500 bg-rose-500/5"
+          <Card className={`p-4 shadow-xl border border-border/40 border-l-4 rounded-2xl bg-card ${
+            toast.type === "success" ? "border-l-emerald-500" : "border-l-rose-500"
           }`}>
             <div className="flex items-center gap-2">
               {toast.type === "success" ? (
@@ -212,11 +258,6 @@ export default function CompanyExpensesSettingsPage() {
         title="Expenditure Desk Settings"
         description="Configure accounting parameters, billing schedules, vendor categorization, and settlement statuses."
         eyebrow="Workspace Setup"
-        action={{
-          label: saving ? "Saving Settings..." : "Save Settings",
-          icon: Settings,
-          onClick: handleSaveSettings,
-        }}
       />
 
       <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
@@ -409,22 +450,7 @@ export default function CompanyExpensesSettingsPage() {
         </Card>
       </div>
 
-      <div className="flex justify-end pt-4 gap-4">
-        <Button
-          onClick={handleSaveSettings}
-          disabled={saving}
-          className="btn-primary h-11 px-8 rounded-2xl font-black border-0 gap-2 text-xs"
-        >
-          {saving ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Saving Settings...
-            </>
-          ) : (
-            "Save Settings & Sync Workspace"
-          )}
-        </Button>
-      </div>
+      <div className="h-6" />
     </div>
   );
 }

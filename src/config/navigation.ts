@@ -110,6 +110,7 @@ export const mainNav: MainNavItem[] = [
     subNav: [
       { id: "profile", label: "Profile Settings", href: "/settings/profile", icon: User },
       { id: "company", label: "Company Settings", href: "/settings/company", icon: Building },
+      { id: "workspace", label: "Workspace Settings", href: "/settings/workspace", icon: Settings },
       { id: "billing", label: "Billing & Plans", href: "/settings/billing", icon: CreditCard },
     ],
   },

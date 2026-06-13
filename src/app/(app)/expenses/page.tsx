@@ -8,11 +8,18 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { CustomSelect } from "@/components/ui/custom-select";
 import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { useExpenseStore, type ExpenseClaim, type ClaimStatus } from "@/stores/expense-store";
 import { usePlanStore } from "@/stores/plan-store";
@@ -34,6 +41,9 @@ import {
   Lock,
   Filter,
   ChevronDown,
+  ShieldAlert,
+  MoreVertical,
+  Pencil,
 } from "lucide-react";
 
 const compressImage = (file: File): Promise<Blob | File> => {
@@ -98,13 +108,14 @@ const compressImage = (file: File): Promise<Blob | File> => {
 };
 
 export default function ExpensesPage() {
-  const { currentUser, employees, expenses, projects, initialize, addExpense, addComment } = useExpenseStore();
+  const { currentUser, employees, expenses, projects, initialize, addExpense, addComment, updateExpense } = useExpenseStore();
   const planStore = usePlanStore();
 
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
   const [selectedClaim, setSelectedClaim] = useState<ExpenseClaim | null>(null);
+  const [editingClaimId, setEditingClaimId] = useState<string | null>(null);
 
   // Form State
   const [title, setTitle] = useState("");
@@ -141,6 +152,11 @@ export default function ExpensesPage() {
   const [selectedEmployeeId, setSelectedEmployeeId] = useState("");
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
+  // Delete Confirmation State
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [claimToDeleteId, setClaimToDeleteId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
   useEffect(() => {
     if (toast) {
       const timer = setTimeout(() => {
@@ -173,24 +189,6 @@ export default function ExpensesPage() {
     };
     fetchSettings();
   }, []);
-
-  useEffect(() => {
-    const detectIPCurrency = async () => {
-      try {
-        const res = await fetch("https://ipapi.co/json/");
-        if (res.ok) {
-          const data = await res.json();
-          if (data.currency) {
-            setClaimCurrency(data.currency);
-          }
-        }
-      } catch (err) {
-        console.error("IP currency detection failed:", err);
-      }
-    };
-    detectIPCurrency();
-  }, []);
-
   useEffect(() => {
     const run = async () => {
       await Promise.all([initialize(), planStore.fetchPlan()]);
@@ -278,7 +276,7 @@ export default function ExpensesPage() {
     setSubmittingClaim(true);
     try {
       const mergedUrls = attachments.map((att) => att.url).join(",");
-      await addExpense({
+      const payload: any = {
         title: title.trim(),
         category,
         amount,
@@ -292,10 +290,26 @@ export default function ExpensesPage() {
         taxPercent: 0,
         taxAmount: 0,
         projectId: projectId || null,
-        employeeId: selectedEmployeeId || currentUser.id,
-      });
+      };
+
+      if (editingClaimId) {
+        // If editing a NeedsInfo claim, set its status back to Pending for re-approval
+        const originalClaim = expenses.find((c) => c.id === editingClaimId);
+        if (originalClaim?.status === "NeedsInfo") {
+          payload.status = "Pending";
+        }
+        await updateExpense(editingClaimId, payload);
+        setToast({ message: "Expense claim updated successfully!", type: "success" });
+      } else {
+        await addExpense({
+          ...payload,
+          employeeId: selectedEmployeeId || currentUser.id,
+        });
+        setToast({ message: "Expense claim logged successfully!", type: "success" });
+      }
 
       // Clear Form & Close
+      setEditingClaimId(null);
       setTitle("");
       setCategory("Travel");
       setAmount(0);
@@ -307,7 +321,6 @@ export default function ExpensesPage() {
       setClaimCurrency(workspaceCurrency);
       setAttachments([]);
       setOpen(false);
-      setToast({ message: "Expense claim logged successfully!", type: "success" });
     } catch (err: any) {
       console.error(err);
       setFormError(err.message || "Failed to submit claim.");
@@ -334,6 +347,33 @@ export default function ExpensesPage() {
       console.error(err);
     } finally {
       setPostingComment(false);
+    }
+  };
+
+  // Handle Delete Claim
+  const handleDeleteClaim = async (id: string) => {
+    setDeleting(true);
+    try {
+      const token = sessionStorage.getItem("ansh_auth_token");
+      const res = await fetch(`/api/expenses/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setToast({ message: "Expense claim deleted successfully!", type: "success" });
+        setDeleteConfirmOpen(false);
+        setDetailOpen(false);
+        setClaimToDeleteId(null);
+        await initialize(); // Refresh data in store
+      } else {
+        const errData = await res.json();
+        throw new Error(errData.error || "Failed to delete claim");
+      }
+    } catch (err: any) {
+      console.error(err);
+      setToast({ message: err.message || "Failed to delete claim.", type: "error" });
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -444,7 +484,18 @@ export default function ExpensesPage() {
           label: "Log Expense Claim",
           icon: Plus,
           onClick: () => {
+            setEditingClaimId(null);
             setSelectedEmployeeId(currentUser?.id || "");
+            setTitle("");
+            setCategory("Travel");
+            setAmount(0);
+            setDistanceKm(0);
+            setTaxPercent(0);
+            setTaxAmount(0);
+            setProjectId("");
+            setReason("");
+            setClaimCurrency(workspaceCurrency);
+            setAttachments([]);
             setOpen(true);
           },
         }}
@@ -690,7 +741,7 @@ export default function ExpensesPage() {
           <DialogHeader className="pb-3 border-b border-border/40">
             <DialogTitle className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
               <FileText className="h-5 w-5 text-indigo-500" />
-              Log Workspace Expense Claim
+              {editingClaimId ? "Edit Expense Claim" : "Log Workspace Expense Claim"}
             </DialogTitle>
           </DialogHeader>
 
@@ -952,10 +1003,10 @@ export default function ExpensesPage() {
                 {submittingClaim ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Submitting...
+                    {editingClaimId ? "Saving..." : "Submitting..."}
                   </>
                 ) : (
-                  "Submit Report"
+                  editingClaimId ? "Save Changes" : "Submit Report"
                 )}
               </Button>
             </DialogFooter>
@@ -968,13 +1019,79 @@ export default function ExpensesPage() {
         <DialogContent className="sm:max-w-[550px] p-6 rounded-3xl border border-border bg-card backdrop-blur-xl shadow-2xl overflow-y-auto max-h-[90dvh]">
           {selectedClaim && (
             <>
-              <DialogHeader className="pb-3 border-b border-border/40">
-                <div className="flex items-center justify-between gap-4">
-                  <DialogTitle className="text-base font-extrabold text-slate-900 dark:text-white truncate">
+              <DialogHeader className="pb-3 border-b border-border/40 relative pr-12">
+                <div className="flex flex-col items-start gap-1.5 w-full">
+                  <DialogTitle className="text-base font-extrabold text-slate-900 dark:text-white truncate max-w-[85%]">
                     {selectedClaim.title}
                   </DialogTitle>
-                  <div className="shrink-0">{getStatusBadge(selectedClaim.status)}</div>
+                  <div>{getStatusBadge(selectedClaim.status)}</div>
                 </div>
+
+                {/* 3-dots actions menu next to close button */}
+                {["Pending", "NeedsInfo"].includes(selectedClaim.status) && (
+                  <div className="absolute right-8 top-1 z-10">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger
+                        render={
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 rounded-full border border-border/40 bg-card hover:bg-slate-50 dark:hover:bg-slate-900 cursor-pointer"
+                          >
+                            <MoreVertical className="h-4 w-4 text-slate-555" />
+                          </Button>
+                        }
+                      />
+                      <DropdownMenuContent align="end" className="w-36 rounded-xl border border-border bg-card shadow-lg p-1">
+                        <DropdownMenuItem
+                          onClick={() => {
+                            // Populate Edit Form and Open
+                            setEditingClaimId(selectedClaim.id);
+                            setSelectedEmployeeId(selectedClaim.employeeId);
+                            setTitle(selectedClaim.title);
+                            setCategory(selectedClaim.category);
+                            setAmount(selectedClaim.amount);
+                            setDate(selectedClaim.date);
+                            setProjectId(selectedClaim.projectId || "");
+                            setReason(selectedClaim.reason || "");
+                            setClaimCurrency(selectedClaim.currency || workspaceCurrency);
+                            if (selectedClaim.isMileage) {
+                              setDistanceKm(selectedClaim.distanceKm || 0);
+                              setMileageRate(selectedClaim.mileageRate || workspaceMileageRate);
+                            } else {
+                              setDistanceKm(0);
+                              setMileageRate(workspaceMileageRate);
+                            }
+                            // For attachments:
+                            if (selectedClaim.receiptUrl) {
+                              const urls = selectedClaim.receiptUrl.split(",").filter(Boolean);
+                              setAttachments(urls.map((url, idx) => ({ name: `Receipt #${idx + 1}`, url })));
+                            } else {
+                              setAttachments([]);
+                            }
+                            setDetailOpen(false);
+                            setOpen(true);
+                          }}
+                          className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-900 cursor-pointer"
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                          Edit Details
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setClaimToDeleteId(selectedClaim.id);
+                            setDeleteConfirmOpen(true);
+                            setDetailOpen(false);
+                          }}
+                          className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-rose-600 dark:text-rose-455 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/20 cursor-pointer"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                          Delete Claim
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                )}
               </DialogHeader>
 
               <div className="space-y-5 pt-4 text-xs">
@@ -1134,16 +1251,96 @@ export default function ExpensesPage() {
                 </div>
               </div>
 
-              <DialogFooter className="pt-2 border-t border-border/40">
+              <div className="pt-4 mt-2 border-t border-border/40 flex flex-row items-center justify-end gap-3 w-full">
+                {/* Resubmit button if NeedsInfo */}
+                {selectedClaim.status === "NeedsInfo" && (
+                  <Button
+                    onClick={async () => {
+                      try {
+                        setPostingComment(true);
+                        
+                        // If there's content in comment box, send it first
+                        if (commentText.trim()) {
+                          await addComment(selectedClaim.id, commentText.trim());
+                          setCommentText("");
+                        } else {
+                          // Otherwise, add a default system comment
+                          await addComment(selectedClaim.id, "Claim resubmitted for re-approval.");
+                        }
+
+                        // Resubmit the claim status to Pending
+                        await updateExpense(selectedClaim.id, { status: "Pending" });
+                        setToast({ message: "Claim resubmitted for re-approval!", type: "success" });
+                        setDetailOpen(false);
+                      } catch (err) {
+                        console.error(err);
+                      } finally {
+                        setPostingComment(false);
+                      }
+                    }}
+                    className="btn-primary h-10 px-4 rounded-xl text-xs font-bold gap-1.5 shadow-md shrink-0"
+                  >
+                    <Send className="h-3.5 w-3.5" />
+                    Resubmit for Approval
+                  </Button>
+                )}
                 <Button
                   onClick={() => setDetailOpen(false)}
-                  className="h-11 px-6 rounded-2xl font-bold"
+                  variant="secondary"
+                  className="h-10 px-5 rounded-xl font-bold text-xs"
                 >
                   Close
                 </Button>
-              </DialogFooter>
+              </div>
             </>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* CONFIRM DELETE DIALOG */}
+      <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <DialogContent className="sm:max-w-[400px] p-6 rounded-3xl border border-border bg-card backdrop-blur-xl shadow-2xl">
+          <DialogHeader className="pb-3 border-b border-border/40">
+            <DialogTitle className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+              <ShieldAlert className="h-5 w-5 text-rose-500" />
+              Remove Expense Claim?
+            </DialogTitle>
+            <DialogDescription className="text-xs text-slate-455 leading-relaxed mt-1 text-left">
+              Are you sure you want to permanently delete this pending expense claim? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+
+          <DialogFooter className="pt-4 gap-2 flex flex-col-reverse sm:flex-row">
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setDeleteConfirmOpen(false);
+                setClaimToDeleteId(null);
+                setDetailOpen(true);
+              }}
+              className="h-11 px-6 rounded-2xl font-bold w-full sm:w-auto"
+            >
+              Cancel
+            </Button>
+            <Button
+              disabled={deleting}
+              onClick={async () => {
+                if (claimToDeleteId) {
+                  await handleDeleteClaim(claimToDeleteId);
+                }
+              }}
+              className="h-11 px-6 rounded-2xl bg-rose-600 hover:bg-rose-750 text-white font-black text-xs gap-2 border-0 w-full sm:w-auto cursor-pointer flex items-center justify-center"
+            >
+              {deleting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                "Confirm Delete"
+              )}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
       {toast && (

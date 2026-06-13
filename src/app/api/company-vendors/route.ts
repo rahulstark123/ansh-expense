@@ -18,9 +18,32 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Forbidden: Access denied" }, { status: 403 });
     }
 
+    const { searchParams } = new URL(req.url);
+    const search = searchParams.get("search")?.trim() || "";
+    const category = searchParams.get("category") || "All";
+
     const wid = employee.wid ?? 1;
+
+    const whereClause: any = {
+      wid,
+    };
+
+    if (category !== "All") {
+      whereClause.category = category;
+    }
+
+    if (search) {
+      whereClause.OR = [
+        { name: { contains: search, mode: "insensitive" } },
+        { contactName: { contains: search, mode: "insensitive" } },
+        { email: { contains: search, mode: "insensitive" } },
+        { phone: { contains: search, mode: "insensitive" } },
+        { website: { contains: search, mode: "insensitive" } },
+      ];
+    }
+
     const vendors = await prisma.companyVendor.findMany({
-      where: { wid },
+      where: whereClause,
       orderBy: { name: "asc" },
     });
 

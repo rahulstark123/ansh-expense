@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import { Providers } from "@/components/providers";
+import { ThemeInitScript } from "@/components/theme-init-script";
 import "./globals.css";
 
 const sansFont = Plus_Jakarta_Sans({
@@ -32,34 +33,10 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${sansFont.variable} ${monoFont.variable} h-full antialiased`}
-      data-scroll-behavior="smooth"
       suppressHydrationWarning
     >
       <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  var val = localStorage.getItem('ansh-expense-ui');
-                  if (val) {
-                    var parsed = JSON.parse(val);
-                    if (parsed && parsed.state) {
-                      var appearance = parsed.state.appearance;
-                      var accent = parsed.state.accentTheme;
-                      if (appearance === 'dark') {
-                        document.documentElement.classList.add('dark');
-                      }
-                      if (accent) {
-                        document.documentElement.setAttribute('data-accent', accent);
-                      }
-                    }
-                  }
-                } catch (e) {}
-              })()
-            `,
-          }}
-        />
+        <ThemeInitScript />
       </head>
       <body className="min-h-full flex flex-col bg-background text-foreground selection:bg-primary/20 selection:text-primary">
         <Providers>{children}</Providers>

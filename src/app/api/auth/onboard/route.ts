@@ -11,7 +11,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { name, department, role, companyName, companyAddress, employeeCount } = body;
+    const { name, department, role, companyName, companyAddress, employeeCount, country } = body;
 
     if (!name || !department || !role) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -32,6 +32,43 @@ export async function POST(req: Request) {
         companyName || "New Workspace"
       );
       newWid = workspace.id;
+
+      // Determine default currency from country
+      const countryToCurrency: Record<string, string> = {
+        US: "USD",
+        IN: "INR",
+        GB: "GBP",
+        DE: "EUR",
+        FR: "EUR",
+        AU: "AUD",
+        CA: "CAD",
+        SG: "SGD",
+        AE: "AED",
+        JP: "JPY"
+      };
+      const defaultCurrency = countryToCurrency[country?.toUpperCase()] || "USD";
+      const defaultMileageRate = defaultCurrency === "INR" ? 8 : 0.5;
+
+      const initialSettingsJson = JSON.stringify({
+        companyProfile: {
+          name: companyName?.trim() || "",
+          address: companyAddress?.trim() || "",
+          employeeCount: employeeCount || "1-10",
+        },
+        workspaceSettings: {
+          name: companyName?.trim() || "",
+          currency: defaultCurrency,
+          mileageRate: defaultMileageRate,
+          wfhAllowed: true,
+        }
+      });
+
+      await prisma.workspace.update({
+        where: { id: newWid },
+        data: {
+          settingsJson: initialSettingsJson
+        }
+      });
     } else {
       newWid = 1;
     }

@@ -14,6 +14,7 @@ export default function OnboardingPage() {
   const [companyName, setCompanyName] = useState("");
   const [companyAddress, setCompanyAddress] = useState("");
   const [employeeCount, setEmployeeCount] = useState("1-10");
+  const [country, setCountry] = useState("US");
   const [loading, setLoading] = useState(false);
   const [checkingSession, setCheckingSession] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
@@ -132,6 +133,7 @@ export default function OnboardingPage() {
           companyName: isManagerOrAdmin ? companyName.trim() : null,
           companyAddress: isManagerOrAdmin ? companyAddress.trim() : null,
           employeeCount: isManagerOrAdmin ? employeeCount : null,
+          country: isManagerOrAdmin ? country : null,
         }),
       });
 
@@ -511,6 +513,35 @@ export default function OnboardingPage() {
                         placeholder="e.g. ANSH Solutions"
                         className="block w-full rounded-xl border border-white/5 bg-slate-950/90 px-3.5 py-2.5 text-xs text-white outline-none focus:border-indigo-500/40 focus:ring-1 focus:ring-indigo-500/40"
                       />
+                    </div>
+                  </div>
+
+                  {/* BUSINESS COUNTRY */}
+                  <div>
+                    <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-400">
+                      Business Country
+                    </label>
+                    <div className="mt-1.5 relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                        <MapPin className="h-3.5 w-3.5" />
+                      </div>
+                      <select
+                        value={country}
+                        onChange={(e) => setCountry(e.target.value)}
+                        className="block w-full rounded-xl border border-white/5 bg-slate-950/90 pl-9 pr-10 py-2.5 text-xs text-white outline-none focus:border-indigo-500/40 focus:ring-1 focus:ring-indigo-500/40 appearance-none cursor-pointer"
+                      >
+                        <option value="US">United States (USD)</option>
+                        <option value="IN">India (INR)</option>
+                        <option value="GB">United Kingdom (GBP)</option>
+                        <option value="DE">Germany (EUR)</option>
+                        <option value="FR">France (EUR)</option>
+                        <option value="AU">Australia (AUD)</option>
+                        <option value="CA">Canada (CAD)</option>
+                        <option value="SG">Singapore (SGD)</option>
+                        <option value="AE">United Arab Emirates (AED)</option>
+                        <option value="JP">Japan (JPY)</option>
+                      </select>
+                      <ChevronDown className="absolute right-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400 pointer-events-none" />
                     </div>
                   </div>
 

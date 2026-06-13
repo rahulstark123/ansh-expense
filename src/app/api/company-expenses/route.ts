@@ -114,6 +114,7 @@ export async function POST(req: Request) {
       "Other",
     ];
     let validStatuses = ["Paid", "Unpaid", "Scheduled"];
+    let targetCurrency = "USD";
 
     if (workspace?.settingsJson) {
       try {
@@ -123,6 +124,9 @@ export async function POST(req: Request) {
         }
         if (parsed.companyExpensesSettings?.paymentStatuses) {
           validStatuses = parsed.companyExpensesSettings.paymentStatuses;
+        }
+        if (parsed.workspaceSettings?.currency) {
+          targetCurrency = parsed.workspaceSettings.currency;
         }
       } catch (e) {
         console.error("Failed to parse settingsJson in route validation:", e);
@@ -142,11 +146,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid payment status selection" }, { status: 400 });
     }
 
+    const sourceCurrency = currency || "USD";
+    let finalAmount = Number(amount);
+
+    if (sourceCurrency.toUpperCase() !== targetCurrency.toUpperCase()) {
+      const { convertToWorkspaceCurrency } = require("@/lib/currency");
+      finalAmount = convertToWorkspaceCurrency(finalAmount, sourceCurrency, targetCurrency);
+    }
+
     const expense = await prisma.companyExpense.create({
       data: {
         title: title.trim(),
-        amount: Number(amount),
-        currency: currency || "USD",
+        amount: finalAmount,
+        currency: targetCurrency,
         category,
         date,
         paymentMethod,

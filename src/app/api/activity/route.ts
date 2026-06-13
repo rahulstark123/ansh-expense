@@ -25,7 +25,7 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const categoryFilter = searchParams.get("category"); // expenses, projects, team, announcements
     const page = Math.max(1, parseInt(searchParams.get("page") || "1"));
-    const limit = Math.max(1, Math.min(50, parseInt(searchParams.get("limit") || "20")));
+    const limit = Math.max(1, Math.min(50, parseInt(searchParams.get("limit") || "10")));
 
     // Gather all members of this workspace for name-mapping of approvedBy id to name
     const workspaceEmployees = await prisma.employee.findMany({

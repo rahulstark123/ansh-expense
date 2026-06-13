@@ -11,30 +11,28 @@ export async function GET(req: Request) {
 
     const wid = employee.wid ?? 1;
 
-    // Fetch all employees in this workspace
-    const employees = await prisma.employee.findMany({
-      where: { wid },
-      orderBy: { name: "asc" },
-    });
-
-    // Fetch all workspace projects
-    const projects = await prisma.workspaceProject.findMany({
-      where: { wid },
-      orderBy: { createdAt: "desc" },
-    });
-
-    // Fetch all claims in this workspace
-    const claims = await prisma.expenseClaim.findMany({
-      where: { wid },
-      include: {
-        employee: true,
-        project: true,
-        comments: {
-          orderBy: { createdAt: "asc" },
+    // Fetch all employees, projects, and claims in this workspace in parallel to optimize DB fetch times
+    const [employees, projects, claims] = await Promise.all([
+      prisma.employee.findMany({
+        where: { wid },
+        orderBy: { name: "asc" },
+      }),
+      prisma.workspaceProject.findMany({
+        where: { wid },
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.expenseClaim.findMany({
+        where: { wid },
+        include: {
+          employee: true,
+          project: true,
+          comments: {
+            orderBy: { createdAt: "asc" },
+          },
         },
-      },
-      orderBy: { appliedAt: "desc" },
-    });
+        orderBy: { appliedAt: "desc" },
+      })
+    ]);
 
     // Map database records to the frontend ExpenseClaim structure
     const mappedExpenses = claims.map((c) => ({

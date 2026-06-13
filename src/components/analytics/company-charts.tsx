@@ -23,6 +23,7 @@ interface ChartDataPoint {
 interface CategoryDataPoint {
   name: string;
   value: number;
+  percent?: number;
 }
 
 interface CompanyChartsProps {
@@ -199,30 +200,38 @@ export default function CompanyCharts({
           </div>
         </div>
 
-        {/* AUDITING INSIGHTS SUMMARY CARD */}
+        {/* CATEGORY ALLOCATION MIX */}
         <div className="lg:col-span-2 p-5 bg-card/60 backdrop-blur-md shadow-sm rounded-3xl border border-border/60 flex flex-col justify-between">
           <div>
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white">General Ledger Breakdowns</h3>
-            <p className="text-[11px] text-slate-450 mt-0.5">Consolidated account sums for dynamic audits.</p>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Category Allocation Mix</h3>
+            <p className="text-[11px] text-slate-450 mt-0.5">Distribution across workspace general ledger accounts.</p>
           </div>
-          <div className="space-y-3 mt-4">
-            {categoryData.slice(0, 4).map((item, index) => (
-              <div key={item.name} className="flex items-center justify-between text-xs border-b border-border/30 pb-2.5">
-                <div className="flex items-center gap-2">
-                  <div
-                    className="h-2.5 w-2.5 rounded-full shrink-0"
-                    style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                  />
-                  <span className="font-extrabold text-slate-700 dark:text-slate-350">{item.name}</span>
+          <div className="space-y-4 mt-4">
+            {categoryData.slice(0, 5).map((item, index) => {
+              const pct = item.percent !== undefined ? Math.round(item.percent) : 0;
+              return (
+                <div key={item.name} className="space-y-1">
+                  <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-350">
+                    <span>{item.name}</span>
+                    <span>
+                      {currencySymbol}{item.value.toLocaleString("en-US", { maximumFractionDigits: 0 })} ({pct}%)
+                    </span>
+                  </div>
+                  <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                    <div
+                      className="h-full rounded-full"
+                      style={{
+                        width: `${pct}%`,
+                        backgroundColor: COLORS[index % COLORS.length]
+                      }}
+                    />
+                  </div>
                 </div>
-                <span className="font-black text-slate-900 dark:text-white">
-                  {currencySymbol}{item.value.toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                </span>
-              </div>
-            ))}
+              );
+            })}
             {categoryData.length === 0 && (
               <div className="text-center py-8">
-                <span className="text-xs text-slate-450 italic">No records to audit.</span>
+                <span className="text-xs text-slate-450 italic">No expenditures logged yet.</span>
               </div>
             )}
           </div>

@@ -70,6 +70,7 @@ model ExpenseClaim {
   wid            Int?            // Workspace ID
   appliedAt      DateTime        @default(now())
   comments       ExpenseComment[]
+  companyExpense CompanyExpense?  // Auto-created when claim is approved
 }
 
 model ExpenseComment {
@@ -176,21 +177,23 @@ model SupportTicket {
 }
 
 model CompanyExpense {
-  id            String   @id @default(cuid())
+  id            String        @id @default(cuid())
   title         String
   amount        Float
-  currency      String   @default("USD")
-  category      String   // "Rent & Utilities" | "SaaS & Software" | "Marketing & Ads" | "Office Operations" | "Salaries & Payroll" | "Other"
-  date          String   // "YYYY-MM-DD"
-  paymentMethod String   // "Cash" | "Company Card" | "Bank Transfer" | "Cheque" | "Other"
-  paymentStatus String   // "Paid" | "Unpaid" | "Scheduled"
-  receiptUrl    String?  // Comma-separated list of attachments (up to 3)
+  currency      String        @default("USD")
+  category      String        // "Rent & Utilities" | "SaaS & Software" | "Marketing & Ads" | "Office Operations" | "Salaries & Payroll" | "Other"
+  date          String        // "YYYY-MM-DD"
+  paymentMethod String        // "Cash" | "Company Card" | "Bank Transfer" | "Cheque" | "Other"
+  paymentStatus String        // "Paid" | "Unpaid" | "Scheduled"
+  receiptUrl    String?       // Comma-separated list of attachments (up to 3)
   vendor        String?
-  notes         String?  @default("")
-  wid           Int      @default(1)
+  notes         String?       @default("")
+  wid           Int           @default(1)
   loggedById    String
-  loggedBy      Employee @relation(fields: [loggedById], references: [id], onDelete: Cascade)
-  createdAt     DateTime @default(now())
+  loggedBy      Employee      @relation(fields: [loggedById], references: [id], onDelete: Cascade)
+  claimId       String?       @unique // Links to an ExpenseClaim if auto-generated from an approved claim
+  claim         ExpenseClaim? @relation(fields: [claimId], references: [id], onDelete: SetNull)
+  createdAt     DateTime      @default(now())
 }
 
 model CompanyVendor {

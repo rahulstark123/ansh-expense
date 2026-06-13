@@ -7,11 +7,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { useExpenseStore } from "@/stores/expense-store";
 import {
@@ -28,6 +35,9 @@ import {
   Paperclip,
   CheckCircle,
   ChevronDown,
+  Filter,
+  MoreVertical,
+  Pencil,
 } from "lucide-react";
 import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
@@ -51,9 +61,15 @@ export default function CompanyVendorsPage() {
   
   // Modals state
   const [open, setOpen] = useState(false);
+  const [editingVendorId, setEditingVendorId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+
+  // Delete confirm state
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [vendorToDeleteId, setVendorToDeleteId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   // Form Fields
   const [name, setName] = useState("");
@@ -72,8 +88,10 @@ export default function CompanyVendorsPage() {
     "Other"
   ]);
 
-  // Search State
+  // Search & Filter State
   const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("All");
+  const [showFilters, setShowFilters] = useState(false);
 
   const userRole = currentUser?.role?.toLowerCase() || "";
   const isAuthorized = ["admin", "manager", "owner", "hr", "hr manager"].includes(userRole);
@@ -91,7 +109,11 @@ export default function CompanyVendorsPage() {
     if (!isAuthorized) return;
     try {
       const token = sessionStorage.getItem("ansh_auth_token");
-      const res = await fetch("/api/company-vendors", {
+      const url = new URL("/api/company-vendors", window.location.origin);
+      if (searchQuery.trim()) url.searchParams.set("search", searchQuery.trim());
+      if (categoryFilter !== "All") url.searchParams.set("category", categoryFilter);
+
+      const res = await fetch(url.toString(), {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -131,6 +153,12 @@ export default function CompanyVendorsPage() {
     run();
   }, []);
 
+  useEffect(() => {
+    if (!loading && isAuthorized) {
+      fetchVendors();
+    }
+  }, [searchQuery, categoryFilter]);
+
   const handleAddVendorSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError("");
@@ -143,8 +171,11 @@ export default function CompanyVendorsPage() {
     setSubmitting(true);
     try {
       const token = sessionStorage.getItem("ansh_auth_token");
-      const res = await fetch("/api/company-vendors", {
-        method: "POST",
+      const url = editingVendorId ? `/api/company-vendors/${editingVendorId}` : "/api/company-vendors";
+      const method = editingVendorId ? "PATCH" : "POST";
+
+      const res = await fetch(url, {
+        method,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -164,24 +195,25 @@ export default function CompanyVendorsPage() {
         throw new Error(err.error || "Failed to save vendor.");
       }
 
+      setEditingVendorId(null);
       setName("");
       setContactName("");
       setEmail("");
       setPhone("");
       setWebsite("");
       setOpen(false);
-      setToast({ message: "Vendor saved successfully!", type: "success" });
+      setToast({ message: editingVendorId ? "Vendor updated successfully!" : "Vendor saved successfully!", type: "success" });
       fetchVendors();
     } catch (err: any) {
       console.error(err);
-      setFormError(err.message || "Failed to add vendor.");
+      setFormError(err.message || "Failed to save vendor.");
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleDeleteVendor = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this vendor from the registry?")) return;
+    setDeleting(true);
     try {
       const token = sessionStorage.getItem("ansh_auth_token");
       const res = await fetch(`/api/company-vendors/${id}`, {
@@ -190,18 +222,52 @@ export default function CompanyVendorsPage() {
       });
       if (res.ok) {
         setToast({ message: "Vendor deleted!", type: "success" });
+        setDeleteConfirmOpen(false);
+        setVendorToDeleteId(null);
         fetchVendors();
       }
     } catch (e) {
       console.error(e);
       setToast({ message: "Failed to delete vendor", type: "error" });
+    } finally {
+      setDeleting(false);
     }
   };
 
   if (loading) {
     return (
-      <div className="flex h-[60dvh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="space-y-6 animate-pulse">
+        {/* PageHeader Skeleton */}
+        <div className="space-y-3">
+          <div className="h-3.5 w-32 bg-slate-200 dark:bg-slate-800 rounded-lg animate-pulse" />
+          <div className="h-7 w-64 bg-slate-200 dark:bg-slate-800 rounded-xl animate-pulse" />
+          <div className="h-3.5 w-96 bg-slate-200 dark:bg-slate-800 rounded-lg animate-pulse" />
+        </div>
+
+        {/* Search Bar Skeleton */}
+        <Card className="crm-card border border-border/40 opacity-75 p-4">
+          <div className="h-11 bg-slate-100 dark:bg-slate-900 rounded-2xl w-full" />
+        </Card>
+
+        {/* Grid of Vendor Cards Skeleton */}
+        <div className="grid gap-6 grid-cols-1 md:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Card key={i} className="crm-card border border-border/40 opacity-75 p-5 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 bg-slate-200 dark:bg-slate-800 rounded-2xl shrink-0" />
+                <div className="space-y-2 flex-1">
+                  <div className="h-3.5 w-24 bg-slate-200 dark:bg-slate-800 rounded" />
+                  <div className="h-3 w-16 bg-slate-200 dark:bg-slate-800 rounded-full" />
+                </div>
+              </div>
+              <div className="border-t border-border/40 pt-3 space-y-2">
+                <div className="h-3.5 w-36 bg-slate-200 dark:bg-slate-800 rounded" />
+                <div className="h-3.5 w-48 bg-slate-200 dark:bg-slate-800 rounded" />
+                <div className="h-3.5 w-28 bg-slate-200 dark:bg-slate-800 rounded" />
+              </div>
+            </Card>
+          ))}
+        </div>
       </div>
     );
   }
@@ -225,16 +291,6 @@ export default function CompanyVendorsPage() {
     );
   }
 
-  // Filter vendors by search
-  const filteredVendors = vendors.filter((v) => {
-    const q = searchQuery.toLowerCase();
-    return (
-      v.name.toLowerCase().includes(q) ||
-      (v.contactName?.toLowerCase() || "").includes(q) ||
-      (v.category?.toLowerCase() || "").includes(q)
-    );
-  });
-
   return (
     <div className="space-y-6">
       {toast && (
@@ -251,30 +307,110 @@ export default function CompanyVendorsPage() {
         title="Vendor Registry Desk"
         description="Register and manage general suppliers, landlord metrics, and software SaaS vendor contact pipelines."
         eyebrow="Corporate Finance"
-        action={{
+         action={{
           label: "Register New Vendor",
           icon: Plus,
-          onClick: () => setOpen(true),
+          onClick: () => {
+            setEditingVendorId(null);
+            setName("");
+            setContactName("");
+            setEmail("");
+            setPhone("");
+            setWebsite("");
+            setCategory("Software & SaaS");
+            setOpen(true);
+          },
         }}
+        toolbar={
+          <div className="relative">
+            <Button
+              variant="outline"
+              onClick={() => setShowFilters(!showFilters)}
+              className="flex h-10 items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none hover:bg-slate-50/50 cursor-pointer shadow-sm relative"
+            >
+              <Filter className="h-3.5 w-3.5 text-slate-400" />
+              <span>Filters</span>
+              {(searchQuery.trim() !== "" || categoryFilter !== "All") && (
+                <span className="ml-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-primary text-[9px] font-black text-primary-foreground animate-in zoom-in duration-200">
+                  {
+                    [searchQuery.trim() !== "", categoryFilter !== "All"].filter(Boolean).length
+                  }
+                </span>
+              )}
+            </Button>
+
+            {showFilters && (
+              <>
+                <div
+                  className="fixed inset-0 z-30"
+                  onClick={() => setShowFilters(false)}
+                />
+                <div className="absolute right-0 mt-2 z-40 w-72 sm:w-80 rounded-2xl border border-border bg-card/95 dark:bg-slate-950/95 p-4 shadow-2xl backdrop-blur-md space-y-4 animate-in fade-in slide-in-from-top-2 duration-200 select-none">
+                  <div className="flex items-center justify-between border-b border-border/40 pb-2">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-white">
+                      Filter Vendors
+                    </span>
+                    {(searchQuery.trim() !== "" || categoryFilter !== "All") && (
+                      <button
+                        onClick={() => {
+                          setSearchQuery("");
+                          setCategoryFilter("All");
+                        }}
+                        className="text-[10px] font-black uppercase tracking-wider text-primary hover:underline cursor-pointer bg-transparent border-0 p-0"
+                      >
+                        Clear All
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Search Query */}
+                  <div className="space-y-1.5">
+                    <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400">
+                      Search Query
+                    </label>
+                    <div className="relative">
+                      <Input
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Search vendors..."
+                        className="h-10 rounded-xl pl-8 text-xs bg-card dark:bg-slate-900 border border-border"
+                      />
+                      <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+                    </div>
+                  </div>
+
+                  {/* Category Filter */}
+                  <div className="space-y-1.5">
+                    <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400">
+                      Category
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={categoryFilter}
+                        onChange={(e) => setCategoryFilter(e.target.value)}
+                        className="flex h-10 w-full items-center rounded-xl border border-border bg-card dark:bg-slate-900 pl-3 pr-9 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none hover:bg-slate-50/50 cursor-pointer appearance-none"
+                      >
+                        <option value="All">All Categories</option>
+                        {vendorCategories.map((c) => (
+                          <option key={c} value={c}>
+                            {c}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        }
       />
 
-      {/* SEARCH BAR */}
-      <Card className="crm-card p-4 bg-card/60 backdrop-blur-md shadow-sm rounded-2xl">
-        <div className="relative">
-          <Input
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search vendors by name, category, or contact person..."
-            className="h-11 rounded-2xl pl-10 text-xs font-semibold"
-          />
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-        </div>
-      </Card>
-
       {/* VENDORS LIST */}
-      {filteredVendors.length > 0 ? (
+      {vendors.length > 0 ? (
         <div className="grid gap-6 grid-cols-1 md:grid-cols-3">
-          {filteredVendors.map((vendor) => (
+          {vendors.map((vendor) => (
             <Card key={vendor.id} className="crm-card bg-card/60 backdrop-blur-md shadow-sm rounded-3xl p-5 border border-border/80 flex flex-col justify-between hover:scale-[1.01] transition-transform duration-200">
               <div className="space-y-4">
                 <div className="flex items-start justify-between gap-4">
@@ -292,14 +428,51 @@ export default function CompanyVendorsPage() {
                     </div>
                   </div>
 
-                  {["admin", "owner", "hr manager"].includes(userRole) && (
-                    <button
-                      onClick={() => handleDeleteVendor(vendor.id)}
-                      className="text-slate-400 hover:text-rose-500 transition-colors p-1"
-                      title="Remove vendor"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
+                  {isAuthorized && (
+                    <div className="shrink-0 z-10">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger
+                          render={
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 rounded-full border border-border/40 bg-card hover:bg-slate-50 dark:hover:bg-slate-900 cursor-pointer animate-in fade-in"
+                            >
+                              <MoreVertical className="h-4 w-4 text-slate-500" />
+                            </Button>
+                          }
+                        />
+                        <DropdownMenuContent align="end" className="w-36 rounded-xl border border-border bg-card shadow-lg p-1">
+                          <DropdownMenuItem
+                            onClick={() => {
+                              // Populate Edit Form and Open
+                              setEditingVendorId(vendor.id);
+                              setName(vendor.name);
+                              setContactName(vendor.contactName || "");
+                              setEmail(vendor.email || "");
+                              setPhone(vendor.phone || "");
+                              setCategory(vendor.category || "Software & SaaS");
+                              setWebsite(vendor.website || "");
+                              setOpen(true);
+                            }}
+                            className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-900 cursor-pointer"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                            Edit details
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              setVendorToDeleteId(vendor.id);
+                              setDeleteConfirmOpen(true);
+                            }}
+                            className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-rose-600 dark:text-rose-455 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/20 cursor-pointer"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                            Remove vendor
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   )}
                 </div>
 
@@ -355,7 +528,7 @@ export default function CompanyVendorsPage() {
         <DialogContent className="sm:max-w-[500px] p-6 rounded-3xl border border-border bg-card backdrop-blur-xl shadow-2xl overflow-y-auto max-h-[90dvh]">
           <DialogHeader className="pb-3 border-b border-border/40">
             <DialogTitle className="text-base font-extrabold text-slate-900 dark:text-white">
-              Register Corporate Vendor
+              {editingVendorId ? "Edit Corporate Vendor" : "Register Corporate Vendor"}
             </DialogTitle>
           </DialogHeader>
 
@@ -461,14 +634,60 @@ export default function CompanyVendorsPage() {
                 {submitting ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Saving...
+                    {editingVendorId ? "Saving..." : "Registering..."}
                   </>
                 ) : (
-                  "Register Vendor"
+                  editingVendorId ? "Save Changes" : "Register Vendor"
                 )}
               </Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* CONFIRM DELETE DIALOG */}
+      <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <DialogContent className="sm:max-w-[400px] p-6 rounded-3xl border border-border bg-card backdrop-blur-xl shadow-2xl">
+          <DialogHeader className="pb-3 border-b border-border/40">
+            <DialogTitle className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+              <ShieldAlert className="h-5 w-5 text-rose-500" />
+              Remove Vendor from Registry?
+            </DialogTitle>
+            <DialogDescription className="text-xs text-slate-455 leading-relaxed mt-1 text-left">
+              Are you sure you want to permanently delete this vendor from the registry? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+
+          <DialogFooter className="pt-4 gap-2 flex flex-col-reverse sm:flex-row">
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setDeleteConfirmOpen(false);
+                setVendorToDeleteId(null);
+              }}
+              className="h-11 px-6 rounded-2xl font-bold w-full sm:w-auto"
+            >
+              Cancel
+            </Button>
+            <Button
+              disabled={deleting}
+              onClick={async () => {
+                if (vendorToDeleteId) {
+                  await handleDeleteVendor(vendorToDeleteId);
+                }
+              }}
+              className="h-11 px-6 rounded-2xl bg-rose-600 hover:bg-rose-750 text-white font-black text-xs gap-2 border-0 w-full sm:w-auto cursor-pointer flex items-center justify-center"
+            >
+              {deleting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                "Confirm Delete"
+              )}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

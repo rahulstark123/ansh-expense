@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { useExpenseStore } from "@/stores/expense-store";
 import {
@@ -66,6 +67,11 @@ export default function CompanyRecurringPage() {
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+
+  // Delete confirm state
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [contractToDeleteId, setContractToDeleteId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   // Form Fields
   const [title, setTitle] = useState("");
@@ -219,7 +225,7 @@ export default function CompanyRecurringPage() {
   };
 
   const handleDeleteContract = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this subscription contract?")) return;
+    setDeleting(true);
     try {
       const token = sessionStorage.getItem("ansh_auth_token");
       const res = await fetch(`/api/recurring-contracts/${id}`, {
@@ -228,10 +234,14 @@ export default function CompanyRecurringPage() {
       });
       if (res.ok) {
         setToast({ message: "Contract deleted!", type: "success" });
+        setDeleteConfirmOpen(false);
+        setContractToDeleteId(null);
         fetchContracts();
       }
     } catch (e) {
       console.error(e);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -247,8 +257,48 @@ export default function CompanyRecurringPage() {
 
   if (loading) {
     return (
-      <div className="flex h-[60dvh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="space-y-6 animate-pulse">
+        {/* PageHeader Skeleton */}
+        <div className="space-y-3">
+          <div className="h-3.5 w-32 bg-slate-200 dark:bg-slate-800 rounded-lg animate-pulse" />
+          <div className="h-7 w-64 bg-slate-200 dark:bg-slate-800 rounded-xl animate-pulse" />
+          <div className="h-3.5 w-96 bg-slate-200 dark:bg-slate-800 rounded-lg animate-pulse" />
+        </div>
+
+        {/* Grid of Contract Cards Skeleton */}
+        <div className="grid gap-6 grid-cols-1 md:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Card key={i} className="crm-card border border-border/40 opacity-75 p-5 space-y-4">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 bg-slate-200 dark:bg-slate-800 rounded-2xl shrink-0" />
+                  <div className="space-y-2">
+                    <div className="h-3.5 w-28 bg-slate-200 dark:bg-slate-800 rounded" />
+                    <div className="h-2 w-16 bg-slate-200 dark:bg-slate-800 rounded" />
+                  </div>
+                </div>
+                <div className="h-7 w-7 bg-slate-200 dark:bg-slate-800 rounded-full" />
+              </div>
+              <div className="bg-slate-50 dark:bg-slate-900/60 p-3.5 rounded-2xl border border-border/30 flex items-center justify-between">
+                <div className="h-3 w-24 bg-slate-200 dark:bg-slate-800 rounded" />
+                <div className="space-y-1.5 text-right">
+                  <div className="h-3.5 w-16 bg-slate-200 dark:bg-slate-800 rounded ml-auto" />
+                  <div className="h-2 w-10 bg-slate-200 dark:bg-slate-800 rounded ml-auto" />
+                </div>
+              </div>
+              <div className="space-y-2.5 text-xs">
+                <div className="flex justify-between">
+                  <div className="h-3 w-16 bg-slate-200 dark:bg-slate-800 rounded" />
+                  <div className="h-4 w-12 bg-slate-200 dark:bg-slate-800 rounded-full" />
+                </div>
+                <div className="flex justify-between">
+                  <div className="h-3 w-20 bg-slate-200 dark:bg-slate-800 rounded" />
+                  <div className="h-3.5 w-24 bg-slate-200 dark:bg-slate-800 rounded" />
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
       </div>
     );
   }
@@ -340,7 +390,10 @@ export default function CompanyRecurringPage() {
 
                       {["admin", "owner", "hr manager"].includes(userRole) && (
                         <button
-                          onClick={() => handleDeleteContract(contract.id)}
+                          onClick={() => {
+                            setContractToDeleteId(contract.id);
+                            setDeleteConfirmOpen(true);
+                          }}
                           className="text-slate-400 hover:text-rose-500 transition-colors p-1"
                           title="Remove contract"
                         >
@@ -540,6 +593,52 @@ export default function CompanyRecurringPage() {
               </Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* CONFIRM DELETE DIALOG */}
+      <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <DialogContent className="sm:max-w-[400px] p-6 rounded-3xl border border-border bg-card backdrop-blur-xl shadow-2xl">
+          <DialogHeader className="pb-3 border-b border-border/40">
+            <DialogTitle className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+              <ShieldAlert className="h-5 w-5 text-rose-500" />
+              Remove Subscription Contract?
+            </DialogTitle>
+            <DialogDescription className="text-xs text-slate-455 leading-relaxed mt-1 text-left">
+              Are you sure you want to permanently delete this subscription contract? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+
+          <DialogFooter className="pt-4 gap-2 flex flex-col-reverse sm:flex-row">
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setDeleteConfirmOpen(false);
+                setContractToDeleteId(null);
+              }}
+              className="h-11 px-6 rounded-2xl font-bold w-full sm:w-auto"
+            >
+              Cancel
+            </Button>
+            <Button
+              disabled={deleting}
+              onClick={async () => {
+                if (contractToDeleteId) {
+                  await handleDeleteContract(contractToDeleteId);
+                }
+              }}
+              className="h-11 px-6 rounded-2xl bg-rose-600 hover:bg-rose-750 text-white font-black text-xs gap-2 border-0 w-full sm:w-auto cursor-pointer flex items-center justify-center"
+            >
+              {deleting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                "Confirm Delete"
+              )}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

@@ -11,7 +11,14 @@ import "react-phone-number-input/style.css";
 import { useExpenseStore, type Employee } from "@/stores/expense-store";
 import { usePlanStore } from "@/stores/plan-store";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { CustomSelect, type CustomSelectOption } from "@/components/ui/custom-select";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem
+} from "@/components/ui/dropdown-menu";
 import {
   Search,
   Filter,
@@ -44,7 +51,8 @@ import {
   Wallet,
   CreditCard,
   Sparkles,
-  FolderOpen
+  FolderOpen,
+  ChevronDown
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -66,6 +74,10 @@ export default function TeamPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [scopeFilter, setScopeFilter] = useState<"All" | "My Team">("All");
+  const [branchFilter, setBranchFilter] = useState("All");
+  const [departmentFilter, setDepartmentFilter] = useState("All");
+  const [workLocationFilter, setWorkLocationFilter] = useState("All");
+  const [showFilters, setShowFilters] = useState(false);
 
   const [branch, setBranch] = useState("");
   const [branches, setBranches] = useState<any[]>([]);
@@ -88,6 +100,12 @@ export default function TeamPage() {
             if (!branch && data.settings.branches.length > 0) {
               setBranch(data.settings.branches[0].name);
             }
+          }
+          if (data.settings?.departments) {
+            setDepartmentItems(data.settings.departments);
+          }
+          if (data.settings?.workLocations) {
+            setWorkLocationItems(data.settings.workLocations);
           }
         }
         if (designationRes.ok) {
@@ -184,13 +202,20 @@ export default function TeamPage() {
     "Employee",
     "Manager",
     "Admin",
+    "HR",
+    "Owner",
   ]);
   const [statusItems, setStatusItems] = useState<string[]>([
     "Active",
     "Inactive"
   ]);
 
-  const isAuthorized = currentUser.role === "Admin" || currentUser.role === "Manager";
+  const isAuthorized =
+    currentUser.role === "Admin" ||
+    currentUser.role === "Manager" ||
+    currentUser.role === "Owner" ||
+    currentUser.role === "HR" ||
+    currentUser.role === "HR Manager";
 
   const validateStep1 = (requirePassword = false) => {
     if (!name.trim()) return "Full Name is required.";
@@ -210,22 +235,30 @@ export default function TeamPage() {
 
   const handleNextStep1 = () => {
     setErrorMsg("");
-    const err = validateStep1(true);
-    if (err) {
-      setErrorMsg(err);
-      return;
+    if (currentStep === 1) {
+      const err = validateStep1(true);
+      if (err) {
+        setErrorMsg(err);
+        return;
+      }
+      setCurrentStep(2);
+    } else if (currentStep === 2) {
+      setCurrentStep(3);
     }
-    setCurrentStep(2);
   };
 
   const handleEditNextStep1 = () => {
     setErrorMsg("");
-    const err = validateStep1();
-    if (err) {
-      setErrorMsg(err);
-      return;
+    if (editCurrentStep === 1) {
+      const err = validateStep1();
+      if (err) {
+        setErrorMsg(err);
+        return;
+      }
+      setEditCurrentStep(2);
+    } else if (editCurrentStep === 2) {
+      setEditCurrentStep(3);
     }
-    setEditCurrentStep(2);
   };
 
   const resetForm = () => {
@@ -325,7 +358,18 @@ export default function TeamPage() {
         setEmploymentTypeItems((prev) => Array.from(new Set([...prev, nameToCreate])));
         setEmploymentType(nameToCreate);
       } else if (addOptionField === "department") {
-        setDepartmentItems((prev) => Array.from(new Set([...prev, nameToCreate])));
+        const updated = Array.from(new Set([...departmentItems, nameToCreate]));
+        const token = sessionStorage.getItem("ansh_auth_token");
+        const res = await fetch("/api/settings", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ departments: updated }),
+        });
+        if (!res.ok) throw new Error("Failed to save department to settings");
+        setDepartmentItems(updated);
         setDepartment(nameToCreate);
       } else if (addOptionField === "role") {
         setRoleItems((prev) => Array.from(new Set([...prev, nameToCreate])));
@@ -334,7 +378,18 @@ export default function TeamPage() {
         setStatusItems((prev) => Array.from(new Set([...prev, nameToCreate])));
         setStatus(nameToCreate);
       } else if (addOptionField === "workLocation") {
-        setWorkLocationItems((prev) => Array.from(new Set([...prev, nameToCreate])));
+        const updated = Array.from(new Set([...workLocationItems, nameToCreate]));
+        const token = sessionStorage.getItem("ansh_auth_token");
+        const res = await fetch("/api/settings", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ workLocations: updated }),
+        });
+        if (!res.ok) throw new Error("Failed to save work location to settings");
+        setWorkLocationItems(updated);
         setWorkLocation(nameToCreate);
       } else if (addOptionField === "branch") {
         setBranches((prev) => [...prev, { id: `custom-branch-${Date.now()}`, name: nameToCreate, address: "Added from team form" }]);
@@ -509,7 +564,19 @@ export default function TeamPage() {
       (emp.reportingManager && emp.reportingManager.toLowerCase() === currentUser?.name.toLowerCase()) ||
       (emp.reportingHR && emp.reportingHR.toLowerCase() === currentUser?.name.toLowerCase());
 
-    return matchesSearch && matchesStatus && matchesScope;
+    const matchesBranch =
+      branchFilter === "All" ||
+      (emp.branch && emp.branch.toLowerCase() === branchFilter.toLowerCase());
+
+    const matchesDepartment =
+      departmentFilter === "All" ||
+      (emp.department && emp.department.toLowerCase() === departmentFilter.toLowerCase());
+
+    const matchesWorkLocation =
+      workLocationFilter === "All" ||
+      (emp.workLocation && emp.workLocation.toLowerCase() === workLocationFilter.toLowerCase());
+
+    return matchesSearch && matchesStatus && matchesScope && matchesBranch && matchesDepartment && matchesWorkLocation;
   });
 
   const departmentOptions: CustomSelectOption[] = departmentItems.map((item) => ({ value: item, label: item }));
@@ -524,7 +591,7 @@ export default function TeamPage() {
     .map((emp: any) => ({ value: emp.name, label: emp.name, description: emp.designation || emp.role }));
 
   const hrOptions: CustomSelectOption[] = employees
-    .filter((emp: any) => (emp.role === "Admin" || emp.role === "Manager") && emp.name !== name && emp.id !== selectedEmp?.id)
+    .filter((emp: any) => (emp.role === "Admin" || emp.role === "Manager" || emp.role === "HR" || emp.role === "HR Manager" || emp.role === "Owner") && emp.name !== name && emp.id !== selectedEmp?.id)
     .map((emp: any) => ({ value: emp.name, label: emp.name, description: emp.designation || emp.role }));
 
   const branchOptions: CustomSelectOption[] = branches.map((b) => ({ value: b.name, label: b.name, description: b.address }));
@@ -627,82 +694,184 @@ export default function TeamPage() {
         eyebrow="Organization Registry"
         title="Team Directory"
         description="View status registries, department allocations, and client spending reimbursements logs for all active workspace teammates."
-      />
-
-      {/* FILTER & SEARCH CONTROL BLOCK */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-border/40 pb-6">
-        <div className="flex items-center gap-4 w-full max-w-md">
-          <div className="relative flex-1">
-            <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <Input
-              type="text"
-              placeholder="Search employees, ID, titles..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 h-11 bg-card rounded-xl border border-slate-200 focus-visible:border-primary shadow-sm"
-            />
-          </div>
-          {isAuthorized && (
-            <button
-              onClick={() => {
-                resetForm();
-                setIsAddModalOpen(true);
-              }}
-              className="btn-primary h-11 px-5 rounded-xl text-xs font-bold uppercase tracking-wider shrink-0 flex items-center gap-2 cursor-pointer border-0"
+        action={isAuthorized ? {
+          label: "Add Member",
+          icon: Plus,
+          onClick: () => {
+            resetForm();
+            setIsAddModalOpen(true);
+          }
+        } : undefined}
+        toolbar={
+          <div className="relative">
+            <Button
+              variant="outline"
+              onClick={() => setShowFilters(!showFilters)}
+              className="flex h-10 items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none hover:bg-slate-50/50 cursor-pointer shadow-sm relative"
             >
-              <Plus className="h-4 w-4" />
-              Add Member
-            </button>
-          )}
-        </div>
+              <Filter className="h-3.5 w-3.5 text-slate-400" />
+              <span>Filters</span>
+              {(searchQuery.trim() !== "" || statusFilter !== "All" || scopeFilter !== "All" || branchFilter !== "All" || departmentFilter !== "All" || workLocationFilter !== "All") && (
+                <span className="ml-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-primary text-[9px] font-black text-primary-foreground animate-in zoom-in duration-200">
+                  {
+                    [searchQuery.trim() !== "", statusFilter !== "All", scopeFilter !== "All", branchFilter !== "All", departmentFilter !== "All", workLocationFilter !== "All"].filter(Boolean).length
+                  }
+                </span>
+              )}
+            </Button>
 
-        <div className="flex flex-wrap items-center gap-3">
-          {/* Scope Filters */}
-          <div className="flex bg-slate-100 dark:bg-slate-800/80 rounded-xl p-1 gap-0.5 border border-slate-200/50 dark:border-slate-800/50">
-            {(["All", "My Team"] as const).map((scope) => {
-              const active = scopeFilter === scope;
-              return (
-                <button
-                  key={scope}
-                  type="button"
-                  onClick={() => setScopeFilter(scope)}
-                  className={cn(
-                    "rounded-lg px-4.5 py-1.5 text-xs font-extrabold transition-all outline-none cursor-pointer border-0",
-                    active
-                      ? "bg-white text-slate-800 shadow-sm dark:bg-slate-900 dark:text-white"
-                      : "bg-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-250"
-                  )}
-                >
-                  {scope}
-                </button>
-              );
-            })}
+            {showFilters && (
+              <>
+                <div
+                  className="fixed inset-0 z-30"
+                  onClick={() => setShowFilters(false)}
+                />
+                <div className="absolute right-0 mt-2 z-40 w-72 sm:w-80 rounded-2xl border border-border bg-card/95 dark:bg-slate-950/95 p-4 shadow-2xl backdrop-blur-md space-y-4 animate-in fade-in slide-in-from-top-2 duration-200 select-none">
+                  <div className="flex items-center justify-between border-b border-border/40 pb-2">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-white">
+                      Filter Teammates
+                    </span>
+                    {(searchQuery.trim() !== "" || statusFilter !== "All" || scopeFilter !== "All" || branchFilter !== "All" || departmentFilter !== "All" || workLocationFilter !== "All") && (
+                      <button
+                        onClick={() => {
+                          setSearchQuery("");
+                          setStatusFilter("All");
+                          setScopeFilter("All");
+                          setBranchFilter("All");
+                          setDepartmentFilter("All");
+                          setWorkLocationFilter("All");
+                        }}
+                        className="text-[10px] font-black uppercase tracking-wider text-primary hover:underline cursor-pointer bg-transparent border-0 p-0"
+                      >
+                        Clear All
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Search Query */}
+                  <div className="space-y-1.5">
+                    <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400">
+                      Search Query
+                    </label>
+                    <div className="relative">
+                      <Input
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Search name, code, title..."
+                        className="h-10 rounded-xl pl-8 text-xs bg-card dark:bg-slate-900 border border-border"
+                      />
+                      <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+                    </div>
+                  </div>
+
+                  {/* Scope Filter */}
+                  <div className="space-y-1.5">
+                    <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400">
+                      Scope
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={scopeFilter}
+                        onChange={(e) => setScopeFilter(e.target.value as any)}
+                        className="flex h-10 w-full items-center rounded-xl border border-border bg-card dark:bg-slate-900 pl-3 pr-9 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none hover:bg-slate-50/50 cursor-pointer appearance-none"
+                      >
+                        <option value="All">All Teammates</option>
+                        <option value="My Team">My Team / Directs</option>
+                      </select>
+                      <ChevronDown className="absolute right-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                    </div>
+                  </div>
+
+                  {/* Status Filter */}
+                  <div className="space-y-1.5">
+                    <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400">
+                      Status
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        className="flex h-10 w-full items-center rounded-xl border border-border bg-card dark:bg-slate-900 pl-3 pr-9 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none hover:bg-slate-50/50 cursor-pointer appearance-none"
+                      >
+                        <option value="All">All Statuses</option>
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                      </select>
+                      <ChevronDown className="absolute right-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                    </div>
+                  </div>
+
+                  {/* Branch Filter */}
+                  <div className="space-y-1.5">
+                    <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400">
+                      Branch
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={branchFilter}
+                        onChange={(e) => setBranchFilter(e.target.value)}
+                        className="flex h-10 w-full items-center rounded-xl border border-border bg-card dark:bg-slate-900 pl-3 pr-9 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none hover:bg-slate-50/50 cursor-pointer appearance-none"
+                      >
+                        <option value="All">All Branches</option>
+                        {branches.map((b: any) => (
+                          <option key={b.id || b.name} value={b.name}>
+                            {b.name}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                    </div>
+                  </div>
+
+                  {/* Department Filter */}
+                  <div className="space-y-1.5">
+                    <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400">
+                      Department
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={departmentFilter}
+                        onChange={(e) => setDepartmentFilter(e.target.value)}
+                        className="flex h-10 w-full items-center rounded-xl border border-border bg-card dark:bg-slate-900 pl-3 pr-9 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none hover:bg-slate-50/50 cursor-pointer appearance-none"
+                      >
+                        <option value="All">All Departments</option>
+                        {departmentItems.map((dept) => (
+                          <option key={dept} value={dept}>
+                            {dept}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                    </div>
+                  </div>
+
+                  {/* Work Location Filter */}
+                  <div className="space-y-1.5">
+                    <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400">
+                      Work Location
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={workLocationFilter}
+                        onChange={(e) => setWorkLocationFilter(e.target.value)}
+                        className="flex h-10 w-full items-center rounded-xl border border-border bg-card dark:bg-slate-900 pl-3 pr-9 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none hover:bg-slate-50/50 cursor-pointer appearance-none"
+                      >
+                        <option value="All">All Locations</option>
+                        {workLocationItems.map((loc) => (
+                          <option key={loc} value={loc}>
+                            {loc}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
-
-          <div className="h-6 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block" />
-
-          {/* Status Filters */}
-          <div className="flex flex-wrap items-center gap-2">
-            {["All", "Active", "Inactive"].map((filter) => {
-              const active = statusFilter === filter;
-              return (
-                <button
-                  key={filter}
-                  onClick={() => setStatusFilter(filter)}
-                  className={cn(
-                    "rounded-xl px-4 py-2.5 text-xs font-bold transition-all outline-none cursor-pointer border-0",
-                    active
-                      ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
-                      : "bg-slate-100 hover:bg-slate-200 text-slate-500 dark:bg-slate-805 dark:hover:bg-slate-800 dark:text-slate-400"
-                  )}
-                >
-                  {filter}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </div>
+        }
+      />
 
       {/* CARDS LIST GRID */}
       {filteredTeam.length === 0 ? (
@@ -714,7 +883,7 @@ export default function TeamPage() {
           </p>
         </div>
       ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 items-start">
           {filteredTeam.map((emp: any) => {
             const stats = getEmployeeClaimsSummary(emp.id);
             const isManagerOrAdmin = emp.role === "Admin" || emp.role === "Manager";
@@ -723,67 +892,90 @@ export default function TeamPage() {
               <Card
                 key={emp.id}
                 onClick={() => setSelectedMemberForDetail(emp)}
-                className="crm-card cursor-pointer relative group overflow-hidden select-none"
+                className="crm-card cursor-pointer relative group overflow-hidden select-none py-0"
               >
-                <CardContent className="p-6 space-y-5">
-                  {/* Top Header info */}
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary font-black text-base shadow-sm group-hover:scale-105 transition-transform duration-300">
-                        {emp.avatarInitials}
+                <CardContent className="px-6 pt-5 pb-8 flex flex-col gap-4">
+                  <div className="space-y-4">
+                    {/* Top Header info */}
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary font-black text-base shadow-sm group-hover:scale-105 transition-transform duration-300">
+                          {emp.avatarInitials}
+                        </div>
+                        <div className="text-left">
+                          <h4 className="font-extrabold text-slate-800 dark:text-white group-hover:text-primary transition-colors leading-tight">
+                            {emp.name}
+                          </h4>
+                          <span className="text-[10px] text-slate-400 font-bold block mt-1 uppercase tracking-wide">
+                            {emp.designation || emp.role} {emp.employeeCode ? `• ${emp.employeeCode}` : ""}
+                          </span>
+                        </div>
                       </div>
-                      <div className="text-left">
-                        <h4 className="font-extrabold text-slate-800 dark:text-white group-hover:text-primary transition-colors leading-tight">
-                          {emp.name}
-                        </h4>
-                        <span className="text-[10px] text-slate-400 font-bold block mt-1 uppercase tracking-wide">
-                          {emp.designation || emp.role}
+
+                      <div className="flex flex-col items-end gap-1 shrink-0">
+                        <Badge className={cn(
+                          "px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border",
+                          emp.status === "Active"
+                            ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400"
+                            : "bg-slate-500/10 border-slate-500/20 text-slate-505"
+                        )}>
+                          {emp.status}
+                        </Badge>
+                        <Badge className="px-2 py-0.5 rounded-full text-[8px] font-extrabold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700">
+                          {emp.role}
+                        </Badge>
+                      </div>
+                    </div>
+
+                    {/* Contact Information */}
+                    <div className="border-t border-border/40 pt-3 space-y-1.5 text-xs text-left">
+                      <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+                        <Mail className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                        <span className="truncate hover:text-primary transition-colors font-medium select-all" title={emp.email}>
+                          {emp.email}
                         </span>
                       </div>
                     </div>
 
-                    <Badge className={cn(
-                      "px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border",
-                      emp.status === "Active"
-                        ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400"
-                        : "bg-slate-500/10 border-slate-500/20 text-slate-500"
-                    )}>
-                      {emp.status}
-                    </Badge>
-                  </div>
-
-                  {/* Personal Parameters Info */}
-                  <div className="border-t border-border/40 pt-4 grid grid-cols-2 gap-3 text-xs text-left">
-                    <div>
-                      <span className="block text-[9px] font-bold uppercase tracking-wider text-slate-400">Department</span>
-                      <span className="font-semibold text-slate-700 dark:text-slate-300 block truncate">{emp.department}</span>
-                    </div>
-                    <div>
-                      <span className="block text-[9px] font-bold uppercase tracking-wider text-slate-400">Work Location</span>
-                      <span className="font-semibold text-slate-700 dark:text-slate-300 block truncate">{emp.workLocation || "Remote"}</span>
+                    {/* Personal Parameters Info */}
+                    <div className="border-t border-border/40 pt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-xs text-left">
+                      <div>
+                        <span className="block text-[9px] font-bold uppercase tracking-wider text-slate-400">Department</span>
+                        <span className="font-semibold text-slate-700 dark:text-slate-300 block truncate" title={emp.department}>{emp.department}</span>
+                      </div>
+                      <div>
+                        <span className="block text-[9px] font-bold uppercase tracking-wider text-slate-400">Work Location</span>
+                        <span className="font-semibold text-slate-700 dark:text-slate-300 block truncate" title={emp.workLocation || "Remote"}>{emp.workLocation || "Remote"}</span>
+                      </div>
+                      <div className="col-span-2">
+                        <span className="block text-[9px] font-bold uppercase tracking-wider text-slate-400">Contract</span>
+                        <span className="font-semibold text-slate-700 dark:text-slate-300 block truncate" title={emp.employmentType || "Full-time"}>{emp.employmentType || "Full-time"}</span>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Expense Reimbursement Mini Stats */}
-                  <div className="border-t border-border/40 pt-4 grid grid-cols-2 gap-3 bg-slate-50/50 dark:bg-slate-900/40 p-3 rounded-2xl border border-border/30 text-left">
-                    <div>
-                      <span className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-slate-400">
-                        <Wallet className="h-3 w-3 text-emerald-500" /> Reimbursed (Approved)
-                      </span>
-                      <span className="font-black text-slate-800 dark:text-white mt-0.5 block">{formatInr(stats.approvedAmount)}</span>
+                  <div className="space-y-4 shrink-0">
+                    {/* Expense Reimbursement Mini Stats */}
+                    <div className="border-t border-border/40 pt-3 grid grid-cols-2 gap-3 bg-slate-50/50 dark:bg-slate-900/40 p-3 rounded-2xl border border-border/30 text-left">
+                      <div>
+                        <span className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-slate-400">
+                          <Wallet className="h-3 w-3 text-emerald-500" /> Reimbursed
+                        </span>
+                        <span className="font-black text-slate-800 dark:text-white mt-0.5 block">{formatInr(stats.approvedAmount)}</span>
+                      </div>
+                      <div>
+                        <span className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-slate-400">
+                          <Clock className="h-3 w-3 text-amber-500" /> Pending Claims
+                        </span>
+                        <span className="font-bold text-slate-750 dark:text-slate-200 mt-0.5 block">{stats.pendingCount} reviews</span>
+                      </div>
                     </div>
-                    <div>
-                      <span className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-slate-400">
-                        <Clock className="h-3 w-3 text-amber-500" /> Pending Claims
-                      </span>
-                      <span className="font-bold text-slate-750 dark:text-slate-200 mt-0.5 block">{stats.pendingCount} reviews</span>
-                    </div>
-                  </div>
 
-                  {/* View Details Action Link indicator */}
-                  <div className="flex justify-end items-center text-[10px] font-extrabold text-primary uppercase tracking-widest pt-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <span>View Teammate Logs</span>
-                    <ArrowRight className="h-3.5 w-3.5 ml-1 animate-in slide-in-from-left-1" />
+                    {/* View Details Action Link indicator */}
+                    <div className="absolute bottom-2.5 right-6 flex items-center text-[10px] font-extrabold text-primary uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                      <span>View Teammate Logs</span>
+                      <ArrowRight className="h-3.5 w-3.5 ml-1 animate-in slide-in-from-left-1" />
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -792,9 +984,9 @@ export default function TeamPage() {
         </div>
       )}
 
-      {/* MODAL DIALOG: DETAILED TEAMMATE DRAWER */}
-      <Dialog open={!!selectedMemberForDetail} onOpenChange={(open) => !open && setSelectedMemberForDetail(null)}>
-        <DialogContent className="sm:max-w-[650px] p-0 rounded-3xl border border-border bg-card shadow-2xl overflow-hidden max-h-[92dvh] flex flex-col gap-0 select-none">
+      {/* SIDEBAR SHEET: DETAILED TEAMMATE DRAWER */}
+      <Sheet open={!!selectedMemberForDetail} onOpenChange={(open) => !open && setSelectedMemberForDetail(null)}>
+        <SheetContent className="data-[side=right]:sm:max-w-[600px] w-full p-0 border-l border-border bg-card shadow-2xl overflow-hidden h-full flex flex-col gap-0 select-none" showCloseButton={false}>
           {selectedMemberForDetail && drawerSummary && (
             <>
               {/* Profile Header Block */}
@@ -811,32 +1003,42 @@ export default function TeamPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                   {isAuthorized && (
-                    <>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => openEditMemberModal(selectedMemberForDetail)}
-                        className="h-9 rounded-xl text-xs font-bold gap-1 cursor-pointer"
-                      >
-                        <Pencil className="h-3.5 w-3.5" /> Edit
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => openDeleteMemberModal(selectedMemberForDetail.id)}
-                        className="h-9 rounded-xl text-xs font-bold text-rose-500 border-rose-500/10 hover:bg-rose-500/5 cursor-pointer"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" /> Remove
-                      </Button>
-                    </>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger
+                        render={
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-9 w-9 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                          >
+                            <MoreVertical className="h-4.5 w-4.5 text-slate-500" />
+                          </Button>
+                        }
+                      />
+                      <DropdownMenuContent align="end" className="w-40 border border-border/40 bg-card rounded-xl p-1 shadow-lg">
+                        <DropdownMenuItem
+                          onClick={() => openEditMemberModal(selectedMemberForDetail)}
+                          className="flex items-center gap-2 px-3 py-2 text-xs font-semibold rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                        >
+                          <Pencil className="h-3.5 w-3.5 text-slate-500" /> Edit Member
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => openDeleteMemberModal(selectedMemberForDetail.id)}
+                          className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-rose-500 rounded-lg hover:bg-rose-500/5 focus:bg-rose-500/5 cursor-pointer"
+                        >
+                          <Trash2 className="h-3.5 w-3.5 text-rose-500" /> Remove Member
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   )}
                   <button
                     onClick={() => setSelectedMemberForDetail(null)}
-                    className="p-2 text-slate-400 hover:text-slate-650 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl cursor-pointer transition-colors border-0 bg-transparent"
+                    className="p-2.5 text-slate-400 hover:text-slate-650 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl cursor-pointer transition-colors border-0 bg-transparent flex items-center justify-center shrink-0"
+                    title="Close Panel"
                   >
-                    <X className="h-4.5 w-4.5" />
+                    <X className="h-5.5 w-5.5" />
                   </button>
                 </div>
               </div>
@@ -868,7 +1070,7 @@ export default function TeamPage() {
               </div>
 
               {/* Scrollable Tab Content Container */}
-              <div className="flex-1 overflow-y-auto p-6 space-y-6 max-h-[55dvh]">
+              <div className="flex-1 overflow-y-auto p-6 space-y-6">
                 {activeTab === "profile" && (
                   <div className="space-y-6 text-xs text-left">
                     {/* Job Settings Info */}
@@ -1073,8 +1275,8 @@ export default function TeamPage() {
               </div>
             </>
           )}
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
 
       {/* MODAL DIALOG: WIZARD ADD TEAM MEMBER */}
       <Dialog open={isAddModalOpen} onOpenChange={(open) => !open && setIsAddModalOpen(false)}>

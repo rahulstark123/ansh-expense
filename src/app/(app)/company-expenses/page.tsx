@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { useExpenseStore } from "@/stores/expense-store";
 import {
@@ -35,6 +36,9 @@ import {
   Search,
   Landmark,
 } from "lucide-react";
+
+import PhoneInput from "react-phone-number-input";
+import "react-phone-number-input/style.css";
 
 // Image compression utility
 const compressImage = (file: File): Promise<Blob | File> => {
@@ -200,6 +204,28 @@ export default function CompanyExpensesPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
+  // Delete confirm states
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [expenseToDeleteId, setExpenseToDeleteId] = useState<string | null>(null);
+
+  // Sub-Dialog triggers and states
+  const [addCategoryOpen, setAddCategoryOpen] = useState(false);
+  const [newCategoryVal, setNewCategoryVal] = useState("");
+
+  const [addVendorOpen, setAddVendorOpen] = useState(false);
+  const [newVendorName, setNewVendorName] = useState("");
+  const [newVendorContactName, setNewVendorContactName] = useState("");
+  const [newVendorEmail, setNewVendorEmail] = useState("");
+  const [newVendorPhone, setNewVendorPhone] = useState("");
+  const [newVendorCategory, setNewVendorCategory] = useState("Software & SaaS");
+  const [newVendorWebsite, setNewVendorWebsite] = useState("");
+
+  const [addStatusOpen, setAddStatusOpen] = useState(false);
+  const [newStatusVal, setNewStatusVal] = useState("");
+
+  const [vendorCategories, setVendorCategories] = useState<string[]>([]);
+  const [billingCycles, setBillingCycles] = useState<string[]>([]);
+
   useEffect(() => {
     if (toast) {
       const timer = setTimeout(() => {
@@ -253,20 +279,6 @@ export default function CompanyExpensesPage() {
     }
   };
 
-  const detectIPCurrency = async () => {
-    try {
-      const res = await fetch("https://ipapi.co/json/");
-      if (res.ok) {
-        const data = await res.json();
-        if (data.currency) {
-          setClaimCurrency(data.currency);
-        }
-      }
-    } catch (err) {
-      console.error("IP currency detection failed:", err);
-    }
-  };
-
   const fetchExpenseSettings = async () => {
     try {
       const token = sessionStorage.getItem("ansh_auth_token");
@@ -283,9 +295,141 @@ export default function CompanyExpensesPage() {
           setPaymentStatuses(data.paymentStatuses);
           setPaymentStatus(data.paymentStatuses[0]);
         }
+        if (data.vendorCategories) {
+          setVendorCategories(data.vendorCategories);
+          if (data.vendorCategories.length) {
+            setNewVendorCategory(data.vendorCategories[0]);
+          }
+        }
+        if (data.billingCycles) {
+          setBillingCycles(data.billingCycles);
+        }
       }
     } catch (e) {
       console.error("Failed to load custom expense settings:", e);
+    }
+  };
+
+  const handleSaveCategoryInline = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    const val = newCategoryVal.trim();
+    if (!val) return;
+    if (companyCategories.includes(val)) {
+      setToast({ message: "Category already exists.", type: "error" });
+      return;
+    }
+    const updated = [...companyCategories, val];
+    try {
+      const token = sessionStorage.getItem("ansh_auth_token");
+      const res = await fetch("/api/company-expenses/settings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          companyCategories: updated,
+          vendorCategories,
+          billingCycles,
+          paymentStatuses
+        })
+      });
+      if (res.ok) {
+        setCompanyCategories(updated);
+        setCategory(val);
+        setNewCategoryVal("");
+        setAddCategoryOpen(false);
+        setOpen(true);
+        setToast({ message: `Category "${val}" added!`, type: "success" });
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleSaveStatusInline = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    const val = newStatusVal.trim();
+    if (!val) return;
+    if (paymentStatuses.includes(val)) {
+      setToast({ message: "Status already exists.", type: "error" });
+      return;
+    }
+    const updated = [...paymentStatuses, val];
+    try {
+      const token = sessionStorage.getItem("ansh_auth_token");
+      const res = await fetch("/api/company-expenses/settings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          companyCategories,
+          vendorCategories,
+          billingCycles,
+          paymentStatuses: updated
+        })
+      });
+      if (res.ok) {
+        setPaymentStatuses(updated);
+        setPaymentStatus(val);
+        setNewStatusVal("");
+        setAddStatusOpen(false);
+        setOpen(true);
+        setToast({ message: `Payment Status "${val}" added!`, type: "success" });
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleSaveVendorInline = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    const val = newVendorName.trim();
+    if (!val) return;
+    if (registeredVendors.some(v => v.name.toLowerCase() === val.toLowerCase())) {
+      setToast({ message: "Vendor already exists.", type: "error" });
+      return;
+    }
+    try {
+      const token = sessionStorage.getItem("ansh_auth_token");
+      const res = await fetch("/api/company-vendors", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          name: val,
+          contactName: newVendorContactName.trim() || null,
+          email: newVendorEmail.trim() || null,
+          phone: newVendorPhone.trim() || null,
+          category: newVendorCategory,
+          website: newVendorWebsite.trim() || null,
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.vendor) {
+          setRegisteredVendors(prev => [...prev, data.vendor]);
+          setVendor(data.vendor.name);
+          setNewVendorName("");
+          setNewVendorContactName("");
+          setNewVendorEmail("");
+          setNewVendorPhone("");
+          setNewVendorCategory(vendorCategories[0] || "Software & SaaS");
+          setNewVendorWebsite("");
+          setAddVendorOpen(false);
+          setOpen(true);
+          setToast({ message: `Vendor "${val}" registered!`, type: "success" });
+        }
+      } else {
+        const err = await res.json();
+        setToast({ message: err.error || "Failed to save vendor", type: "error" });
+      }
+    } catch (e) {
+      console.error(e);
     }
   };
 
@@ -308,7 +452,7 @@ export default function CompanyExpensesPage() {
     const runInit = async () => {
       setLoading(true);
       await initialize();
-      await Promise.all([loadSettings(), detectIPCurrency(), fetchVendors(), fetchExpenseSettings()]);
+      await Promise.all([loadSettings(), fetchVendors(), fetchExpenseSettings()]);
       setLoading(false);
     };
     runInit();
@@ -439,7 +583,6 @@ export default function CompanyExpensesPage() {
 
   // Delete Expense
   const handleDeleteExpense = async (id: string) => {
-    if (!window.confirm("Are you sure you want to permanently delete this general ledger entry?")) return;
     try {
       const token = sessionStorage.getItem("ansh_auth_token");
       const res = await fetch(`/api/company-expenses/${id}`, {
@@ -448,7 +591,9 @@ export default function CompanyExpensesPage() {
       });
       if (res.ok) {
         setToast({ message: "Expense entry deleted!", type: "success" });
+        setDeleteConfirmOpen(false);
         setDetailOpen(false);
+        setExpenseToDeleteId(null);
         fetchExpenses();
       }
     } catch (e) {
@@ -459,8 +604,56 @@ export default function CompanyExpensesPage() {
 
   if (loading) {
     return (
-      <div className="flex h-[60dvh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="space-y-6 animate-pulse">
+        {/* PageHeader Skeleton */}
+        <div className="space-y-3">
+          <div className="h-3.5 w-32 bg-slate-200 dark:bg-slate-800 rounded-lg animate-pulse" />
+          <div className="h-7 w-64 bg-slate-200 dark:bg-slate-800 rounded-xl animate-pulse" />
+          <div className="h-3.5 w-96 bg-slate-200 dark:bg-slate-800 rounded-lg animate-pulse" />
+        </div>
+
+        {/* Metric Tiles Skeleton */}
+        <div className="grid gap-6 grid-cols-1 sm:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Card key={i} className="crm-card border border-border/40 opacity-75">
+              <CardContent className="p-4 space-y-3">
+                <div className="h-3 w-28 bg-slate-200 dark:bg-slate-800 rounded" />
+                <div className="h-7 w-36 bg-slate-200 dark:bg-slate-800 rounded-lg" />
+                <div className="h-3 w-40 bg-slate-200 dark:bg-slate-800 rounded" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Ledger Registry Skeleton */}
+        <Card className="crm-card border border-border/40 opacity-75 p-5 w-full">
+          <CardContent className="p-0 space-y-6">
+            <div className="flex justify-between items-center">
+              <div className="h-4 w-44 bg-slate-200 dark:bg-slate-800 rounded" />
+              <div className="h-9 w-20 bg-slate-200 dark:bg-slate-800 rounded-xl" />
+            </div>
+            {/* Table skeleton */}
+            <div className="border border-border/40 rounded-2xl overflow-hidden bg-card">
+              <div className="h-10 bg-slate-50 dark:bg-slate-900 border-b border-border/40 flex items-center px-4 justify-between">
+                <div className="h-3 w-24 bg-slate-200 dark:bg-slate-800 rounded" />
+                <div className="h-3 w-20 bg-slate-200 dark:bg-slate-800 rounded" />
+                <div className="h-3 w-20 bg-slate-200 dark:bg-slate-800 rounded" />
+              </div>
+              <div className="divide-y divide-border/30">
+                {Array.from({ length: 5 }).map((_, j) => (
+                  <div key={j} className="h-12 flex items-center px-4 justify-between">
+                    <div className="space-y-1.5 flex-1">
+                      <div className="h-3 w-36 bg-slate-200 dark:bg-slate-800 rounded" />
+                      <div className="h-2 w-20 bg-slate-200 dark:bg-slate-800 rounded" />
+                    </div>
+                    <div className="h-3 w-20 bg-slate-200 dark:bg-slate-800 rounded mr-16" />
+                    <div className="h-3 w-16 bg-slate-200 dark:bg-slate-800 rounded" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -555,6 +748,113 @@ export default function CompanyExpensesPage() {
           icon: Plus,
           onClick: () => setOpen(true),
         }}
+        toolbar={
+          <div className="relative">
+            <Button
+              variant="outline"
+              onClick={() => setShowFilters(!showFilters)}
+              className="flex h-10 items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none hover:bg-slate-50/50 cursor-pointer shadow-sm relative"
+            >
+              <Filter className="h-3.5 w-3.5 text-slate-400" />
+              <span>Filters</span>
+              {(search.trim() !== "" || categoryFilter !== "All" || statusFilter !== "All") && (
+                <span className="ml-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-primary text-[9px] font-black text-primary-foreground animate-in zoom-in duration-200">
+                  {
+                    [search.trim() !== "", categoryFilter !== "All", statusFilter !== "All"].filter(Boolean).length
+                  }
+                </span>
+              )}
+            </Button>
+
+            {showFilters && (
+              <>
+                <div
+                  className="fixed inset-0 z-30"
+                  onClick={() => setShowFilters(false)}
+                />
+                <div className="absolute right-0 mt-2 z-40 w-72 sm:w-80 rounded-2xl border border-border bg-card/95 dark:bg-slate-950/95 p-4 shadow-2xl backdrop-blur-md space-y-4 animate-in fade-in slide-in-from-top-2 duration-200 select-none">
+                  <div className="flex items-center justify-between border-b border-border/40 pb-2">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-white">
+                      Filter Ledger
+                    </span>
+                    {(search.trim() !== "" || categoryFilter !== "All" || statusFilter !== "All") && (
+                      <button
+                        onClick={() => {
+                          setSearch("");
+                          setCategoryFilter("All");
+                          setStatusFilter("All");
+                        }}
+                        className="text-[10px] font-black uppercase tracking-wider text-primary hover:underline cursor-pointer bg-transparent border-0 p-0"
+                      >
+                        Clear All
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Search Filter */}
+                  <div className="space-y-1.5">
+                    <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400">
+                      Search Query
+                    </label>
+                    <div className="relative">
+                      <Input
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        placeholder="Merchant, title..."
+                        className="h-10 rounded-xl pl-8 text-xs bg-card dark:bg-slate-900 border border-border"
+                      />
+                      <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+                    </div>
+                  </div>
+
+                  {/* Category Filter */}
+                  <div className="space-y-1.5">
+                    <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400">
+                      Category
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={categoryFilter}
+                        onChange={(e) => setCategoryFilter(e.target.value)}
+                        className="flex h-10 w-full items-center rounded-xl border border-border bg-card dark:bg-slate-900 pl-3 pr-9 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none hover:bg-slate-50/50 cursor-pointer appearance-none"
+                      >
+                        <option value="All">All Categories</option>
+                        {companyCategories.map((c) => (
+                          <option key={c} value={c}>
+                            {c}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                    </div>
+                  </div>
+
+                  {/* Payment Status Filter */}
+                  <div className="space-y-1.5">
+                    <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400">
+                      Payment Status
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        className="flex h-10 w-full items-center rounded-xl border border-border bg-card dark:bg-slate-900 pl-3 pr-9 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none hover:bg-slate-50/50 cursor-pointer appearance-none"
+                      >
+                        <option value="All">All Statuses</option>
+                        {paymentStatuses.map((st) => (
+                          <option key={st} value={st}>
+                            {st}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        }
       />
 
       {/* METRIC TILES */}
@@ -597,162 +897,66 @@ export default function CompanyExpensesPage() {
         </Card>
       </div>
 
-      <div className="grid gap-6 grid-cols-1 lg:grid-cols-3">
-        {/* SPENDING BY CATEGORY BREAKDOWN */}
-        <Card className="crm-card lg:col-span-1 p-5 bg-card/60 backdrop-blur-md shadow-sm rounded-3xl flex flex-col justify-between">
-          <div>
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Category Allocation Mix</h3>
-            <p className="text-[11px] text-slate-450 mt-1 mb-6">Distribution across workspace general ledger accounts.</p>
+      {/* LEDGER INDEX LIST */}
+      <Card className="crm-card p-5 bg-card/60 backdrop-blur-md shadow-sm rounded-3xl w-full">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <h3 className="text-sm font-bold text-slate-900 dark:text-white">General Ledger Registry</h3>
+        </div>
 
-            {categoriesData.length > 0 ? (
-              <div className="space-y-4">
-                {categoriesData.slice(0, 5).map((cat) => (
-                  <div key={cat.name} className="space-y-1">
-                    <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
-                      <span>{cat.name}</span>
-                      <span>{formatCurrency(cat.value, workspaceCurrency)} ({cat.percent}%)</span>
-                    </div>
-                    <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-primary rounded-full"
-                        style={{ width: `${cat.percent}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-10">
-                <span className="text-xs text-slate-400 italic">No expenditures logged yet.</span>
-              </div>
-            )}
-          </div>
-        </Card>
-
-        {/* LEDGER INDEX LIST & FILTERS */}
-        <Card className="crm-card lg:col-span-2 p-5 bg-card/60 backdrop-blur-md shadow-sm rounded-3xl">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white">General Ledger Registry</h3>
-            
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowFilters(!showFilters)}
-                className="h-9 px-3 rounded-xl gap-2 font-bold text-xs"
-              >
-                <Filter className="h-3.5 w-3.5" />
-                Filters
-              </Button>
-            </div>
-          </div>
-
-          {/* Collapsible filters panel */}
-          {showFilters && (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 rounded-2xl bg-slate-500/5 border border-border mb-6 animate-in slide-in-from-top-2 duration-200">
-              <div className="space-y-1.5">
-                <label className="block text-[10px] font-black uppercase tracking-wider text-slate-450">Search</label>
-                <div className="relative">
-                  <Input
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Merchant, title..."
-                    className="h-9 rounded-xl pl-8 text-xs"
-                  />
-                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="block text-[10px] font-black uppercase tracking-wider text-slate-450">Category</label>
-                <div className="relative">
-                  <select
-                    value={categoryFilter}
-                    onChange={(e) => setCategoryFilter(e.target.value)}
-                    className="flex h-9 w-full items-center rounded-xl border border-border bg-card dark:bg-slate-900 pl-3 pr-9 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none hover:bg-slate-50/50 cursor-pointer appearance-none"
+        {/* LEDGER TABLE */}
+        {expenses.length > 0 ? (
+          <div className="overflow-x-auto border border-border/60 rounded-2xl bg-card">
+            <table className="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr className="border-b border-border/80 bg-slate-500/5 text-slate-500 font-bold text-[10px] uppercase tracking-wider">
+                  <th className="p-3.5">Details</th>
+                  <th className="p-3.5">Category</th>
+                  <th className="p-3.5">Vendor/Merchant</th>
+                  <th className="p-3.5">Amount</th>
+                  <th className="p-3.5">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/40 font-medium">
+                {expenses.map((exp) => (
+                  <tr
+                    key={exp.id}
+                    onClick={() => {
+                      setSelectedExpense(exp);
+                      setDetailOpen(true);
+                    }}
+                    className="hover:bg-slate-500/5 cursor-pointer transition-colors"
                   >
-                    <option value="All">All Categories</option>
-                    {companyCategories.map((c) => (
-                      <option key={c} value={c}>{c}</option>
-                    ))}
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="block text-[10px] font-black uppercase tracking-wider text-slate-450">Payment Status</label>
-                <div className="relative">
-                  <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className="flex h-9 w-full items-center rounded-xl border border-border bg-card dark:bg-slate-900 pl-3 pr-9 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none hover:bg-slate-50/50 cursor-pointer appearance-none"
-                  >
-                    <option value="All">All Statuses</option>
-                    {paymentStatuses.map((s) => (
-                      <option key={s} value={s}>{s}</option>
-                    ))}
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* LEDGER TABLE */}
-          {expenses.length > 0 ? (
-            <div className="overflow-x-auto border border-border/60 rounded-2xl bg-card">
-              <table className="w-full text-left text-xs border-collapse">
-                <thead>
-                  <tr className="border-b border-border/80 bg-slate-500/5 text-slate-500 font-bold text-[10px] uppercase tracking-wider">
-                    <th className="p-3.5">Details</th>
-                    <th className="p-3.5">Category</th>
-                    <th className="p-3.5">Vendor/Merchant</th>
-                    <th className="p-3.5">Amount</th>
-                    <th className="p-3.5">Status</th>
+                    <td className="p-3.5">
+                      <div className="flex flex-col gap-0.5">
+                        <span className="font-bold text-slate-900 dark:text-white truncate max-w-[150px]">{exp.title}</span>
+                        <span className="text-[10px] text-slate-450">
+                          {new Date(exp.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="p-3.5 text-slate-500">{exp.category}</td>
+                    <td className="p-3.5 text-slate-700 dark:text-slate-350">{exp.vendor || "N/A"}</td>
+                    <td className="p-3.5 font-bold text-slate-800 dark:text-slate-200">
+                      {formatCurrency(exp.amount, exp.currency)}
+                    </td>
+                    <td className="p-3.5">{getStatusBadge(exp.paymentStatus)}</td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-border/40 font-medium">
-                  {expenses.map((exp) => (
-                    <tr
-                      key={exp.id}
-                      onClick={() => {
-                        setSelectedExpense(exp);
-                        setDetailOpen(true);
-                      }}
-                      className="hover:bg-slate-500/5 cursor-pointer transition-colors"
-                    >
-                      <td className="p-3.5">
-                        <div className="flex flex-col gap-0.5">
-                          <span className="font-bold text-slate-900 dark:text-white truncate max-w-[150px]">{exp.title}</span>
-                          <span className="text-[10px] text-slate-400">
-                            {new Date(exp.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="p-3.5 text-slate-500">{exp.category}</td>
-                      <td className="p-3.5 text-slate-700 dark:text-slate-350">{exp.vendor || "N/A"}</td>
-                      <td className="p-3.5 font-bold text-slate-800 dark:text-slate-200">
-                        {formatCurrency(exp.amount, exp.currency)}
-                      </td>
-                      <td className="p-3.5">{getStatusBadge(exp.paymentStatus)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="text-center py-14 bg-slate-500/5 rounded-2xl border border-dashed border-border flex flex-col items-center justify-center gap-2">
-              <FolderOpen className="h-8 w-8 text-slate-300" />
-              <span className="text-xs font-bold text-slate-450">No company expenses logged matching criteria.</span>
-            </div>
-          )}
-        </Card>
-      </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="text-center py-14 bg-slate-500/5 rounded-2xl border border-dashed border-border flex flex-col items-center justify-center gap-2">
+            <FolderOpen className="h-8 w-8 text-slate-300" />
+            <span className="text-xs font-bold text-slate-450">No company expenses logged matching criteria.</span>
+          </div>
+        )}
+      </Card>
 
       {/* DIALOG: LOG COMPANY EXPENSE */}
+      {/* DIALOG: LOG COMPANY EXPENSE */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-[550px] p-6 rounded-3xl border border-border bg-card backdrop-blur-xl shadow-2xl overflow-y-auto max-h-[90dvh]">
+        <DialogContent className="sm:max-w-[550px] p-6 rounded-3xl border border-border bg-card backdrop-blur-xl shadow-2xl overflow-y-auto max-h-[90dvh] relative">
           <DialogHeader className="pb-3 border-b border-border/40">
             <DialogTitle className="text-base font-extrabold text-slate-900 dark:text-white">
               Log Company Expenditure
@@ -781,7 +985,21 @@ export default function CompanyExpensesPage() {
             {/* Category & Date */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">Category</label>
+                <div className="flex items-center justify-between">
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">Category</label>
+                  {isAuthorized && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOpen(false);
+                        setAddCategoryOpen(true);
+                      }}
+                      className="text-[10px] font-extrabold text-primary hover:underline flex items-center gap-0.5 cursor-pointer bg-transparent border-0"
+                    >
+                      <Plus className="h-3 w-3" /> Add
+                    </button>
+                  )}
+                </div>
                 <div className="relative">
                   <select
                     value={category}
@@ -850,21 +1068,36 @@ export default function CompanyExpensesPage() {
             {/* Merchant/Vendor & Method */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">Vendor / Merchant</label>
-                <Input
-                  list="vendors-datalist"
-                  value={vendor}
-                  onChange={(e) => setVendor(e.target.value)}
-                  placeholder="Select or type vendor..."
-                  className="h-11 rounded-2xl"
-                />
-                <datalist id="vendors-datalist">
-                  {registeredVendors.map((v) => (
-                    <option key={v.id} value={v.name}>
-                      {v.name}
-                    </option>
-                  ))}
-                </datalist>
+                <div className="flex items-center justify-between">
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">Vendor / Merchant</label>
+                  {isAuthorized && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOpen(false);
+                        setAddVendorOpen(true);
+                      }}
+                      className="text-[10px] font-extrabold text-primary hover:underline flex items-center gap-0.5 cursor-pointer bg-transparent border-0"
+                    >
+                      <Plus className="h-3 w-3" /> Add
+                    </button>
+                  )}
+                </div>
+                <div className="relative">
+                  <select
+                    value={vendor}
+                    onChange={(e) => setVendor(e.target.value)}
+                    className="flex h-11 w-full items-center rounded-2xl border border-border bg-card dark:bg-slate-900 pl-3 pr-10 py-2 text-xs font-semibold outline-none hover:bg-slate-50/50 cursor-pointer appearance-none"
+                  >
+                    <option value="">Select Vendor...</option>
+                    {registeredVendors.map((v) => (
+                      <option key={v.id} value={v.name}>
+                        {v.name}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                </div>
               </div>
 
               <div className="space-y-1">
@@ -888,7 +1121,21 @@ export default function CompanyExpensesPage() {
 
             {/* Payment Status */}
             <div className="space-y-1">
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">Payment Status</label>
+              <div className="flex items-center justify-between">
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">Payment Status</label>
+                {isAuthorized && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOpen(false);
+                      setAddStatusOpen(true);
+                    }}
+                    className="text-[10px] font-extrabold text-primary hover:underline flex items-center gap-0.5 cursor-pointer bg-transparent border-0"
+                  >
+                    <Plus className="h-3 w-3" /> Add
+                  </button>
+                )}
+              </div>
               <div className="relative">
                 <select
                   value={paymentStatus}
@@ -1007,36 +1254,36 @@ export default function CompanyExpensesPage() {
                 {/* Details layout */}
                 <div className="grid grid-cols-2 gap-4 bg-slate-500/5 p-4 rounded-2xl border border-border/30">
                   <div>
-                    <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-450 mb-0.5">Category</span>
+                    <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-455 mb-0.5">Category</span>
                     <span className="font-bold text-slate-700 dark:text-slate-200">{selectedExpense.category}</span>
                   </div>
 
                   <div>
-                    <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-450 mb-0.5">Billing Date</span>
+                    <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-455 mb-0.5">Billing Date</span>
                     <span className="font-bold text-slate-700 dark:text-slate-200">
                       {new Date(selectedExpense.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                     </span>
                   </div>
 
                   <div>
-                    <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-450 mb-0.5">Vendor / Merchant</span>
+                    <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-455 mb-0.5">Vendor / Merchant</span>
                     <span className="font-bold text-slate-700 dark:text-slate-200">{selectedExpense.vendor || "N/A"}</span>
                   </div>
 
                   <div>
-                    <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-450 mb-0.5">Payment Method</span>
+                    <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-455 mb-0.5">Payment Method</span>
                     <span className="font-bold text-slate-700 dark:text-slate-200">{selectedExpense.paymentMethod}</span>
                   </div>
 
                   <div>
-                    <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-450 mb-0.5">Auditor Logged By</span>
+                    <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-455 mb-0.5">Auditor Logged By</span>
                     <span className="font-bold text-slate-700 dark:text-slate-200">
                       {selectedExpense.loggedBy?.name} ({selectedExpense.loggedBy?.role})
                     </span>
                   </div>
 
                   <div>
-                    <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-450 mb-0.5">Logged Time</span>
+                    <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-455 mb-0.5">Logged Time</span>
                     <span className="font-bold text-slate-700 dark:text-slate-200">
                       {new Date(selectedExpense.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                     </span>
@@ -1053,7 +1300,7 @@ export default function CompanyExpensesPage() {
 
                 {/* Description Notes */}
                 <div>
-                  <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-450 mb-1">General Ledger Notes</span>
+                  <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-455 mb-1">General Ledger Notes</span>
                   <p className="p-3.5 bg-card border border-border/80 rounded-2xl text-slate-700 dark:text-slate-350 leading-relaxed font-semibold">
                     {selectedExpense.notes || "No additional description provided."}
                   </p>
@@ -1062,7 +1309,7 @@ export default function CompanyExpensesPage() {
                 {/* Attachments */}
                 {selectedExpense.receiptUrl && (
                   <div>
-                    <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-450 mb-2">Attached Invoices</span>
+                    <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-455 mb-2">Attached Invoices</span>
                     <div className="flex flex-wrap gap-2">
                       {selectedExpense.receiptUrl.split(",").filter(Boolean).map((url, idx) => (
                         <a
@@ -1096,7 +1343,11 @@ export default function CompanyExpensesPage() {
                   {["admin", "owner", "hr manager"].includes(userRole) && (
                     <Button
                       variant="destructive"
-                      onClick={() => handleDeleteExpense(selectedExpense.id)}
+                      onClick={() => {
+                        setExpenseToDeleteId(selectedExpense.id);
+                        setDeleteConfirmOpen(true);
+                        setDetailOpen(false);
+                      }}
                       className="h-10 px-4 rounded-xl text-xs gap-1 cursor-pointer"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
@@ -1107,6 +1358,267 @@ export default function CompanyExpensesPage() {
               </div>
             </>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* CONFIRM DELETE DIALOG */}
+      <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <DialogContent className="sm:max-w-[400px] p-6 rounded-3xl border border-border bg-card backdrop-blur-xl shadow-2xl">
+          <DialogHeader className="pb-3 border-b border-border/40">
+            <DialogTitle className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+              <ShieldAlert className="h-5 w-5 text-rose-500" />
+              Remove General Ledger Entry?
+            </DialogTitle>
+            <DialogDescription className="text-xs text-slate-450 leading-relaxed mt-1 text-left">
+              Are you sure you want to permanently delete this corporate general ledger expenditure entry? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+
+          <DialogFooter className="pt-4 gap-2 flex flex-col-reverse sm:flex-row">
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setDeleteConfirmOpen(false);
+                setExpenseToDeleteId(null);
+                setDetailOpen(true);
+              }}
+              className="h-11 px-6 rounded-2xl font-bold w-full sm:w-auto"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={async () => {
+                if (expenseToDeleteId) {
+                  await handleDeleteExpense(expenseToDeleteId);
+                }
+              }}
+              className="h-11 px-6 rounded-2xl bg-rose-600 hover:bg-rose-750 text-white font-black text-xs gap-2 border-0 w-full sm:w-auto cursor-pointer flex items-center justify-center"
+            >
+              Confirm Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* DIALOG: ADD CUSTOM CATEGORY */}
+      <Dialog open={addCategoryOpen} onOpenChange={(val) => {
+        setAddCategoryOpen(val);
+        if (!val) setOpen(true);
+      }}>
+        <DialogContent className="sm:max-w-[450px] p-6 rounded-3xl border border-border bg-card backdrop-blur-xl shadow-2xl">
+          <DialogHeader className="pb-3 border-b border-border/40">
+            <DialogTitle className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+              <Plus className="h-4.5 w-4.5 text-primary" />
+              Add Custom Category
+            </DialogTitle>
+            <DialogDescription className="text-xs text-slate-400 mt-1">
+              Register a new expenditure category tag for ledger mapping.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleSaveCategoryInline} className="space-y-4 pt-4 text-xs">
+            <div className="space-y-1">
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">Category Name</label>
+              <Input
+                required
+                type="text"
+                placeholder="e.g. Legal & Compliance"
+                value={newCategoryVal}
+                onChange={(e) => setNewCategoryVal(e.target.value)}
+                className="h-11 rounded-2xl text-xs bg-card dark:bg-slate-900 border border-border"
+              />
+            </div>
+
+            <DialogFooter className="pt-2 border-t border-border/40 gap-2 flex flex-col-reverse sm:flex-row">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  setAddCategoryOpen(false);
+                  setOpen(true);
+                }}
+                className="h-10 px-4 rounded-xl font-bold w-full sm:w-auto"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="btn-primary h-10 px-4 rounded-xl font-black border-0 w-full sm:w-auto"
+              >
+                Add Category
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* DIALOG: REGISTER CORPORATE VENDOR */}
+      <Dialog open={addVendorOpen} onOpenChange={(val) => {
+        setAddVendorOpen(val);
+        if (!val) setOpen(true);
+      }}>
+        <DialogContent className="sm:max-w-[500px] p-6 rounded-3xl border border-border bg-card backdrop-blur-xl shadow-2xl overflow-y-auto max-h-[90dvh]">
+          <DialogHeader className="pb-3 border-b border-border/40">
+            <DialogTitle className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+              <Plus className="h-4.5 w-4.5 text-primary" />
+              Register Corporate Vendor
+            </DialogTitle>
+            <DialogDescription className="text-xs text-slate-400 mt-1">
+              Register a new vendor/merchant with contact information.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleSaveVendorInline} className="space-y-4 pt-4 text-xs">
+            {/* Vendor Name */}
+            <div className="space-y-1">
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">Vendor / Company Name</label>
+              <Input
+                required
+                value={newVendorName}
+                onChange={(e) => setNewVendorName(e.target.value)}
+                placeholder="e.g. Amazon Web Services Inc."
+                className="h-11 rounded-2xl"
+              />
+            </div>
+
+            {/* Category selection */}
+            <div className="space-y-1">
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">Category</label>
+              <div className="relative">
+                <select
+                  value={newVendorCategory}
+                  onChange={(e) => setNewVendorCategory(e.target.value)}
+                  className="flex h-11 w-full items-center rounded-2xl border border-border bg-card dark:bg-slate-900 pl-3 pr-10 py-2 text-xs font-semibold outline-none hover:bg-slate-50/50 cursor-pointer appearance-none"
+                >
+                  {vendorCategories.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 pointer-events-none" />
+              </div>
+            </div>
+
+            {/* Contact Person Name */}
+            <div className="space-y-1">
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">Contact Person Name</label>
+              <Input
+                value={newVendorContactName}
+                onChange={(e) => setNewVendorContactName(e.target.value)}
+                placeholder="e.g. John Doe (Account Executive)"
+                className="h-11 rounded-2xl"
+              />
+            </div>
+
+            {/* Email & Phone */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">Email Address</label>
+                <Input
+                  type="email"
+                  value={newVendorEmail}
+                  onChange={(e) => setNewVendorEmail(e.target.value)}
+                  placeholder="billing@vendor.com"
+                  className="h-11 rounded-2xl"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2">Phone Number</label>
+                <div className="phone-input-container">
+                  <PhoneInput
+                    international
+                    defaultCountry="IN"
+                    placeholder="Enter phone number"
+                    value={newVendorPhone}
+                    onChange={(val) => setNewVendorPhone(val || "")}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Website URL */}
+            <div className="space-y-1">
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">Website URL</label>
+              <Input
+                value={newVendorWebsite}
+                onChange={(e) => setNewVendorWebsite(e.target.value)}
+                placeholder="e.g. aws.amazon.com"
+                className="h-11 rounded-2xl"
+              />
+            </div>
+
+            <DialogFooter className="pt-2 border-t border-border/40 gap-2 flex flex-col-reverse sm:flex-row">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  setAddVendorOpen(false);
+                  setOpen(true);
+                }}
+                className="h-11 px-6 rounded-2xl font-bold w-full sm:w-auto"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="btn-primary h-11 px-6 rounded-2xl font-black border-0 gap-2 w-full sm:w-auto"
+              >
+                Register Vendor
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* DIALOG: ADD CUSTOM PAYMENT STATUS */}
+      <Dialog open={addStatusOpen} onOpenChange={(val) => {
+        setAddStatusOpen(val);
+        if (!val) setOpen(true);
+      }}>
+        <DialogContent className="sm:max-w-[450px] p-6 rounded-3xl border border-border bg-card backdrop-blur-xl shadow-2xl">
+          <DialogHeader className="pb-3 border-b border-border/40">
+            <DialogTitle className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+              <Plus className="h-4.5 w-4.5 text-primary" />
+              Add Custom Payment Status
+            </DialogTitle>
+            <DialogDescription className="text-xs text-slate-400 mt-1">
+              Register a new custom payment status for ledger tracking.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleSaveStatusInline} className="space-y-4 pt-4 text-xs">
+            <div className="space-y-1">
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">Payment Status Name</label>
+              <Input
+                required
+                type="text"
+                placeholder="e.g. Processing"
+                value={newStatusVal}
+                onChange={(e) => setNewStatusVal(e.target.value)}
+                className="h-11 rounded-2xl text-xs bg-card dark:bg-slate-900 border border-border"
+              />
+            </div>
+
+            <DialogFooter className="pt-2 border-t border-border/40 gap-2 flex flex-col-reverse sm:flex-row">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  setAddStatusOpen(false);
+                  setOpen(true);
+                }}
+                className="h-10 px-4 rounded-xl font-bold w-full sm:w-auto"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="btn-primary h-10 px-4 rounded-xl font-black border-0 w-full sm:w-auto"
+              >
+                Add Status
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
     </div>

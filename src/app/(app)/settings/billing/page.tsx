@@ -206,12 +206,102 @@ export default function BillingSettingPage() {
 
   if (fetching) {
     return (
-      <div className="flex h-[50vh] items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-xs font-bold uppercase tracking-widest text-slate-400">
-            Loading billing profile...
-          </p>
+      <div className="space-y-8 animate-pulse text-left">
+        {/* Skeleton Header */}
+        <div className="space-y-2">
+          <div className="h-4 w-28 bg-slate-200 dark:bg-slate-800 rounded-lg" />
+          <div className="h-8 w-48 bg-slate-200 dark:bg-slate-800 rounded-xl" />
+          <div className="h-4 w-96 bg-slate-200 dark:bg-slate-800 rounded-lg" />
+        </div>
+
+        {/* Skeleton Grid */}
+        <div className="grid gap-8 lg:grid-cols-3">
+          {/* Main content columns */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Active plan card skeleton */}
+            <Card className="crm-card border border-border/40 opacity-70">
+              <CardContent className="p-6 space-y-6">
+                <div className="flex justify-between items-start">
+                  <div className="space-y-2">
+                    <div className="h-3 w-24 bg-slate-200 dark:bg-slate-800 rounded" />
+                    <div className="h-6 w-48 bg-slate-200 dark:bg-slate-800 rounded-lg" />
+                  </div>
+                  <div className="h-6 w-20 bg-slate-200 dark:bg-slate-800 rounded-full" />
+                </div>
+                
+                <div className="grid gap-6 sm:grid-cols-3 pt-2">
+                  <div className="space-y-2">
+                    <div className="h-3 w-16 bg-slate-200 dark:bg-slate-800 rounded" />
+                    <div className="h-5 w-24 bg-slate-200 dark:bg-slate-800 rounded" />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="h-3 w-16 bg-slate-200 dark:bg-slate-800 rounded" />
+                    <div className="h-5 w-20 bg-slate-200 dark:bg-slate-800 rounded" />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="h-3 w-20 bg-slate-200 dark:bg-slate-800 rounded" />
+                    <div className="h-5 w-28 bg-slate-200 dark:bg-slate-800 rounded" />
+                  </div>
+                </div>
+
+                <div className="space-y-2 border-t border-border/40 pt-6">
+                  <div className="flex justify-between">
+                    <div className="h-3.5 w-24 bg-slate-200 dark:bg-slate-800 rounded" />
+                    <div className="h-3.5 w-40 bg-slate-200 dark:bg-slate-800 rounded" />
+                  </div>
+                  <div className="h-2 w-full bg-slate-200 dark:bg-slate-800 rounded-full" />
+                  <div className="h-3 w-96 bg-slate-200 dark:bg-slate-800 rounded" />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Invoice History skeleton */}
+            <Card className="crm-card border border-border/40 opacity-70">
+              <CardContent className="p-6 space-y-6">
+                <div className="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded" />
+                <div className="space-y-3">
+                  <div className="grid grid-cols-5 gap-4 border-b border-border/40 pb-2">
+                    <div className="h-3 bg-slate-200 dark:bg-slate-800 rounded col-span-1" />
+                    <div className="h-3 bg-slate-200 dark:bg-slate-800 rounded col-span-1" />
+                    <div className="h-3 bg-slate-200 dark:bg-slate-800 rounded col-span-1" />
+                    <div className="h-3 bg-slate-200 dark:bg-slate-800 rounded col-span-1" />
+                    <div className="h-3 bg-slate-200 dark:bg-slate-800 rounded col-span-1" />
+                  </div>
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="grid grid-cols-5 gap-4 py-1">
+                      <div className="h-3.5 bg-slate-200 dark:bg-slate-800 rounded col-span-1" />
+                      <div className="h-3.5 bg-slate-200 dark:bg-slate-800 rounded col-span-1" />
+                      <div className="h-3.5 bg-slate-200 dark:bg-slate-800 rounded col-span-1" />
+                      <div className="h-3.5 bg-slate-200 dark:bg-slate-800 rounded col-span-1" />
+                      <div className="h-3.5 bg-slate-200 dark:bg-slate-800 rounded col-span-1" />
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Right side columns skeleton */}
+          <div className="lg:col-span-1 space-y-6">
+            <Card className="crm-card border border-border/40 opacity-70">
+              <CardContent className="p-6 space-y-6">
+                <div className="h-4 w-28 bg-slate-200 dark:bg-slate-800 rounded" />
+                <div className="space-y-4">
+                  <div className="h-20 w-full bg-slate-200 dark:bg-slate-800 rounded-2xl" />
+                  <div className="h-20 w-full bg-slate-200 dark:bg-slate-800 rounded-2xl" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="crm-card border border-border/40 opacity-70 border-dashed">
+              <CardContent className="p-6 space-y-4 text-center">
+                <div className="h-8 w-8 bg-slate-200 dark:bg-slate-800 rounded-full mx-auto" />
+                <div className="h-3.5 w-32 bg-slate-200 dark:bg-slate-800 rounded mx-auto" />
+                <div className="h-12 w-full bg-slate-200 dark:bg-slate-800 rounded-xl" />
+                <div className="h-10 w-full bg-slate-200 dark:bg-slate-800 rounded-xl" />
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     );

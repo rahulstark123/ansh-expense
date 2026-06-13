@@ -72,6 +72,7 @@ interface ExpenseState {
   currentUser: Employee;
   initialize: () => Promise<void>;
   addExpense: (claim: Omit<ExpenseClaim, "id" | "employeeName" | "employeeRole" | "avatarInitials" | "appliedAt" | "status" | "projectName" | "approvedBy" | "comments"> & { employeeId?: string | null }) => Promise<void>;
+  updateExpense: (id: string, updates: any) => Promise<void>;
   updateExpenseStatus: (id: string, status: ClaimStatus, reason?: string) => Promise<void>;
   addComment: (claimId: string, content: string) => Promise<void>;
   addProject: (name: string, clientName?: string, description?: string) => Promise<void>;
@@ -255,6 +256,22 @@ export const useExpenseStore = create<ExpenseState>()(
           await get().initialize();
         } catch (error) {
           console.error(error);
+        }
+      },
+
+      updateExpense: async (id, updates) => {
+        try {
+          const headers = getHeaders();
+          const res = await fetch(`/api/expenses/${id}`, {
+            method: "PATCH",
+            headers,
+            body: JSON.stringify(updates),
+          });
+          if (!res.ok) throw new Error("Failed to update expense claim");
+          await get().initialize();
+        } catch (error) {
+          console.error(error);
+          throw error;
         }
       },
 

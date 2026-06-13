@@ -69,8 +69,52 @@ export async function PATCH(req: Request) {
       updateData.bloodGroup = body.bloodGroup || null;
     }
 
-    const hasPersonalUpdate = Object.keys(updateData).length > 0;
-    if (!hasPersonalUpdate) {
+    // Role-based verification for professional details
+    const isAuthorized =
+      employee.role === "Admin" ||
+      employee.role === "Manager" ||
+      employee.role === "Owner" ||
+      employee.role === "HR Manager" ||
+      employee.role === "HR";
+
+    if (isAuthorized) {
+      if (body.employeeCode !== undefined) {
+        updateData.employeeCode = body.employeeCode ? String(body.employeeCode).trim() : null;
+      }
+      if (body.designation !== undefined) {
+        updateData.designation = body.designation ? String(body.designation).trim() : null;
+      }
+      if (body.branch !== undefined) {
+        updateData.branch = body.branch ? String(body.branch).trim() : null;
+      }
+      if (body.reportingManager !== undefined) {
+        updateData.reportingManager = body.reportingManager ? String(body.reportingManager).trim() : null;
+      }
+      if (body.reportingHR !== undefined) {
+        updateData.reportingHR = body.reportingHR ? String(body.reportingHR).trim() : null;
+      }
+      if (body.employmentType !== undefined) {
+        updateData.employmentType = body.employmentType ? String(body.employmentType).trim() : null;
+      }
+      if (body.workLocation !== undefined) {
+        updateData.workLocation = body.workLocation ? String(body.workLocation).trim() : null;
+      }
+      if (body.joiningDate !== undefined) {
+        updateData.joiningDate = body.joiningDate || null;
+      }
+      if (body.department !== undefined) {
+        updateData.department = body.department ? String(body.department).trim() : null;
+      }
+      if (body.role !== undefined) {
+        const roleStr = String(body.role).trim();
+        if (roleStr) {
+          updateData.role = roleStr;
+        }
+      }
+    }
+
+    const hasUpdate = Object.keys(updateData).length > 0;
+    if (!hasUpdate) {
       return NextResponse.json({ error: "No profile fields to update" }, { status: 400 });
     }
 
