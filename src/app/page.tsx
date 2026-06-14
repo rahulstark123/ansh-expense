@@ -35,6 +35,9 @@ import {
 type MockTab = "submit" | "analytics" | "approvals";
 type AccentTheme = "indigo" | "emerald" | "sapphire" | "graphite";
 
+const LANDING_CONTAINER =
+  "mx-auto w-full px-6 sm:px-8 md:px-12 lg:px-16 xl:px-20 2xl:px-24";
+
 export default function LandingPage() {
   const [sessionActive, setSessionActive] = useState(false);
   const [activeTab, setActiveTab] = useState<MockTab>("submit");
@@ -141,7 +144,7 @@ export default function LandingPage() {
 
       {/* Navigation Header */}
       <header className={`sticky top-0 z-50 border-b ${themeBorder} backdrop-blur-md ${themeHeaderBg} transition-colors duration-300`}>
-        <div className="mx-auto max-w-7xl px-6 h-16 flex items-center justify-between">
+        <div className={`${LANDING_CONTAINER} h-16 flex items-center justify-between`}>
           <div className="flex items-center gap-2">
             <img src="/logoAnshapps.png" alt="Ansh Expense Logo" className="h-10.5 w-10.5 object-contain" />
             <div>
@@ -215,7 +218,7 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative z-10 mx-auto max-w-7xl px-6 pt-16 pb-24">
+      <section className={`relative z-10 ${LANDING_CONTAINER} pt-16 pb-24`}>
         <div className="grid gap-12 lg:grid-cols-12 lg:items-center">
           {/* Hero Left */}
           <div className="lg:col-span-7 space-y-8 text-left">
@@ -491,7 +494,7 @@ export default function LandingPage() {
 
       {/* Features Grid */}
       <section id="features" className={`relative z-10 border-t ${themeBorder} ${isDark ? "bg-[#080E16]/90" : "bg-slate-100/80"} py-24`}>
-        <div className="mx-auto max-w-7xl px-6 space-y-16">
+        <div className={`${LANDING_CONTAINER} space-y-16`}>
           <div className="text-center max-w-2xl mx-auto space-y-4">
             <h2 className={`text-3xl font-extrabold ${isDark ? "text-white" : "text-slate-900"} tracking-tight sm:text-4xl`}>
               Simplify Reimbursements from Submission to Payout
@@ -573,7 +576,7 @@ export default function LandingPage() {
 
       {/* Pricing Section */}
       <section id="pricing" className={`relative z-10 border-t ${themeBorder} py-24`}>
-        <div className="mx-auto max-w-7xl px-6 space-y-16">
+        <div className={`${LANDING_CONTAINER} space-y-16`}>
           <div className="text-center max-w-2xl mx-auto space-y-3">
             <div className="inline-flex items-center gap-1.5 rounded-full border border-[#00D8A5]/20 bg-[#00D8A5]/5 px-3.5 py-1.5">
               <span className="text-[10px] font-black tracking-widest uppercase text-[#00D8A5]">Flexible Pricing</span>
@@ -742,7 +745,7 @@ export default function LandingPage() {
 
       {/* Comparison Matrix */}
       <section id="comparison" className={`relative z-10 border-t ${themeBorder} ${isDark ? "bg-[#080E16]/90" : "bg-slate-100/80"} py-24`}>
-        <div className="mx-auto max-w-7xl px-6 space-y-16">
+        <div className={`${LANDING_CONTAINER} space-y-16`}>
           <div className="text-center max-w-3xl mx-auto space-y-4">
             <div className="inline-flex items-center gap-2.5 rounded-full bg-[#00D8A5]/10 border border-[#00D8A5]/20 px-4.5 py-1.5 text-[10px] font-black text-[#00D8A5] uppercase tracking-widest">
               <Layers className="h-3.5 w-3.5" />
@@ -851,7 +854,7 @@ export default function LandingPage() {
 
       {/* Activity Feed & Announcements Section */}
       <section className={`relative z-10 border-t ${themeBorder} py-24`}>
-        <div className="mx-auto max-w-7xl px-6">
+        <div className={LANDING_CONTAINER}>
           <div className="grid gap-12 lg:grid-cols-2 items-center">
             {/* Left: Interactive Mockup Feed */}
             <div className={`border ${isDark ? "bg-[#070D14]/90 border-white/5" : "bg-white border-slate-200/80"} rounded-3xl p-6 relative overflow-hidden shadow-2xl`}>
@@ -948,7 +951,7 @@ export default function LandingPage() {
 
       {/* FAQ */}
       <section id="faq" className={`relative z-10 border-t ${themeBorder} ${isDark ? "bg-[#080E16]/90" : "bg-slate-100/80"} py-24`}>
-        <div className="mx-auto max-w-5xl px-6 space-y-16">
+        <div className={`${LANDING_CONTAINER} space-y-16`}>
           <div className="text-center space-y-4 max-w-2xl mx-auto">
             <div className="inline-flex items-center gap-1.5 rounded-full bg-[#00D8A5]/10 border border-[#00D8A5]/20 px-3.5 py-1.5 text-[10px] font-black text-[#00D8A5] uppercase tracking-widest">
               <HelpCircle className="h-3.5 w-3.5" />
@@ -1045,7 +1048,7 @@ export default function LandingPage() {
           <div className={`h-[300px] w-[600px] rounded-full bg-[#00D8A5]/${isDark ? "[0.05]" : "[0.08]"} blur-[120px]`} />
         </div>
 
-        <div className="relative z-10 mx-auto max-w-4xl px-6 text-center space-y-6">
+        <div className={`relative z-10 ${LANDING_CONTAINER} text-center space-y-6`}>
           {/* Centered Check Icon */}
           <div className="h-10 w-10 bg-[#00D8A5]/10 border border-[#00D8A5]/20 text-[#00D8A5] rounded-xl flex items-center justify-center mx-auto">
             <Check className="h-5 w-5" strokeWidth={3} />
@@ -1073,7 +1076,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className={`relative z-10 border-t ${themeBorder} ${isDark ? "bg-[#03060C]" : "bg-white"} pt-20 pb-12 overflow-hidden`}>
-        <div className="mx-auto max-w-7xl px-6 space-y-16">
+        <div className={`${LANDING_CONTAINER} space-y-16`}>
 
           {/* Giant Logo Text Section */}
           <div className="text-center space-y-4 select-none">
