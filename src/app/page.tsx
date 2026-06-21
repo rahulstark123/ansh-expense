@@ -31,6 +31,7 @@ import {
   Monitor,
   Moon
 } from "lucide-react";
+import { AppsMarquee } from "@/components/landing/apps-marquee";
 
 type MockTab = "submit" | "analytics" | "approvals";
 type AccentTheme = "indigo" | "emerald" | "sapphire" | "graphite";
@@ -251,10 +252,10 @@ export default function LandingPage() {
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
-                  <h4 className={`text-xs font-bold ${isDark ? "text-slate-200" : "text-slate-800"}`}>Mileage & Travel Tracker</h4>
+                  <h4 className={`text-xs font-bold ${isDark ? "text-slate-200" : "text-slate-800"}`}>Project & Client Mapping</h4>
                 </div>
                 <p className={`text-[10px] ${themeTextMutedLighter} leading-relaxed font-semibold pl-6`}>
-                  Compute mileage reimbursement instantly using exact distances and custom travel rates.
+                  Connect claims to client contracts, track project budgets, and monitor workspace allocations.
                 </p>
               </div>
 
@@ -300,12 +301,17 @@ export default function LandingPage() {
                   <ArrowRight className="ml-2 h-4 w-4 text-slate-950" strokeWidth={3} />
                 </button>
               </Link>
-              <Link href="/login" className="w-full sm:w-auto">
+              <a
+                href="https://anshapps.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full sm:w-auto"
+              >
                 <button className={`inline-flex h-12 w-full sm:w-auto items-center justify-center rounded-2xl border ${isDark ? "border-white/10 bg-white/5 text-slate-200 hover:bg-white/10 hover:text-white" : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900"} px-8 text-xs font-black uppercase tracking-wider transition-all cursor-pointer active:scale-[0.98]`}>
                   Visit ANSH
                   <ExternalLink className={`ml-2 h-3.5 w-3.5 ${isDark ? "text-slate-400" : "text-slate-500"}`} />
                 </button>
-              </Link>
+              </a>
             </div>
 
             {/* Slogan Branding */}
@@ -406,7 +412,7 @@ export default function LandingPage() {
 
                     <div className="space-y-1">
                       <div className="flex justify-between text-[10px] font-bold">
-                        <span className={`${isDark ? "text-slate-300" : "text-slate-700"}`}>Travel & Mileage</span>
+                        <span className={`${isDark ? "text-slate-300" : "text-slate-700"}`}>Travel & Lodging</span>
                         <span className={`${isDark ? "text-emerald-400" : "text-emerald-650"}`}>₹14,200 (30%)</span>
                       </div>
                       <div className={`h-2 w-full ${isDark ? "bg-slate-950" : "bg-slate-200"} rounded-full overflow-hidden`}>
@@ -492,6 +498,13 @@ export default function LandingPage() {
         </div>
       </section>
 
+      <AppsMarquee
+        isDark={isDark}
+        containerClass={LANDING_CONTAINER}
+        themeBorder={themeBorder}
+        themeTextMuted={themeTextMuted}
+      />
+
       {/* Features Grid */}
       <section id="features" className={`relative z-10 border-t ${themeBorder} ${isDark ? "bg-[#080E16]/90" : "bg-slate-100/80"} py-24`}>
         <div className={`${LANDING_CONTAINER} space-y-16`}>
@@ -500,7 +513,7 @@ export default function LandingPage() {
               Simplify Reimbursements from Submission to Payout
             </h2>
             <p className={`text-sm ${themeTextMuted} leading-relaxed`}>
-              Consolidate receipt photos, mileage expense rates, workspace multi-tenancy, and manager audit histories inside a single, state-of-the-art web application.
+              Consolidate receipt photos, project cost mappings, workspace multi-tenancy, and manager audit histories inside a single, state-of-the-art web application.
             </p>
           </div>
 
@@ -521,9 +534,9 @@ export default function LandingPage() {
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00D8A5]/10 text-[#00D8A5] border border-[#00D8A5]/20 group-hover:bg-[#00D8A5]/20 transition-colors">
                 <TrendingUp className="h-5 w-5" />
               </div>
-              <h3 className={`text-base font-black ${isDark ? "text-slate-200" : "text-slate-850"}`}>Mileage Tracker</h3>
+              <h3 className={`text-base font-black ${isDark ? "text-slate-200" : "text-slate-855"}`}>Tax & Compliance Tools</h3>
               <p className={`text-xs sm:text-[13px] ${themeTextMutedLighter} leading-relaxed font-semibold`}>
-                Drove client visits? Input your distance in Km and target mileage rate to calculate reimbursement amounts immediately.
+                Calculate tax and GST percentages on base totals automatically, ensuring compliant tax logging for audits.
               </p>
             </div>
 
@@ -612,12 +625,7 @@ export default function LandingPage() {
                   <p className="text-[11px] text-slate-500 font-extrabold leading-normal">Forever free · no credit card required.</p>
                 </div>
 
-                {/* Downgrade/Start Button */}
-                <Link href="/login" className="block w-full">
-                  <button className={`w-full h-11 text-xs font-black uppercase tracking-widest rounded-2xl ${isDark ? "bg-white text-slate-950 hover:bg-slate-100" : "bg-slate-900 text-white hover:bg-slate-800"} transition-colors shadow-lg cursor-pointer`}>
-                    START FOR FREE
-                  </button>
-                </Link>
+
 
                 {/* Features List */}
                 <ul className={`space-y-3.5 pt-2 text-[13px] font-semibold ${isDark ? "text-slate-300" : "text-slate-700"}`}>
@@ -635,7 +643,7 @@ export default function LandingPage() {
                   </li>
                   <li className="flex items-center gap-2.5">
                     <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
-                    <span>Mileage & distance calculations</span>
+                    <span>Workspace Announcements bulletin</span>
                   </li>
                   <li className="flex items-center gap-2.5">
                     <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
@@ -683,13 +691,7 @@ export default function LandingPage() {
                   <p className="text-[11px] text-slate-500 font-extrabold leading-normal">₹199/user/month. Switch to yearly to save 19%.</p>
                 </div>
 
-                {/* Subscribe Button */}
-                <Link href="/login" className="block w-full">
-                  <button className="w-full h-11 text-xs font-black uppercase tracking-wider rounded-2xl bg-[#00D8A5] text-slate-950 hover:bg-[#00F5D4] transition-colors shadow-lg cursor-pointer flex items-center justify-center gap-1.5">
-                    <span>SUBSCRIBE — STARTS AFTER TRIAL</span>
-                    <ArrowUpRight className="h-4 w-4 text-slate-950" strokeWidth={3} />
-                  </button>
-                </Link>
+
 
                 {/* Features List */}
                 <ul className={`space-y-3.5 pt-2 text-[13px] font-semibold ${isDark ? "text-slate-300" : "text-slate-700"}`}>
@@ -837,7 +839,7 @@ export default function LandingPage() {
             <div className={`md:col-span-7 rounded-3xl border ${isDark ? "border-[#00D8A5]/20 bg-gradient-to-r from-[#00D8A5]/5" : "border-[#00D8A5]/35 bg-gradient-to-r from-[#00D8A5]/10"} to-transparent p-8 space-y-4 flex flex-col justify-center`}>
               <span className="text-[11px] font-black uppercase tracking-wider text-[#00D8A5] block">THE ANSH EXPENSE MODEL FOR TEAMS</span>
               <p className={`text-xs sm:text-sm ${isDark ? "text-slate-300" : "text-slate-750"} leading-relaxed font-semibold`}>
-                A unified tool that any employee can adopt in minutes. Expense claims, mileage calculator, project budgets, and support desks all live together. No hidden setups or extra license costs.
+                A unified tool that any employee can adopt in minutes. Expense claims, tax compliance tools, project budgets, and support desks all live together. No hidden setups or extra license costs.
               </p>
             </div>
 
@@ -971,7 +973,7 @@ export default function LandingPage() {
               {
                 category: "Features",
                 q: "What core features does ANSH Expense offer?",
-                a: "ANSH Expense is a premium tool offering multi-currency claim logging, automatic VAT calculations, mileage reimbursement multipliers, dynamic client/project cost allocation, interactive spend analytics, and a multi-role workspace audit system (Employee, Manager, Admin, Owner).",
+                a: "ANSH Expense is a premium tool offering multi-currency claim logging, automatic VAT calculations, tax & compliance tools, dynamic client/project cost allocation, interactive spend analytics, and a multi-role workspace audit system (Employee, Manager, Admin, Owner).",
                 icon: Wallet
               },
               {
@@ -1059,7 +1061,7 @@ export default function LandingPage() {
           </h2>
 
           <p className={`text-sm sm:text-base ${themeTextMuted} leading-relaxed font-semibold max-w-xl mx-auto`}>
-            Create your free workspace in under two minutes. No credit card required. Experience automated receipt matching, mileage logging, and quick approvals.
+            Create your free workspace in under two minutes. No credit card required. Experience automated receipt matching, tax calculations, and quick approvals.
           </p>
 
           <div className="pt-4">
@@ -1107,7 +1109,7 @@ export default function LandingPage() {
               <span className={`block text-[10px] font-bold ${isDark ? "text-slate-500" : "text-slate-450"} uppercase tracking-widest`}>Product</span>
               <ul className={`space-y-2 text-[11px] font-semibold ${isDark ? "text-slate-400" : "text-slate-650"}`}>
                 <li><Link href="/login" className={`${isDark ? "hover:text-white" : "hover:text-slate-950"} transition-colors`}>Expense Claims</Link></li>
-                <li><Link href="/login" className={`${isDark ? "hover:text-white" : "hover:text-slate-950"} transition-colors`}>Mileage Tracking</Link></li>
+                <li><Link href="/login" className={`${isDark ? "hover:text-white" : "hover:text-slate-950"} transition-colors`}>Tax Compliance</Link></li>
                 <li><Link href="/login" className={`${isDark ? "hover:text-white" : "hover:text-slate-950"} transition-colors`}>Project Mapping</Link></li>
                 <li><Link href="/login" className={`${isDark ? "hover:text-white" : "hover:text-slate-950"} transition-colors`}>Activity Feed</Link></li>
                 <li><Link href="/login" className={`${isDark ? "hover:text-white" : "hover:text-slate-950"} transition-colors`}>Announcements</Link></li>

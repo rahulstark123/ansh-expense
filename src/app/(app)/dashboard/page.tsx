@@ -33,7 +33,7 @@ export default function DashboardPage() {
   }, []);
 
   // Filter expenses of the current user (if employee, or full workspace if Manager/Admin)
-  const isManagement = currentUser.role === "Admin" || currentUser.role === "Manager";
+  const isManagement = currentUser.role === "Admin" || currentUser.role === "Manager" || currentUser.role === "Owner";
   
   // Calculate Stats
   const approvedClaims = expenses.filter(e => e.status === "Approved");

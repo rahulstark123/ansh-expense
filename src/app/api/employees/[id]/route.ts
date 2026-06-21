@@ -31,10 +31,11 @@ export async function PATCH(
 
     const isSelf = employee.id === id;
 
-    // Role check: self (personal fields only), Admin, Manager, or designated reporting manager/HR
+    // Role check: self (personal fields only), Admin, Manager, Owner, or designated reporting manager/HR
     const isHrAuthorized =
       employee.role === "Admin" ||
       employee.role === "Manager" ||
+      employee.role === "Owner" ||
       (targetEmp.reportingManager && targetEmp.reportingManager.toLowerCase() === employee.name.toLowerCase()) ||
       (targetEmp.reportingHR && targetEmp.reportingHR.toLowerCase() === employee.name.toLowerCase());
 
@@ -146,9 +147,10 @@ export async function DELETE(
       return NextResponse.json({ error: "Forbidden: Cross-workspace modification not allowed" }, { status: 403 });
     }
 
-    // Role check: Admin, Manager, or designated reporting manager/HR of that person
+    // Role check: Admin, Owner, or designated reporting manager/HR of that person
     const isAuthorized =
       employee.role === "Admin" ||
+      employee.role === "Owner" ||
       (targetEmp.reportingManager && targetEmp.reportingManager.toLowerCase() === employee.name.toLowerCase()) ||
       (targetEmp.reportingHR && targetEmp.reportingHR.toLowerCase() === employee.name.toLowerCase());
 

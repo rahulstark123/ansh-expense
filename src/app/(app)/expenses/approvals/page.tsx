@@ -85,7 +85,7 @@ export default function ApprovalsPage() {
   }, []);
 
   // Check Role Authorization
-  const isAuthorized = currentUser.role === "Admin" || currentUser.role === "Manager";
+  const isAuthorized = currentUser.role === "Admin" || currentUser.role === "Manager" || currentUser.role === "Owner";
 
   // Handle Approve/Reject/NeedsInfo
   const handleStatusUpdate = async (status: ClaimStatus) => {

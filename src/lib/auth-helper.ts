@@ -97,7 +97,7 @@ export async function getAuthEmployee(req: Request) {
 
     // Impersonate check: allow Admin/Manager for any request, or standard employees for GET requests only
     if (impersonateHeader && impersonateHeader !== loggedInEmployee.id) {
-      const isManagement = loggedInEmployee.role === "Admin" || loggedInEmployee.role === "Manager";
+      const isManagement = loggedInEmployee.role === "Admin" || loggedInEmployee.role === "Manager" || loggedInEmployee.role === "Owner";
       if (isGetRequest || isManagement) {
         const impersonated = await prisma.employee.findUnique({
           where: { id: impersonateHeader },

@@ -358,3 +358,20 @@
   background-color: oklch(0.15 0.03 260);
   color: #fff;
 }
+
+@keyframes apps-marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.apps-marquee-track {
+  animation: apps-marquee-scroll 40s linear infinite;
+}
+
+.apps-marquee-track:hover {
+  animation-play-state: paused;
+}

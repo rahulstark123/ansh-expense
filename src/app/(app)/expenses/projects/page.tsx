@@ -53,7 +53,7 @@ export default function ProjectsPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const isAuthorized = currentUser.role === "Admin" || currentUser.role === "Manager";
+  const isAuthorized = currentUser.role === "Admin" || currentUser.role === "Manager" || currentUser.role === "Owner";
   const hasProAccess = planStore.hasProAccess;
 
   const handleSubmitProject = async (e: React.FormEvent) => {

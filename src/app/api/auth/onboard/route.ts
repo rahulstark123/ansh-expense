@@ -96,6 +96,7 @@ export async function POST(req: Request) {
             companyAddress: isManagerOrAdmin ? companyAddress : null,
             employeeCount: isManagerOrAdmin ? employeeCount : null,
             wid: newWid,
+            acceptedTerms: true,
           },
         });
 
@@ -138,6 +139,7 @@ export async function POST(req: Request) {
           companyAddress: isManagerOrAdmin ? companyAddress : null,
           employeeCount: isManagerOrAdmin ? employeeCount : null,
           wid: newWid,
+          acceptedTerms: true,
         },
       });
     }

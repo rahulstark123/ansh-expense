@@ -20,9 +20,44 @@ export default function SignupPage() {
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [showGoogleConnecting, setShowGoogleConnecting] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+
+  const getPasswordStrength = (pass: string) => {
+    if (!pass) return { score: 0, label: "", color: "bg-slate-200", textColor: "text-slate-400" };
+    
+    let score = 0;
+    if (pass.length >= 8) score++;
+    if (/[A-Z]/.test(pass)) score++;
+    if (/[a-z]/.test(pass)) score++;
+    if (/\d/.test(pass)) score++;
+    if (/[!@#$%^&*(),.?":{}|<>]/.test(pass)) score++;
+
+    let label = "Weak";
+    let color = "bg-rose-500";
+    let textColor = "text-rose-600";
+    if (score >= 5) {
+      label = "Strong";
+      color = "bg-emerald-500";
+      textColor = "text-emerald-600";
+    } else if (score >= 4) {
+      label = "Good";
+      color = "bg-indigo-500";
+      textColor = "text-indigo-600";
+    } else if (score >= 3) {
+      label = "Fair";
+      color = "bg-amber-500";
+      textColor = "text-amber-600";
+    }
+
+    return { score, label, color, textColor };
+  };
 
   const handleGoogleSignup = async () => {
     setErrorMsg("");
+    if (!acceptedTerms) {
+      setErrorMsg("Please accept the Terms & Conditions and Privacy Policy to continue.");
+      return;
+    }
     setShowGoogleConnecting(true);
 
     try {
@@ -49,6 +84,11 @@ export default function SignupPage() {
     setErrorMsg("");
     setSuccessMsg("");
 
+    if (!acceptedTerms) {
+      setErrorMsg("Please accept the Terms & Conditions and Privacy Policy to continue.");
+      return;
+    }
+
     if (!name.trim()) {
       setErrorMsg("Please enter your name.");
       return;
@@ -59,8 +99,8 @@ export default function SignupPage() {
       return;
     }
 
-    if (password.length < 6) {
-      setErrorMsg("Password must be at least 6 characters long.");
+    if (password.length < 8) {
+      setErrorMsg("Password must be at least 8 characters long.");
       return;
     }
 
@@ -93,6 +133,7 @@ export default function SignupPage() {
         options: {
           data: {
             full_name: name.trim(),
+            accepted_terms: true,
           },
         },
       });
@@ -216,7 +257,7 @@ export default function SignupPage() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="At least 6 characters"
+                    placeholder="At least 8 characters"
                     className="block w-full rounded-xl border border-slate-200 bg-white pl-4 pr-10 py-3.5 text-sm text-slate-900 shadow-[0_1px_2px_rgba(0,0,0,0.02)] outline-none transition-all placeholder:text-slate-400 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
                   />
                   <button
@@ -231,6 +272,130 @@ export default function SignupPage() {
                     )}
                   </button>
                 </div>
+
+                {password.length > 0 && (
+                  <div className="mt-3 space-y-2.5 animate-in fade-in slide-in-from-top-1 duration-200">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-semibold text-slate-400">Password Strength:</span>
+                      <span className={`font-bold ${getPasswordStrength(password).textColor}`}>
+                        {getPasswordStrength(password).label}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-4 gap-1.5 h-1 w-full bg-slate-100 rounded-full overflow-hidden">
+                      {[1, 2, 3, 4].map((index) => {
+                        const { score, color } = getPasswordStrength(password);
+                        let active = false;
+                        if (score >= 5) active = true;
+                        else if (score === 4 && index <= 3) active = true;
+                        else if (score === 3 && index <= 2) active = true;
+                        else if (score >= 1 && score <= 2 && index === 1) active = true;
+
+                        return (
+                          <div
+                            key={index}
+                            className={`h-full rounded-full transition-all duration-300 ${
+                              active ? color : "bg-slate-200"
+                            }`}
+                          />
+                        );
+                      })}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 pt-1 text-[11px]">
+                      <div className="flex items-center gap-1.5">
+                        <svg
+                          className={`h-3.5 w-3.5 shrink-0 transition-colors duration-200 ${
+                            password.length >= 8 ? "text-emerald-500" : "text-slate-300"
+                          }`}
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth="3"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span className={password.length >= 8 ? "text-slate-600 font-semibold" : "text-slate-400"}>
+                          8+ characters
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-1.5">
+                        <svg
+                          className={`h-3.5 w-3.5 shrink-0 transition-colors duration-200 ${
+                            /[A-Z]/.test(password) ? "text-emerald-500" : "text-slate-300"
+                          }`}
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth="3"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span className={/[A-Z]/.test(password) ? "text-slate-600 font-semibold" : "text-slate-400"}>
+                          Uppercase letter
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-1.5">
+                        <svg
+                          className={`h-3.5 w-3.5 shrink-0 transition-colors duration-200 ${
+                            /[a-z]/.test(password) ? "text-emerald-500" : "text-slate-300"
+                          }`}
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth="3"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span className={/[a-z]/.test(password) ? "text-slate-600 font-semibold" : "text-slate-400"}>
+                          Lowercase letter
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-1.5">
+                        <svg
+                          className={`h-3.5 w-3.5 shrink-0 transition-colors duration-200 ${
+                            /\d/.test(password) ? "text-emerald-500" : "text-slate-300"
+                          }`}
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth="3"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span className={/\d/.test(password) ? "text-slate-600 font-semibold" : "text-slate-400"}>
+                          One number (0-9)
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 col-span-2">
+                        <svg
+                          className={`h-3.5 w-3.5 shrink-0 transition-colors duration-200 ${
+                            /[!@#$%^&*(),.?":{}|<>]/.test(password) ? "text-emerald-500" : "text-slate-300"
+                          }`}
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth="3"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span
+                          className={
+                            /[!@#$%^&*(),.?":{}|<>]/.test(password)
+                              ? "text-slate-600 font-semibold"
+                              : "text-slate-400"
+                          }
+                        >
+                          Special character (e.g. !, @, #, $, %)
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div>
@@ -260,10 +425,39 @@ export default function SignupPage() {
                 </div>
               </div>
 
+              <div className="flex items-start gap-2 pt-1 pb-2">
+                <input
+                  id="accept-terms"
+                  type="checkbox"
+                  checked={acceptedTerms}
+                  onChange={(e) => setAcceptedTerms(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-slate-200 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                />
+                <label htmlFor="accept-terms" className="text-xs text-slate-500 leading-normal select-none">
+                  I agree to the{" "}
+                  <Link
+                    href="/terms"
+                    target="_blank"
+                    className="font-bold text-indigo-600 hover:text-indigo-500 hover:underline"
+                  >
+                    Terms & Conditions
+                  </Link>{" "}
+                  and{" "}
+                  <Link
+                    href="/privacy"
+                    target="_blank"
+                    className="font-bold text-indigo-600 hover:text-indigo-500 hover:underline"
+                  >
+                    Privacy Policy
+                  </Link>
+                  .
+                </label>
+              </div>
+
               <div className="pt-2">
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || !acceptedTerms}
                   className="flex w-full justify-center items-center gap-2 rounded-xl bg-slate-900 px-4 py-3.5 text-sm font-bold text-white shadow-md transition-all hover:bg-slate-800 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
                   {loading ? (
