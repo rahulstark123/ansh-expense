@@ -36,8 +36,15 @@ import { AppsMarquee } from "@/components/landing/apps-marquee";
 type MockTab = "submit" | "analytics" | "approvals";
 type AccentTheme = "indigo" | "emerald" | "sapphire" | "graphite";
 
+const BRAND_GRADIENT =
+  "bg-gradient-to-r from-cyan-400 via-violet-500 to-fuchsia-500";
+const BRAND_GRADIENT_TEXT =
+  "bg-gradient-to-r from-cyan-400 via-violet-500 to-fuchsia-500 bg-clip-text text-transparent";
+const BRAND_BTN =
+  "bg-gradient-to-r from-cyan-400 via-violet-500 to-fuchsia-500 text-white shadow-lg shadow-violet-500/25 hover:from-cyan-300 hover:via-violet-400 hover:to-fuchsia-400";
+
 const LANDING_CONTAINER =
-  "mx-auto w-full px-6 sm:px-8 md:px-12 lg:px-16 xl:px-20 2xl:px-24";
+  "mx-auto w-full max-w-[1400px] px-6 sm:px-8 lg:px-12";
 
 export default function LandingPage() {
   const [sessionActive, setSessionActive] = useState(false);
@@ -71,67 +78,67 @@ export default function LandingPage() {
 
   const isDark = resolvedTheme === "dark";
 
-  const themeBg = isDark ? "bg-[#04080F]" : "bg-gradient-to-b from-[#f8fafc] via-[#edf6f2] to-[#e8ecef]";
+  const themeBg = isDark ? "bg-[#030308]" : "bg-gradient-to-b from-[#f8fafc] via-[#f0f4ff] to-[#f5f0ff]";
   const themeText = isDark ? "text-slate-100" : "text-slate-900";
   const themeTextMuted = isDark ? "text-slate-400" : "text-slate-600";
   const themeTextMutedLighter = isDark ? "text-slate-450" : "text-slate-500";
   const themeBorder = isDark ? "border-white/5" : "border-slate-200";
   const themeCardBg = isDark ? "bg-[#070D14]/80" : "bg-white border border-slate-200/60 shadow-sm";
   const themeCardBgMuted = isDark ? "bg-[#070D14]/60" : "bg-white border border-slate-200/80 shadow-sm hover:border-slate-300";
-  const themeHeaderBg = isDark ? "bg-[#04080F]/85" : "bg-white/85";
+  const themeHeaderBg = isDark ? "bg-[#030308]/90" : "bg-white/85";
   const themeNavbarLinks = isDark ? "text-slate-350" : "text-slate-650 hover:text-slate-900";
 
   const accentTextClass = isDark
     ? {
-        indigo: "text-indigo-400",
-        emerald: "text-[#00D8A5]",
-        sapphire: "text-sky-400",
+        indigo: "text-cyan-400",
+        emerald: "text-cyan-400",
+        sapphire: "text-fuchsia-400",
         graphite: "text-slate-350"
       }[activeAccent]
     : {
-        indigo: "text-indigo-600",
-        emerald: "text-[#00B388]",
-        sapphire: "text-sky-650",
+        indigo: "text-cyan-600",
+        emerald: "text-cyan-600",
+        sapphire: "text-fuchsia-600",
         graphite: "text-slate-700"
       }[activeAccent];
 
   const accentBgClass = {
-    indigo: "bg-indigo-500",
-    emerald: "bg-[#00D8A5]",
-    sapphire: "bg-sky-500",
+    indigo: "bg-cyan-500",
+    emerald: "bg-gradient-to-r from-cyan-400 to-violet-500",
+    sapphire: "bg-fuchsia-500",
     graphite: "bg-slate-500"
   }[activeAccent];
 
   const accentBadgeClass = isDark
     ? {
-        indigo: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20",
-        emerald: "bg-[#00D8A5]/10 text-[#00D8A5] border-[#00D8A5]/20",
-        sapphire: "bg-sky-500/10 text-sky-400 border-sky-500/20",
+        indigo: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
+        emerald: "bg-cyan-400/10 text-cyan-400 border-cyan-400/20",
+        sapphire: "bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20",
         graphite: "bg-slate-500/10 text-slate-300 border-slate-500/20"
       }[activeAccent]
     : {
-        indigo: "bg-indigo-50 text-indigo-600 border-indigo-100",
-        emerald: "bg-[#00D8A5]/10 text-[#00B388] border-[#00D8A5]/25",
-        sapphire: "bg-sky-50 text-sky-650 border-sky-100",
+        indigo: "bg-cyan-50 text-cyan-600 border-cyan-100",
+        emerald: "bg-cyan-400/10 text-cyan-600 border-cyan-400/25",
+        sapphire: "bg-fuchsia-50 text-fuchsia-600 border-fuchsia-100",
         graphite: "bg-slate-100 text-slate-650 border-slate-200"
       }[activeAccent];
 
   const accentGlowClass = {
-    indigo: "shadow-indigo-500/20",
-    emerald: "shadow-[#00D8A5]/20",
-    sapphire: "shadow-sky-500/20",
+    indigo: "shadow-cyan-500/20",
+    emerald: "shadow-violet-500/25",
+    sapphire: "shadow-fuchsia-500/20",
     graphite: "shadow-slate-500/20"
   }[activeAccent];
 
   return (
-    <div className={`min-h-screen ${themeBg} font-sans ${isDark ? "text-slate-100" : "text-slate-900"} selection:bg-[#00D8A5]/20 selection:text-[#00D8A5] transition-colors duration-300`}>
+    <div className={`min-h-screen ${themeBg} font-sans ${isDark ? "text-slate-100" : "text-slate-900"} selection:bg-cyan-400/20 selection:text-cyan-300 transition-colors duration-300`}>
       <title>Ansh Expense - Automated Team Expense & Reimbursement Tracker</title>
       <meta name="description" content="ANSH Expense streamlines receipt logging, tax/VAT calculations, project costing, and multi-stage manager approvals into a premium, blazing-fast dashboard." />
       {/* Symmetrical Background Glow Effects */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        <div className={`absolute -left-1/4 top-0 h-[600px] w-[600px] rounded-full bg-[#00D8A5]/${isDark ? "5" : "3"} blur-[160px]`} />
-        <div className={`absolute -right-1/4 top-1/4 h-[650px] w-[650px] rounded-full bg-teal-500/${isDark ? "5" : "3"} blur-[160px]`} />
-        <div className={`absolute left-1/3 top-2/3 h-[500px] w-[500px] rounded-full bg-emerald-500/${isDark ? "5" : "3"} blur-[150px]`} />
+        <div className={`absolute -left-1/4 top-0 h-[600px] w-[600px] rounded-full bg-cyan-500/${isDark ? "8" : "5"} blur-[160px]`} />
+        <div className={`absolute -right-1/4 top-1/4 h-[650px] w-[650px] rounded-full bg-violet-600/${isDark ? "8" : "5"} blur-[160px]`} />
+        <div className={`absolute left-1/3 top-2/3 h-[500px] w-[500px] rounded-full bg-fuchsia-500/${isDark ? "6" : "4"} blur-[150px]`} />
         <div
           className="absolute inset-0 opacity-[0.02] pointer-events-none"
           style={{
@@ -156,10 +163,10 @@ export default function LandingPage() {
           </div>
 
           <nav className={`hidden md:flex items-center gap-8 text-[13px] font-black uppercase tracking-widest ${themeNavbarLinks} transition-colors duration-300`}>
-            <a href="#features" className="hover:text-[#00D8A5] transition-colors">Features</a>
-            <a href="#pricing" className="hover:text-[#00D8A5] transition-colors">Pricing</a>
-            <a href="#comparison" className="hover:text-[#00D8A5] transition-colors">Why ANSH</a>
-            <a href="#faq" className="hover:text-[#00D8A5] transition-colors">FAQ</a>
+            <a href="#features" className="hover:text-cyan-400 transition-colors">Features</a>
+            <a href="#pricing" className="hover:text-cyan-400 transition-colors">Pricing</a>
+            <a href="#comparison" className="hover:text-cyan-400 transition-colors">Why ANSH</a>
+            <a href="#faq" className="hover:text-cyan-400 transition-colors">FAQ</a>
           </nav>
 
           <div className="flex items-center gap-4">
@@ -169,7 +176,7 @@ export default function LandingPage() {
                 onClick={() => setActiveTheme("light")}
                 className={`p-1.5 rounded-lg transition-all cursor-pointer ${
                   activeTheme === "light"
-                    ? `${isDark ? "bg-white/5" : "bg-white shadow-sm"} text-[#00D8A5]`
+                    ? `${isDark ? "bg-white/5" : "bg-white shadow-sm"} text-cyan-400`
                     : `${isDark ? "text-slate-500 hover:text-slate-300" : "text-slate-550 hover:text-slate-800"}`
                 }`}
                 title="Light Mode"
@@ -180,7 +187,7 @@ export default function LandingPage() {
                 onClick={() => setActiveTheme("system")}
                 className={`p-1.5 rounded-lg transition-all cursor-pointer ${
                   activeTheme === "system"
-                    ? `${isDark ? "bg-white/5" : "bg-white shadow-sm"} text-[#00D8A5]`
+                    ? `${isDark ? "bg-white/5" : "bg-white shadow-sm"} text-cyan-400`
                     : `${isDark ? "text-slate-500 hover:text-slate-300" : "text-slate-550 hover:text-slate-800"}`
                 }`}
                 title="System Preference"
@@ -191,7 +198,7 @@ export default function LandingPage() {
                 onClick={() => setActiveTheme("dark")}
                 className={`p-1.5 rounded-lg transition-all cursor-pointer ${
                   activeTheme === "dark"
-                    ? `${isDark ? "bg-white/5" : "bg-white shadow-sm"} text-[#00D8A5]`
+                    ? `${isDark ? "bg-white/5" : "bg-white shadow-sm"} text-cyan-400`
                     : `${isDark ? "text-slate-500 hover:text-slate-300" : "text-slate-550 hover:text-slate-800"}`
                 }`}
                 title="Dark Mode"
@@ -202,9 +209,9 @@ export default function LandingPage() {
 
             {sessionActive ? (
               <Link href="/dashboard">
-                <button className="inline-flex h-10 items-center justify-center rounded-xl bg-[#00D8A5] px-6 text-xs font-black uppercase tracking-wider text-slate-950 shadow-lg shadow-teal-500/10 hover:bg-[#00F5D4] hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer">
+                <button className={`inline-flex h-10 items-center justify-center rounded-xl ${BRAND_BTN} px-6 text-xs font-black uppercase tracking-wider hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer`}>
                   Go to Dashboard
-                  <ArrowRight className="ml-1.5 h-3.5 w-3.5 text-slate-950" strokeWidth={3} />
+                  <ArrowRight className="ml-1.5 h-3.5 w-3.5 text-white" strokeWidth={3} />
                 </button>
               </Link>
             ) : (
@@ -225,7 +232,7 @@ export default function LandingPage() {
           <div className="lg:col-span-7 space-y-8 text-left">
             <h1 className={`font-sans text-4xl sm:text-5xl lg:text-6xl font-black leading-[1.1] tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
               Run Your Entire Team's{" "}
-              <span className="bg-gradient-to-r from-teal-400 to-emerald-400 bg-clip-text text-transparent">
+              <span className={`${BRAND_GRADIENT_TEXT}`}>
                 Expense & Spend Operations
               </span>{" "}
               in One Simple Workspace
@@ -240,7 +247,7 @@ export default function LandingPage() {
               {/* Feature 1 */}
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
+                  <Check className="h-4 w-4 text-cyan-400 shrink-0" strokeWidth={3} />
                   <h4 className={`text-xs font-bold ${isDark ? "text-slate-200" : "text-slate-800"}`}>Automated Expense Claims</h4>
                 </div>
                 <p className={`text-[10px] ${themeTextMutedLighter} leading-relaxed font-semibold pl-6`}>
@@ -251,7 +258,7 @@ export default function LandingPage() {
               {/* Feature 2 */}
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
+                  <Check className="h-4 w-4 text-cyan-400 shrink-0" strokeWidth={3} />
                   <h4 className={`text-xs font-bold ${isDark ? "text-slate-200" : "text-slate-800"}`}>Project & Client Mapping</h4>
                 </div>
                 <p className={`text-[10px] ${themeTextMutedLighter} leading-relaxed font-semibold pl-6`}>
@@ -262,7 +269,7 @@ export default function LandingPage() {
               {/* Feature 3 */}
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
+                  <Check className="h-4 w-4 text-cyan-400 shrink-0" strokeWidth={3} />
                   <h4 className={`text-xs font-bold ${isDark ? "text-slate-200" : "text-slate-800"}`}>Real-time Activity Feed</h4>
                 </div>
                 <p className={`text-[10px] ${themeTextMutedLighter} leading-relaxed font-semibold pl-6`}>
@@ -273,7 +280,7 @@ export default function LandingPage() {
               {/* Feature 4 */}
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
+                  <Check className="h-4 w-4 text-cyan-400 shrink-0" strokeWidth={3} />
                   <h4 className={`text-xs font-bold ${isDark ? "text-slate-200" : "text-slate-800"}`}>Workspace Announcements</h4>
                 </div>
                 <p className={`text-[10px] ${themeTextMutedLighter} leading-relaxed font-semibold pl-6`}>
@@ -284,7 +291,7 @@ export default function LandingPage() {
               {/* Feature 5 */}
               <div className="space-y-1 sm:col-span-2">
                 <div className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
+                  <Check className="h-4 w-4 text-cyan-400 shrink-0" strokeWidth={3} />
                   <h4 className={`text-xs font-bold ${isDark ? "text-slate-200" : "text-slate-800"}`}>Integrated Help Desk</h4>
                 </div>
                 <p className={`text-[10px] ${themeTextMutedLighter} leading-relaxed font-semibold pl-6`}>
@@ -296,9 +303,9 @@ export default function LandingPage() {
             {/* Buttons Row */}
             <div className="flex flex-wrap items-center gap-4 pt-2">
               <Link href="/signup" className="w-full sm:w-auto">
-                <button className="inline-flex h-12 w-full sm:w-auto items-center justify-center rounded-2xl bg-[#00D8A5] px-8 text-xs font-black uppercase tracking-wider text-slate-950 hover:bg-[#00F5D4] transition-all cursor-pointer shadow-lg shadow-teal-500/10 hover:shadow-teal-500/25 active:scale-[0.98]">
+                <button className={`inline-flex h-12 w-full sm:w-auto items-center justify-center rounded-2xl ${BRAND_BTN} px-8 text-xs font-black uppercase tracking-wider transition-all cursor-pointer active:scale-[0.98]`}>
                   Start 14-Day Free Trial
-                  <ArrowRight className="ml-2 h-4 w-4 text-slate-950" strokeWidth={3} />
+                  <ArrowRight className="ml-2 h-4 w-4 text-white" strokeWidth={3} />
                 </button>
               </Link>
               <a
@@ -319,7 +326,7 @@ export default function LandingPage() {
               <h5 className={`text-xs sm:text-sm font-extrabold ${isDark ? "text-white" : "text-slate-800"} tracking-wide uppercase`}>
                 Built from Bharat for the World
               </h5>
-              <p className="text-[10px] sm:text-xs font-extrabold text-[#00D8A5] tracking-widest uppercase">
+              <p className="text-[10px] sm:text-xs font-extrabold text-cyan-400 tracking-widest uppercase">
                 encouraging Vasudhaiva Kutumbakam
               </p>
             </div>
@@ -327,14 +334,14 @@ export default function LandingPage() {
 
           {/* Hero Right Widget Preview */}
           <div className="lg:col-span-5 relative">
-            <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/10 to-emerald-500/10 rounded-3xl blur-2xl -z-10" />
+            <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/10 via-violet-500/10 to-fuchsia-500/10 rounded-3xl blur-2xl -z-10" />
 
             <div className={`rounded-3xl border ${isDark ? "border-slate-800 bg-[#0A1118]/90" : "border-slate-200 bg-white"} shadow-2xl p-5 space-y-5 select-none relative overflow-hidden`}>
               <div className={`flex items-center justify-between border-b ${isDark ? "border-slate-800/60" : "border-slate-100"} pb-3`}>
                 <div className="flex gap-1.5">
                   <span className="h-3 w-3 rounded-full bg-rose-500/80" />
                   <span className="h-3 w-3 rounded-full bg-amber-500/80" />
-                  <span className="h-3 w-3 rounded-full bg-emerald-500/80" />
+                  <span className="h-3 w-3 rounded-full bg-cyan-400/80" />
                 </div>
                 <div className={`text-[9px] font-mono ${isDark ? "text-slate-500 bg-slate-950/40 border-white/5" : "text-slate-555 bg-slate-50 border-slate-200/60"} px-3 py-1 rounded-md border`}>
                   ansh-expense.app/dashboard
@@ -403,30 +410,30 @@ export default function LandingPage() {
                     <div className="space-y-1">
                       <div className="flex justify-between text-[10px] font-bold">
                         <span className={`${isDark ? "text-slate-300" : "text-slate-700"}`}>Software & Subscriptions</span>
-                        <span className={`${isDark ? "text-indigo-400" : "text-indigo-600"}`}>₹24,500 (52%)</span>
+                        <span className={`${isDark ? "text-cyan-400" : "text-cyan-600"}`}>₹24,500 (52%)</span>
                       </div>
                       <div className={`h-2 w-full ${isDark ? "bg-slate-950" : "bg-slate-200"} rounded-full overflow-hidden`}>
-                        <div className="h-full bg-indigo-500 rounded-full" style={{ width: "52%" }} />
+                        <div className="h-full bg-cyan-500 rounded-full" style={{ width: "52%" }} />
                       </div>
                     </div>
 
                     <div className="space-y-1">
                       <div className="flex justify-between text-[10px] font-bold">
                         <span className={`${isDark ? "text-slate-300" : "text-slate-700"}`}>Travel & Lodging</span>
-                        <span className={`${isDark ? "text-emerald-400" : "text-emerald-650"}`}>₹14,200 (30%)</span>
+                        <span className={`${isDark ? "text-violet-400" : "text-violet-600"}`}>₹14,200 (30%)</span>
                       </div>
                       <div className={`h-2 w-full ${isDark ? "bg-slate-950" : "bg-slate-200"} rounded-full overflow-hidden`}>
-                        <div className="h-full bg-emerald-500 rounded-full" style={{ width: "30%" }} />
+                        <div className="h-full bg-violet-500 rounded-full" style={{ width: "30%" }} />
                       </div>
                     </div>
 
                     <div className="space-y-1">
                       <div className="flex justify-between text-[10px] font-bold">
                         <span className={`${isDark ? "text-slate-300" : "text-slate-700"}`}>Meals & Clients</span>
-                        <span className={`${isDark ? "text-sky-400" : "text-sky-650"}`}>₹8,500 (18%)</span>
+                        <span className={`${isDark ? "text-fuchsia-400" : "text-fuchsia-600"}`}>₹8,500 (18%)</span>
                       </div>
                       <div className={`h-2 w-full ${isDark ? "bg-slate-950" : "bg-slate-200"} rounded-full overflow-hidden`}>
-                        <div className="h-full bg-sky-500 rounded-full" style={{ width: "18%" }} />
+                        <div className="h-full bg-fuchsia-500 rounded-full" style={{ width: "18%" }} />
                       </div>
                     </div>
                   </div>
@@ -463,7 +470,7 @@ export default function LandingPage() {
                         <span className="block text-[9px] text-slate-555">Client Travel · ₹3,200</span>
                       </div>
                     </div>
-                    <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded border border-emerald-500/10">
+                    <span className="text-[9px] font-bold text-cyan-400 bg-cyan-400/10 px-2.5 py-0.5 rounded border border-cyan-400/20">
                       Approved
                     </span>
                   </div>
@@ -476,9 +483,9 @@ export default function LandingPage() {
                 <div className="flex gap-2.5">
                   {(["indigo", "emerald", "sapphire", "graphite"] as AccentTheme[]).map((theme) => {
                     const bgCircle = {
-                      indigo: "bg-indigo-500",
-                      emerald: "bg-emerald-500",
-                      sapphire: "bg-sky-500",
+                      indigo: "bg-cyan-400",
+                      emerald: "bg-violet-500",
+                      sapphire: "bg-fuchsia-500",
                       graphite: "bg-slate-400"
                     }[theme];
 
@@ -519,8 +526,8 @@ export default function LandingPage() {
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {/* Feature 1 */}
-            <div className={`rounded-2xl border ${isDark ? "border-slate-800 bg-[#0A1016]/40" : "border-slate-200 bg-white shadow-sm hover:shadow-md"} p-6 space-y-4 hover:border-[#00D8A5]/25 transition-all group`}>
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00D8A5]/10 text-[#00D8A5] border border-[#00D8A5]/20 group-hover:bg-[#00D8A5]/20 transition-colors">
+            <div className={`rounded-2xl border ${isDark ? "border-slate-800 bg-[#0A1016]/40" : "border-slate-200 bg-white shadow-sm hover:shadow-md"} p-6 space-y-4 hover:border-cyan-400/25 transition-all group`}>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-400 border border-cyan-400/20 group-hover:bg-cyan-400/20 transition-colors">
                 <Wallet className="h-5 w-5" />
               </div>
               <h3 className={`text-base font-black ${isDark ? "text-slate-200" : "text-slate-850"}`}>Interactive Expense Logger</h3>
@@ -530,8 +537,8 @@ export default function LandingPage() {
             </div>
 
             {/* Feature 2 */}
-            <div className={`rounded-2xl border ${isDark ? "border-slate-800 bg-[#0A1016]/40" : "border-slate-200 bg-white shadow-sm hover:shadow-md"} p-6 space-y-4 hover:border-[#00D8A5]/25 transition-all group`}>
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00D8A5]/10 text-[#00D8A5] border border-[#00D8A5]/20 group-hover:bg-[#00D8A5]/20 transition-colors">
+            <div className={`rounded-2xl border ${isDark ? "border-slate-800 bg-[#0A1016]/40" : "border-slate-200 bg-white shadow-sm hover:shadow-md"} p-6 space-y-4 hover:border-cyan-400/25 transition-all group`}>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-400 border border-cyan-400/20 group-hover:bg-cyan-400/20 transition-colors">
                 <TrendingUp className="h-5 w-5" />
               </div>
               <h3 className={`text-base font-black ${isDark ? "text-slate-200" : "text-slate-855"}`}>Tax & Compliance Tools</h3>
@@ -541,8 +548,8 @@ export default function LandingPage() {
             </div>
 
             {/* Feature 3 */}
-            <div className={`rounded-2xl border ${isDark ? "border-slate-800 bg-[#0A1016]/40" : "border-slate-200 bg-white shadow-sm hover:shadow-md"} p-6 space-y-4 hover:border-[#00D8A5]/25 transition-all group`}>
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00D8A5]/10 text-[#00D8A5] border border-[#00D8A5]/20 group-hover:bg-[#00D8A5]/20 transition-colors">
+            <div className={`rounded-2xl border ${isDark ? "border-slate-800 bg-[#0A1016]/40" : "border-slate-200 bg-white shadow-sm hover:shadow-md"} p-6 space-y-4 hover:border-cyan-400/25 transition-all group`}>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-400 border border-cyan-400/20 group-hover:bg-cyan-400/20 transition-colors">
                 <FolderOpen className="h-5 w-5" />
               </div>
               <h3 className={`text-base font-black ${isDark ? "text-slate-200" : "text-slate-850"}`}>Project & Client Mapping</h3>
@@ -552,8 +559,8 @@ export default function LandingPage() {
             </div>
 
             {/* Feature 4 */}
-            <div className={`rounded-2xl border ${isDark ? "border-slate-800 bg-[#0A1016]/40" : "border-slate-200 bg-white shadow-sm hover:shadow-md"} p-6 space-y-4 hover:border-[#00D8A5]/25 transition-all group`}>
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00D8A5]/10 text-[#00D8A5] border border-[#00D8A5]/20 group-hover:bg-[#00D8A5]/20 transition-colors">
+            <div className={`rounded-2xl border ${isDark ? "border-slate-800 bg-[#0A1016]/40" : "border-slate-200 bg-white shadow-sm hover:shadow-md"} p-6 space-y-4 hover:border-cyan-400/25 transition-all group`}>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-400 border border-cyan-400/20 group-hover:bg-cyan-400/20 transition-colors">
                 <CheckCircle className="h-5 w-5" />
               </div>
               <h3 className={`text-base font-black ${isDark ? "text-slate-200" : "text-slate-850"}`}>Multi-Stage Approval Flows</h3>
@@ -563,8 +570,8 @@ export default function LandingPage() {
             </div>
 
             {/* Feature 5 */}
-            <div className={`rounded-2xl border ${isDark ? "border-slate-800 bg-[#0A1016]/40" : "border-slate-200 bg-white shadow-sm hover:shadow-md"} p-6 space-y-4 hover:border-[#00D8A5]/25 transition-all group`}>
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00D8A5]/10 text-[#00D8A5] border border-[#00D8A5]/20 group-hover:bg-[#00D8A5]/20 transition-colors">
+            <div className={`rounded-2xl border ${isDark ? "border-slate-800 bg-[#0A1016]/40" : "border-slate-200 bg-white shadow-sm hover:shadow-md"} p-6 space-y-4 hover:border-cyan-400/25 transition-all group`}>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-400 border border-cyan-400/20 group-hover:bg-cyan-400/20 transition-colors">
                 <Users className="h-5 w-5" />
               </div>
               <h3 className={`text-base font-black ${isDark ? "text-slate-200" : "text-slate-850"}`}>Multi-Tenant Workspaces</h3>
@@ -574,8 +581,8 @@ export default function LandingPage() {
             </div>
 
             {/* Feature 6 */}
-            <div className={`rounded-2xl border ${isDark ? "border-slate-800 bg-[#0A1016]/40" : "border-slate-200 bg-white shadow-sm hover:shadow-md"} p-6 space-y-4 hover:border-[#00D8A5]/25 transition-all group`}>
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00D8A5]/10 text-[#00D8A5] border border-[#00D8A5]/20 group-hover:bg-[#00D8A5]/20 transition-colors">
+            <div className={`rounded-2xl border ${isDark ? "border-slate-800 bg-[#0A1016]/40" : "border-slate-200 bg-white shadow-sm hover:shadow-md"} p-6 space-y-4 hover:border-cyan-400/25 transition-all group`}>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-400 border border-cyan-400/20 group-hover:bg-cyan-400/20 transition-colors">
                 <Sparkles className="h-5 w-5" />
               </div>
               <h3 className={`text-base font-black ${isDark ? "text-slate-200" : "text-slate-850"}`}>Interactive Mesh Aesthetics</h3>
@@ -591,8 +598,8 @@ export default function LandingPage() {
       <section id="pricing" className={`relative z-10 border-t ${themeBorder} py-24`}>
         <div className={`${LANDING_CONTAINER} space-y-16`}>
           <div className="text-center max-w-2xl mx-auto space-y-3">
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-[#00D8A5]/20 bg-[#00D8A5]/5 px-3.5 py-1.5">
-              <span className="text-[10px] font-black tracking-widest uppercase text-[#00D8A5]">Flexible Pricing</span>
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-cyan-400/20 bg-cyan-400/5 px-3.5 py-1.5">
+              <span className="text-[10px] font-black tracking-widest uppercase text-cyan-400">Flexible Pricing</span>
             </div>
             <h2 className={`text-3xl font-black ${isDark ? "text-white" : "text-slate-900"} tracking-tight sm:text-4xl`}>
               Transparent, Scalable Pricing Plans
@@ -604,7 +611,7 @@ export default function LandingPage() {
 
           <div className="grid gap-6 max-w-3xl mx-auto sm:grid-cols-2">
             {/* Free Plan */}
-            <div className={`rounded-3xl border ${isDark ? "border-slate-800 bg-[#070D14]" : "border-slate-200 bg-white shadow-sm"} p-8 flex flex-col justify-between space-y-6 relative hover:border-[#00D8A5]/25 transition-all text-left`}>
+            <div className={`rounded-3xl border ${isDark ? "border-slate-800 bg-[#070D14]" : "border-slate-200 bg-white shadow-sm"} p-8 flex flex-col justify-between space-y-6 relative hover:border-cyan-400/25 transition-all text-left`}>
               <div className="space-y-6">
                 
                 {/* Badge/Header */}
@@ -630,27 +637,27 @@ export default function LandingPage() {
                 {/* Features List */}
                 <ul className={`space-y-3.5 pt-2 text-[13px] font-semibold ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                   <li className="flex items-center gap-2.5">
-                    <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
+                    <Check className="h-4 w-4 text-cyan-400 shrink-0" strokeWidth={3} />
                     <span>Up to 5 teammates</span>
                   </li>
                   <li className="flex items-center gap-2.5">
-                    <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
+                    <Check className="h-4 w-4 text-cyan-400 shrink-0" strokeWidth={3} />
                     <span>20 logged expense claims per month</span>
                   </li>
                   <li className="flex items-center gap-2.5">
-                    <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
+                    <Check className="h-4 w-4 text-cyan-400 shrink-0" strokeWidth={3} />
                     <span>Basic claims & category tracking</span>
                   </li>
                   <li className="flex items-center gap-2.5">
-                    <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
+                    <Check className="h-4 w-4 text-cyan-400 shrink-0" strokeWidth={3} />
                     <span>Workspace Announcements bulletin</span>
                   </li>
                   <li className="flex items-center gap-2.5">
-                    <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
+                    <Check className="h-4 w-4 text-cyan-400 shrink-0" strokeWidth={3} />
                     <span>Standard receipt uploads</span>
                   </li>
                   <li className="flex items-center gap-2.5">
-                    <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
+                    <Check className="h-4 w-4 text-cyan-400 shrink-0" strokeWidth={3} />
                     <span>Basic manager review comments</span>
                   </li>
                   <li className={`flex gap-2.5 items-start ${isDark ? "text-slate-500" : "text-slate-400"}`}>
@@ -662,20 +669,20 @@ export default function LandingPage() {
             </div>
 
             {/* Pro Plan */}
-            <div className={`rounded-3xl border ${isDark ? "border-[#00D8A5]/25 bg-[#070D14]" : "border-[#00D8A5]/45 bg-white"} p-8 flex flex-col justify-between space-y-6 relative hover:border-[#00D8A5]/50 transition-all shadow-xl ${isDark ? "shadow-emerald-950/5" : "shadow-md"} text-left`}>
+            <div className={`rounded-3xl border ${isDark ? "border-cyan-400/25 bg-[#070D14]" : "border-cyan-400/45 bg-white"} p-8 flex flex-col justify-between space-y-6 relative hover:border-cyan-400/50 transition-all shadow-xl ${isDark ? "shadow-violet-950/10" : "shadow-md"} text-left`}>
               <div className="space-y-6">
                 
                 {/* Active Badge at Top Right */}
                 <div className="absolute top-8 right-8">
-                  <span className="bg-[#00D8A5]/10 border border-[#00D8A5]/20 text-[#00D8A5] text-[9px] font-black tracking-widest uppercase px-2 py-0.5 rounded">
+                  <span className="bg-cyan-400/10 border border-cyan-400/20 text-cyan-400 text-[9px] font-black tracking-widest uppercase px-2 py-0.5 rounded">
                     ACTIVE
                   </span>
                 </div>
 
                 {/* Badge/Header */}
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-[#00D8A5]/10 border border-[#00D8A5]/25 flex items-center justify-center text-[#00D8A5]">
-                    <Zap className="h-5 w-5 fill-[#00D8A5]/10" />
+                  <div className="h-10 w-10 rounded-xl bg-cyan-400/10 border border-cyan-400/25 flex items-center justify-center text-cyan-400">
+                    <Zap className="h-5 w-5 fill-cyan-400/10" />
                   </div>
                   <div className="text-left">
                     <span className="block text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">PLAN</span>
@@ -696,43 +703,43 @@ export default function LandingPage() {
                 {/* Features List */}
                 <ul className={`space-y-3.5 pt-2 text-[13px] font-semibold ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                   <li className="flex items-center gap-2.5">
-                    <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
+                    <Check className="h-4 w-4 text-cyan-400 shrink-0" strokeWidth={3} />
                     <span>Per-user pricing — scales with your team size</span>
                   </li>
                   <li className="flex items-center gap-2.5">
-                    <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
+                    <Check className="h-4 w-4 text-cyan-400 shrink-0" strokeWidth={3} />
                     <span>Unlimited expense claims logging</span>
                   </li>
                   <li className="flex items-center gap-2.5">
-                    <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
+                    <Check className="h-4 w-4 text-cyan-400 shrink-0" strokeWidth={3} />
                     <span>Client & Project contract mapping</span>
                   </li>
                   <li className="flex items-center gap-2.5">
-                    <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
+                    <Check className="h-4 w-4 text-cyan-400 shrink-0" strokeWidth={3} />
                     <span>Multiple manager review & approval chains</span>
                   </li>
                   <li className="flex items-center gap-2.5">
-                    <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
+                    <Check className="h-4 w-4 text-cyan-400 shrink-0" strokeWidth={3} />
                     <span>Interactive query/needs-info discussions</span>
                   </li>
                   <li className="flex items-center gap-2.5">
-                    <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
+                    <Check className="h-4 w-4 text-cyan-400 shrink-0" strokeWidth={3} />
                     <span>Detailed category spending dashboards</span>
                   </li>
                   <li className="flex items-center gap-2.5">
-                    <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
+                    <Check className="h-4 w-4 text-cyan-400 shrink-0" strokeWidth={3} />
                     <span>Tax breakdown & compliance tools</span>
                   </li>
                   <li className="flex items-center gap-2.5">
-                    <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
+                    <Check className="h-4 w-4 text-cyan-400 shrink-0" strokeWidth={3} />
                     <span>CSV / Excel data logs exports</span>
                   </li>
                   <li className="flex items-center gap-2.5">
-                    <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
+                    <Check className="h-4 w-4 text-cyan-400 shrink-0" strokeWidth={3} />
                     <span>Priority billing & support assistance</span>
                   </li>
                   <li className="flex items-center gap-2.5">
-                    <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
+                    <Check className="h-4 w-4 text-cyan-400 shrink-0" strokeWidth={3} />
                     <span className="flex items-center gap-1.5">
                       Corporate card feeds integration
                       <span className={`px-1.5 py-0.5 text-[9px] font-black uppercase ${isDark ? "bg-slate-800 text-slate-400" : "bg-slate-100 text-slate-500"} rounded`}>Soon</span>
@@ -749,7 +756,7 @@ export default function LandingPage() {
       <section id="comparison" className={`relative z-10 border-t ${themeBorder} ${isDark ? "bg-[#080E16]/90" : "bg-slate-100/80"} py-24`}>
         <div className={`${LANDING_CONTAINER} space-y-16`}>
           <div className="text-center max-w-3xl mx-auto space-y-4">
-            <div className="inline-flex items-center gap-2.5 rounded-full bg-[#00D8A5]/10 border border-[#00D8A5]/20 px-4.5 py-1.5 text-[10px] font-black text-[#00D8A5] uppercase tracking-widest">
+            <div className="inline-flex items-center gap-2.5 rounded-full bg-cyan-400/10 border border-cyan-400/20 px-4.5 py-1.5 text-[10px] font-black text-cyan-400 uppercase tracking-widest">
               <Layers className="h-3.5 w-3.5" />
               Why Teams Switch
             </div>
@@ -765,7 +772,7 @@ export default function LandingPage() {
           <div className="grid gap-8 md:grid-cols-3">
             {/* Column 1: Zoho */}
             <div className={`rounded-3xl border ${isDark ? "border-white/5 bg-[#070D14]/60 hover:border-white/10" : "border-slate-200 bg-white/70 shadow-sm hover:border-slate-300 hover:shadow"} p-8 space-y-6 flex flex-col justify-start transition-all duration-300`}>
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00D8A5]/10 text-[#00D8A5] border border-[#00D8A5]/20">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-400 border border-cyan-400/20">
                 <FileText className="h-5 w-5" />
               </div>
               <div className="space-y-2">
@@ -776,11 +783,11 @@ export default function LandingPage() {
               </div>
               <ul className="space-y-4 pt-2 text-xs sm:text-[13px] font-semibold leading-relaxed">
                 <li className="flex gap-2.5 items-start">
-                  <Check className="h-4 w-4 text-[#00D8A5] shrink-0 mt-0.5" strokeWidth={3} />
+                  <Check className="h-4 w-4 text-cyan-400 shrink-0 mt-0.5" strokeWidth={3} />
                   <span className={`${isDark ? "text-slate-400" : "text-slate-600"}`}>Zoho Expense has a stuffy enterprise interface with rigid, complex workflow setups.</span>
                 </li>
                 <li className="flex gap-2.5 items-start">
-                  <Check className="h-4 w-4 text-[#00D8A5] shrink-0 mt-0.5" strokeWidth={3} />
+                  <Check className="h-4 w-4 text-cyan-400 shrink-0 mt-0.5" strokeWidth={3} />
                   <span className={`${isDark ? "text-slate-300" : "text-slate-800"}`}>ANSH Expense is visual, lightweight, and combines claims, tax splits, and receipts natively.</span>
                 </li>
               </ul>
@@ -788,7 +795,7 @@ export default function LandingPage() {
 
             {/* Column 2: ClickUp & Monday */}
             <div className={`rounded-3xl border ${isDark ? "border-white/5 bg-[#070D14]/60 hover:border-white/10" : "border-slate-200 bg-white/70 shadow-sm hover:border-slate-300 hover:shadow"} p-8 space-y-6 flex flex-col justify-start transition-all duration-300`}>
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00D8A5]/10 text-[#00D8A5] border border-[#00D8A5]/20">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-400 border border-cyan-400/20">
                 <Briefcase className="h-5 w-5" />
               </div>
               <div className="space-y-2">
@@ -799,11 +806,11 @@ export default function LandingPage() {
               </div>
               <ul className="space-y-4 pt-2 text-xs sm:text-[13px] font-semibold leading-relaxed">
                 <li className="flex gap-2.5 items-start">
-                  <Check className="h-4 w-4 text-[#00D8A5] shrink-0 mt-0.5" strokeWidth={3} />
+                  <Check className="h-4 w-4 text-cyan-400 shrink-0 mt-0.5" strokeWidth={3} />
                   <span className={`${isDark ? "text-slate-400" : "text-slate-600"}`}>Concur & Expensify are highly customizable but get expensive quickly and suffer from heavy loading lag.</span>
                 </li>
                 <li className="flex gap-2.5 items-start">
-                  <Check className="h-4 w-4 text-[#00D8A5] shrink-0 mt-0.5" strokeWidth={3} />
+                  <Check className="h-4 w-4 text-cyan-400 shrink-0 mt-0.5" strokeWidth={3} />
                   <span className={`${isDark ? "text-slate-300" : "text-slate-800"}`}>ANSH Expense is lightweight, highly performant, and packs claims tracking, project allocation, and reports under an affordable per-user tier.</span>
                 </li>
               </ul>
@@ -811,7 +818,7 @@ export default function LandingPage() {
 
             {/* Column 3: Trello & Slack */}
             <div className={`rounded-3xl border ${isDark ? "border-white/5 bg-[#070D14]/60 hover:border-white/10" : "border-slate-200 bg-white/70 shadow-sm hover:border-slate-300 hover:shadow"} p-8 space-y-6 flex flex-col justify-start transition-all duration-300`}>
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00D8A5]/10 text-[#00D8A5] border border-[#00D8A5]/20">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-400 border border-cyan-400/20">
                 <MessageSquare className="h-5 w-5" />
               </div>
               <div className="space-y-2">
@@ -822,11 +829,11 @@ export default function LandingPage() {
               </div>
               <ul className="space-y-4 pt-2 text-xs sm:text-[13px] font-semibold leading-relaxed">
                 <li className="flex gap-2.5 items-start">
-                  <Check className="h-4 w-4 text-[#00D8A5] shrink-0 mt-0.5" strokeWidth={3} />
+                  <Check className="h-4 w-4 text-cyan-400 shrink-0 mt-0.5" strokeWidth={3} />
                   <span className={`${isDark ? "text-slate-400" : "text-slate-600"}`}>Excel is too manual (no receipt upload/auditing), while Slack is just messaging (no status tracking)—leading to lost receipts.</span>
                 </li>
                 <li className="flex gap-2.5 items-start">
-                  <Check className="h-4 w-4 text-[#00D8A5] shrink-0 mt-0.5" strokeWidth={3} />
+                  <Check className="h-4 w-4 text-cyan-400 shrink-0 mt-0.5" strokeWidth={3} />
                   <span className={`${isDark ? "text-slate-300" : "text-slate-800"}`}>ANSH Expense integrates receipt tracking, audit trails, and comment feeds in one unified workspace.</span>
                 </li>
               </ul>
@@ -836,8 +843,8 @@ export default function LandingPage() {
           {/* Bottom Models comparison */}
           <div className="grid gap-6 md:grid-cols-12 pt-6">
             {/* Card Left: ANSH model */}
-            <div className={`md:col-span-7 rounded-3xl border ${isDark ? "border-[#00D8A5]/20 bg-gradient-to-r from-[#00D8A5]/5" : "border-[#00D8A5]/35 bg-gradient-to-r from-[#00D8A5]/10"} to-transparent p-8 space-y-4 flex flex-col justify-center`}>
-              <span className="text-[11px] font-black uppercase tracking-wider text-[#00D8A5] block">THE ANSH EXPENSE MODEL FOR TEAMS</span>
+            <div className={`md:col-span-7 rounded-3xl border ${isDark ? "border-cyan-400/20 bg-gradient-to-r from-cyan-400/5" : "border-cyan-400/35 bg-gradient-to-r from-cyan-400/10"} via-violet-500/5 to-transparent p-8 space-y-4 flex flex-col justify-center`}>
+              <span className="text-[11px] font-black uppercase tracking-wider text-cyan-400 block">THE ANSH EXPENSE MODEL FOR TEAMS</span>
               <p className={`text-xs sm:text-sm ${isDark ? "text-slate-300" : "text-slate-750"} leading-relaxed font-semibold`}>
                 A unified tool that any employee can adopt in minutes. Expense claims, tax compliance tools, project budgets, and support desks all live together. No hidden setups or extra license costs.
               </p>
@@ -861,14 +868,14 @@ export default function LandingPage() {
             {/* Left: Interactive Mockup Feed */}
             <div className={`border ${isDark ? "bg-[#070D14]/90 border-white/5" : "bg-white border-slate-200/80"} rounded-3xl p-6 relative overflow-hidden shadow-2xl`}>
               {/* Ambient background glow inside the window */}
-              <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-[#00D8A5]/5 blur-3xl" />
+              <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-cyan-400/5 blur-3xl" />
 
               {/* Header row */}
               <div className={`flex justify-between items-center border-b ${themeBorder} pb-4`}>
                 <div className="flex gap-1.5">
                   <div className="h-3 w-3 rounded-full bg-rose-500/80" />
                   <div className="h-3 w-3 rounded-full bg-amber-500/80" />
-                  <div className="h-3 w-3 rounded-full bg-emerald-500/80" />
+                  <div className="h-3 w-3 rounded-full bg-violet-500/80" />
                 </div>
                 <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Activity Feed</span>
               </div>
@@ -880,25 +887,25 @@ export default function LandingPage() {
                     title: "Claim approved: Software Licenses",
                     desc: "Approved by Priya S. · Finance project",
                     time: "12m ago",
-                    iconColor: "bg-[#00D8A5]/10 border-[#00D8A5]/20 text-[#00D8A5]"
+                    iconColor: "bg-cyan-400/10 border-cyan-400/20 text-cyan-400"
                   },
                   {
                     title: "Announcement: Q3 Policy Updates",
                     desc: "Posted by Vikram M. · Pinned notice for all staff",
                     time: "1h ago",
-                    iconColor: "bg-[#00D8A5]/10 border-[#00D8A5]/20 text-[#00D8A5]"
+                    iconColor: "bg-cyan-400/10 border-cyan-400/20 text-cyan-400"
                   },
                   {
                     title: "Priya Sharma joined the workspace",
                     desc: "Role: Manager (Engineering)",
                     time: "2h ago",
-                    iconColor: "bg-[#00D8A5]/10 border-[#00D8A5]/20 text-[#00D8A5]"
+                    iconColor: "bg-cyan-400/10 border-cyan-400/20 text-cyan-400"
                   },
                   {
                     title: "Project created: Acme Web Portal",
                     desc: "Client: Acme Corp · Budget allocated",
                     time: "3h ago",
-                    iconColor: "bg-[#00D8A5]/10 border-[#00D8A5]/20 text-[#00D8A5]"
+                    iconColor: "bg-cyan-400/10 border-cyan-400/20 text-cyan-400"
                   }
                 ].map((item, idx) => (
                   <div key={idx} className={`border ${isDark ? "bg-[#020408]/60 border-white/5 hover:bg-[#020408]/80" : "bg-slate-50 border-slate-200/80 hover:bg-slate-100/80"} rounded-2xl p-4 flex gap-4 items-start transition-colors`}>
@@ -919,7 +926,7 @@ export default function LandingPage() {
 
             {/* Right: Copy & Bullet Points */}
             <div className="space-y-6 text-left lg:pl-6">
-              <div className="inline-flex items-center gap-1.5 rounded-full bg-[#00D8A5]/10 border border-[#00D8A5]/20 px-3.5 py-1.5 text-[10px] font-black text-[#00D8A5] uppercase tracking-widest">
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-cyan-400/10 border border-cyan-400/20 px-3.5 py-1.5 text-[10px] font-black text-cyan-400 uppercase tracking-widest">
                 <Zap className="h-3.5 w-3.5" />
                 Workspace Updates
               </div>
@@ -934,15 +941,15 @@ export default function LandingPage() {
 
               <ul className="space-y-4 pt-4 text-xs sm:text-sm font-semibold leading-relaxed">
                 <li className="flex gap-3 items-center">
-                  <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
+                  <Check className="h-4 w-4 text-cyan-400 shrink-0" strokeWidth={3} />
                   <span className={`${isDark ? "text-slate-300" : "text-slate-700"}`}>Automatic timeline — expenses, projects, support tickets, and team joins</span>
                 </li>
                 <li className="flex gap-3 items-center">
-                  <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
+                  <Check className="h-4 w-4 text-cyan-400 shrink-0" strokeWidth={3} />
                   <span className={`${isDark ? "text-slate-300" : "text-slate-700"}`}>Pinned announcements for expense deadlines, workspace policies, and updates</span>
                 </li>
                 <li className="flex gap-3 items-center">
-                  <Check className="h-4 w-4 text-[#00D8A5] shrink-0" strokeWidth={3} />
+                  <Check className="h-4 w-4 text-cyan-400 shrink-0" strokeWidth={3} />
                   <span className={`${isDark ? "text-slate-300" : "text-slate-700"}`}>Included on Pro — no extra tracking tool subscription required</span>
                 </li>
               </ul>
@@ -955,7 +962,7 @@ export default function LandingPage() {
       <section id="faq" className={`relative z-10 border-t ${themeBorder} ${isDark ? "bg-[#080E16]/90" : "bg-slate-100/80"} py-24`}>
         <div className={`${LANDING_CONTAINER} space-y-16`}>
           <div className="text-center space-y-4 max-w-2xl mx-auto">
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-[#00D8A5]/10 border border-[#00D8A5]/20 px-3.5 py-1.5 text-[10px] font-black text-[#00D8A5] uppercase tracking-widest">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-cyan-400/10 border border-cyan-400/20 px-3.5 py-1.5 text-[10px] font-black text-cyan-400 uppercase tracking-widest">
               <HelpCircle className="h-3.5 w-3.5" />
               Support Center
             </div>
@@ -991,7 +998,7 @@ export default function LandingPage() {
               {
                 category: "Uploads",
                 q: "Where are receipt images and attachments stored?",
-                a: "Attachments are uploaded to a preconfigured secure AWS S3 bucket. If the S3 integration keys are not set, the platform uses a robust base64 Data URL fallback. Uploaded images are compressed client-side to keep storage lightweight.",
+                a: "Attachments are uploaded to Cloudflare R2 object storage via a secure server-side API. If storage keys are not set, the platform uses a base64 Data URL fallback. Uploaded images are compressed client-side to keep storage lightweight.",
                 icon: FileText
               },
               {
@@ -1007,7 +1014,7 @@ export default function LandingPage() {
                 <div
                   key={idx}
                   className={`rounded-2xl border transition-all duration-300 overflow-hidden cursor-pointer ${isCurrent
-                    ? `${isDark ? "bg-slate-950 border-[#00D8A5]/30 shadow-lg shadow-[#00D8A5]/5" : "bg-white border-[#00D8A5]/35 shadow-sm"}`
+                    ? `${isDark ? "bg-slate-950 border-cyan-400/30 shadow-lg shadow-violet-500/10" : "bg-white border-cyan-400/35 shadow-sm"}`
                     : `${isDark ? "bg-[#070D14]/60 border-white/5 hover:border-white/10 hover:bg-[#070D14]/90" : "bg-white border-slate-200 hover:border-slate-300 shadow-sm"}`
                     }`}
                   onClick={() => setOpenFaq(isCurrent ? null : idx)}
@@ -1015,18 +1022,18 @@ export default function LandingPage() {
                   <div className="p-5 flex items-center justify-between gap-4">
                     <div className="flex items-center gap-4.5 min-w-0">
                       <div className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 border transition-colors ${isCurrent
-                        ? "bg-[#00D8A5]/10 border-[#00D8A5]/30 text-[#00D8A5]"
+                        ? "bg-cyan-400/10 border-cyan-400/30 text-cyan-400"
                         : `${isDark ? "bg-slate-950/60 border-white/5" : "bg-slate-100 border-slate-200"} text-slate-500`
                         }`}>
                         <Icon className="h-4 w-4" />
                       </div>
                       <div className="text-left space-y-1">
-                        <span className={`text-[10px] font-black uppercase tracking-wider ${isCurrent ? "text-[#00D8A5]" : "text-slate-500"
+                        <span className={`text-[10px] font-black uppercase tracking-wider ${isCurrent ? "text-cyan-400" : "text-slate-500"
                           }`}>{faq.category}</span>
                         <h3 className={`text-xs sm:text-sm font-black tracking-wide leading-tight ${isDark ? "text-slate-200" : "text-slate-800"}`}>{faq.q}</h3>
                       </div>
                     </div>
-                    <ChevronRight className={`h-4.5 w-4.5 text-slate-500 shrink-0 transition-transform duration-300 ${isCurrent ? "rotate-90 text-[#00D8A5]" : ""
+                    <ChevronRight className={`h-4.5 w-4.5 text-slate-500 shrink-0 transition-transform duration-300 ${isCurrent ? "rotate-90 text-cyan-400" : ""
                       }`} />
                   </div>
                   {isCurrent && (
@@ -1047,12 +1054,12 @@ export default function LandingPage() {
       <section className={`relative z-10 border-t ${themeBorder} py-24 ${isDark ? "bg-gradient-to-b from-transparent to-[#050A11]/30" : "bg-gradient-to-b from-transparent to-slate-100/50"}`}>
         {/* Radial backing glow */}
         <div className="absolute inset-0 z-0 pointer-events-none flex items-center justify-center">
-          <div className={`h-[300px] w-[600px] rounded-full bg-[#00D8A5]/${isDark ? "[0.05]" : "[0.08]"} blur-[120px]`} />
+          <div className={`h-[300px] w-[600px] rounded-full bg-violet-500/${isDark ? "10" : "12"} blur-[120px]`} />
         </div>
 
         <div className={`relative z-10 ${LANDING_CONTAINER} text-center space-y-6`}>
           {/* Centered Check Icon */}
-          <div className="h-10 w-10 bg-[#00D8A5]/10 border border-[#00D8A5]/20 text-[#00D8A5] rounded-xl flex items-center justify-center mx-auto">
+          <div className="h-10 w-10 bg-cyan-400/10 border border-cyan-400/20 text-cyan-400 rounded-xl flex items-center justify-center mx-auto">
             <Check className="h-5 w-5" strokeWidth={3} />
           </div>
 
@@ -1067,10 +1074,10 @@ export default function LandingPage() {
           <div className="pt-4">
             <Link
               href="/signup"
-              className="inline-flex items-center gap-2.5 bg-[#00D8A5] hover:bg-[#00F5D4] text-[#04080F] font-black uppercase text-xs sm:text-sm tracking-widest px-8 py-4 rounded-xl shadow-lg shadow-teal-500/10 hover:shadow-teal-500/25 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
+              className={`inline-flex items-center gap-2.5 ${BRAND_BTN} font-black uppercase text-xs sm:text-sm tracking-widest px-8 py-4 rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer`}
             >
               <span>Start 14-Day Free Trial</span>
-              <ArrowRight className="h-4 w-4 text-[#04080F]" strokeWidth={3} />
+              <ArrowRight className="h-4 w-4 text-white" strokeWidth={3} />
             </Link>
           </div>
         </div>
@@ -1086,7 +1093,7 @@ export default function LandingPage() {
               HANDLED BY
               <img src="/logoAnshapps.png" alt="Ansh Apps" className="h-4 w-4 object-contain" />
             </span>
-            <h1 className="text-[10vw] sm:text-[11vw] md:text-[10vw] lg:text-[11rem] xl:text-[13rem] font-black tracking-tighter leading-none whitespace-nowrap bg-gradient-to-r from-cyan-400 via-indigo-500 to-fuchsia-500 bg-clip-text text-transparent">
+            <h1 className="text-[10vw] sm:text-[11vw] md:text-[10vw] lg:text-[11rem] xl:text-[13rem] font-black tracking-tighter leading-none whitespace-nowrap bg-gradient-to-r from-cyan-400 via-violet-500 to-fuchsia-500 bg-clip-text text-transparent">
               Ansh Apps
             </h1>
           </div>
@@ -1135,7 +1142,7 @@ export default function LandingPage() {
               </p>
               <a
                 href="mailto:hello@anshapps.com"
-                className="inline-flex items-center gap-2 text-[11px] font-bold text-emerald-400 hover:text-emerald-300 transition-colors pt-1"
+                className="inline-flex items-center gap-2 text-[11px] font-bold text-cyan-400 hover:text-violet-300 transition-colors pt-1"
               >
                 <Mail className="h-3.5 w-3.5" />
                 hello@anshapps.com
