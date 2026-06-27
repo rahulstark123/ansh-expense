@@ -19,6 +19,9 @@ export default function LoginPage() {
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [showGoogleConnecting, setShowGoogleConnecting] = useState(false);
+  const [forgotMode, setForgotMode] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetLoading, setResetLoading] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -62,6 +65,32 @@ export default function LoginPage() {
       console.error(err);
       setErrorMsg("An error occurred during Google Sign-In.");
       setShowGoogleConnecting(false);
+    }
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg("");
+    setSuccessMsg("");
+    setResetLoading(true);
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail.trim(), {
+        redirectTo: `${window.location.origin}/auth/reset-password`,
+      });
+
+      if (error) {
+        setErrorMsg(error.message);
+        setResetLoading(false);
+        return;
+      }
+
+      setSuccessMsg("Password reset link sent. Check your email inbox.");
+      setResetLoading(false);
+    } catch (err) {
+      console.error(err);
+      setErrorMsg("Failed to send reset email. Please try again.");
+      setResetLoading(false);
     }
   };
 
@@ -208,67 +237,134 @@ export default function LoginPage() {
               </span>
             </div>
 
-            <form onSubmit={handleFormLogin} className="space-y-5">
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                  Email Address
-                </label>
-                <div className="mt-2">
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="vikram@ansh.com"
-                    className="block w-full rounded-xl border border-slate-200 bg-white px-4 py-3.5 text-sm text-slate-900 shadow-[0_1px_2px_rgba(0,0,0,0.02)] outline-none transition-all placeholder:text-slate-400 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-                  />
+            {forgotMode ? (
+              <form onSubmit={handleForgotPassword} className="space-y-5">
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                    Email Address
+                  </label>
+                  <div className="mt-2">
+                    <input
+                      type="email"
+                      required
+                      autoFocus
+                      value={resetEmail}
+                      onChange={(e) => setResetEmail(e.target.value)}
+                      placeholder="you@company.com"
+                      className="block w-full rounded-xl border border-slate-200 bg-white px-4 py-3.5 text-sm text-slate-900 shadow-[0_1px_2px_rgba(0,0,0,0.02)] outline-none transition-all placeholder:text-slate-400 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                    />
+                  </div>
+                  <p className="mt-2 text-xs text-slate-500">
+                    Enter the email linked to your account. We&apos;ll send a reset link.
+                  </p>
                 </div>
-              </div>
 
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                  Password
-                </label>
-                <div className="mt-2 relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="password123"
-                    className="block w-full rounded-xl border border-slate-200 bg-white pl-4 pr-10 py-3.5 text-sm text-slate-900 shadow-[0_1px_2px_rgba(0,0,0,0.02)] outline-none transition-all placeholder:text-slate-400 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-                  />
+                <div className="space-y-3 pt-2">
+                  <button
+                    type="submit"
+                    disabled={resetLoading}
+                    className="flex w-full justify-center items-center gap-2 rounded-xl bg-slate-900 px-4 py-3.5 text-sm font-bold text-white shadow-md transition-all hover:bg-slate-800 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    {resetLoading ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Sending link...
+                      </>
+                    ) : (
+                      "Send reset link"
+                    )}
+                  </button>
                   <button
                     type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 outline-none cursor-pointer"
+                    onClick={() => {
+                      setForgotMode(false);
+                      setErrorMsg("");
+                      setSuccessMsg("");
+                    }}
+                    className="flex w-full justify-center items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3.5 text-sm font-bold text-slate-700 transition-all hover:bg-slate-50 cursor-pointer"
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-4.5 w-4.5" />
+                    Back to sign in
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <form onSubmit={handleFormLogin} className="space-y-5">
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                    Email Address
+                  </label>
+                  <div className="mt-2">
+                    <input
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="vikram@ansh.com"
+                      className="block w-full rounded-xl border border-slate-200 bg-white px-4 py-3.5 text-sm text-slate-900 shadow-[0_1px_2px_rgba(0,0,0,0.02)] outline-none transition-all placeholder:text-slate-400 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                    Password
+                  </label>
+                  <div className="mt-2 relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="password123"
+                      className="block w-full rounded-xl border border-slate-200 bg-white pl-4 pr-10 py-3.5 text-sm text-slate-900 shadow-[0_1px_2px_rgba(0,0,0,0.02)] outline-none transition-all placeholder:text-slate-400 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 outline-none cursor-pointer"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4.5 w-4.5" />
+                      ) : (
+                        <Eye className="h-4.5 w-4.5" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setForgotMode(true);
+                      setResetEmail(email);
+                      setErrorMsg("");
+                      setSuccessMsg("");
+                    }}
+                    className="text-xs font-bold text-indigo-600 hover:text-indigo-500 cursor-pointer"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="flex w-full justify-center items-center gap-2 rounded-xl bg-slate-900 px-4 py-3.5 text-sm font-bold text-white shadow-md transition-all hover:bg-slate-800 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Signing in...
+                      </>
                     ) : (
-                      <Eye className="h-4.5 w-4.5" />
+                      "Sign in to Workspace"
                     )}
                   </button>
                 </div>
-              </div>
-
-              <div className="pt-2">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="flex w-full justify-center items-center gap-2 rounded-xl bg-slate-900 px-4 py-3.5 text-sm font-bold text-white shadow-md transition-all hover:bg-slate-800 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Signing in...
-                    </>
-                  ) : (
-                    "Sign in to Workspace"
-                  )}
-                </button>
-              </div>
-            </form>
+              </form>
+            )}
 
             <p className="mt-8 text-center text-sm font-semibold text-slate-400">
               New to ANSH?{" "}
