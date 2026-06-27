@@ -1,0 +1,33 @@
+/* Ansh Apps brand — scoped to landing page only (.landing-page) */
+
+.landing-page .lp-gradient-text {
+  background: linear-gradient(90deg, #00c6ff 0%, #7000ff 50%, #e040fb 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.landing-page.landing-dark .lp-gradient-text {
+  background: linear-gradient(90deg, #4dc4ff 0%, #8b5cf6 50%, #e879f9 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.landing-page .lp-cta-section {
+  background: linear-gradient(
+    to bottom right,
+    rgba(0, 120, 255, 0.1),
+    rgba(112, 0, 255, 0.1),
+    rgba(224, 64, 251, 0.1)
+  );
+}
+
+.landing-page.landing-dark .lp-cta-section {
+  background: linear-gradient(
+    to bottom right,
+    rgba(0, 120, 255, 0.05),
+    rgba(112, 0, 255, 0.05),
+    rgba(224, 64, 251, 0.05)
+  );
+}
