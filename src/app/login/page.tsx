@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Loader2, ArrowRight } from "lucide-react";
 import { useExpenseStore } from "@/stores/expense-store";
 import { AuthMarketingPanel } from "@/components/auth/auth-marketing-panel";
+import { MsmeBadge } from "@/components/shared/msme-badge";
 import { supabase } from "@/lib/supabase/client";
 
 export default function LoginPage() {
@@ -377,7 +378,10 @@ export default function LoginPage() {
             </p>
           </div>
 
-          <div className="pt-8 pb-4 text-center">
+          <div className="pt-8 pb-4 text-center space-y-3">
+            <div className="flex justify-center">
+              <MsmeBadge variant="app" />
+            </div>
             <p className="text-[11px] font-semibold text-slate-400">
               © 2026 ANSH Expense. All rights reserved.
             </p>

@@ -6,6 +6,7 @@ import { Loader2, ArrowRight, ArrowLeft, Sparkles, Briefcase, Shield, User, Chec
 import { supabase } from "@/lib/supabase/client";
 import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
+import { MsmeBadge } from "@/components/shared/msme-badge";
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -335,8 +336,9 @@ export default function OnboardingPage() {
         </div>
 
         {/* Footer info */}
-        <div className="relative z-10 text-[10px] font-semibold text-slate-500">
-          © 2026 ANSH Expense. Crafted for modern workspace teams.
+        <div className="relative z-10 flex flex-col items-start gap-3 text-[10px] font-semibold text-slate-500">
+          <MsmeBadge variant="app" />
+          <span>© 2026 ANSH Expense. Crafted for modern workspace teams.</span>
         </div>
       </div>
 

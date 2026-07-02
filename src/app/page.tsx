@@ -32,6 +32,8 @@ import {
   Moon
 } from "lucide-react";
 import { AppsMarquee } from "@/components/landing/apps-marquee";
+import { MsmeBadge } from "@/components/shared/msme-badge";
+import { TrustCompliance } from "@/components/shared/trust-compliance";
 import {
   BRAND_BTN_CTA,
   BRAND_BTN_PRIMARY,
@@ -1100,6 +1102,12 @@ export default function LandingPage() {
         </div>
       </section>
 
+      <TrustCompliance
+        isDark={isDark}
+        containerClass={LANDING_CONTAINER}
+        showDescription
+      />
+
       {/* Footer */}
       <footer className={`relative z-10 border-t ${themeBorder} ${s.footerBg} pt-20 pb-12 overflow-hidden`}>
         <div className={`${LANDING_CONTAINER} space-y-16`}>
@@ -1169,7 +1177,10 @@ export default function LandingPage() {
 
           {/* Sub-footer bottom bar */}
           <div className={`flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t ${themeBorder} text-[10px] font-semibold ${themeTextMutedLighter}`}>
-            <span>© 2026 ANSH Expense. All rights reserved.</span>
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <span>© 2026 ANSH Expense. All rights reserved.</span>
+              <MsmeBadge isDark={isDark} href="#trust-compliance" />
+            </div>
             <div className="flex gap-6 uppercase tracking-wider">
               <Link href="/privacy" className={`${isDark ? "hover:text-slate-350" : "hover:text-slate-800"} transition-colors`}>Privacy Policy</Link>
               <Link href="/terms" className={`${isDark ? "hover:text-slate-350" : "hover:text-slate-800"} transition-colors`}>Terms of Service</Link>
