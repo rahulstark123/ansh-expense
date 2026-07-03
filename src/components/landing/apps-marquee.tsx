@@ -40,6 +40,24 @@ const ANSH_APPS = [
     dotColor: "bg-[#00C6FF]",
     status: "LIVE" as const,
   },
+  {
+    name: "ANSH Forms",
+    tagline: "Forms, landing pages & responses",
+    description: "Build forms, collect responses and track submissions",
+    href: "https://forms.anshapps.com",
+    image: "/ANSH Forms.jpg",
+    dotColor: "bg-[#E040FB]",
+    status: "LIVE" as const,
+  },
+  {
+    name: "ANSH Links",
+    tagline: "Link-in-bio profile builder",
+    description: "One elegant page for links, WhatsApp & UPI",
+    href: "https://links.anshapps.com",
+    image: "/ANSH Links.jpg",
+    dotColor: "bg-[#0078FF]",
+    status: "LIVE" as const,
+  },
 ];
 
 type AppsMarqueeProps = {

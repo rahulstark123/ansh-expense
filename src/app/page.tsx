@@ -48,16 +48,17 @@ import "./landing-brand.css";
 type MockTab = "submit" | "analytics" | "approvals";
 type AccentTheme = "indigo" | "emerald" | "sapphire" | "graphite";
 
+/** Full-width shell with modern responsive side gutters (not edge-to-edge). */
 const LANDING_CONTAINER =
-  "mx-auto w-full max-w-[1400px] px-6 sm:px-8 lg:px-12";
+  "mx-auto w-full px-8 sm:px-12 md:px-16 lg:px-24 xl:px-28 2xl:px-32";
 
 export default function LandingPage() {
   const [sessionActive, setSessionActive] = useState(false);
   const [activeTab, setActiveTab] = useState<MockTab>("submit");
   const [activeAccent, setActiveAccent] = useState<AccentTheme>("emerald");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [activeTheme, setActiveTheme] = useState<"light" | "system" | "dark">("system");
-  const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("dark");
+  const [activeTheme, setActiveTheme] = useState<"light" | "system" | "dark">("light");
+  const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("light");
 
   useEffect(() => {
     const session = sessionStorage.getItem("ansh_auth_session");
@@ -139,7 +140,7 @@ export default function LandingPage() {
   }[activeAccent];
 
   return (
-    <div className={`landing-page min-h-screen ${themeBg} font-sans ${themeText} ${s.selection} transition-colors duration-300 ${isDark ? "landing-dark" : ""}`}>
+    <div className={`landing-page min-h-screen overflow-x-hidden ${themeBg} font-sans ${themeText} ${s.selection} transition-colors duration-300 ${isDark ? "landing-dark" : ""}`}>
       <title>Ansh Expense - Automated Team Expense & Reimbursement Tracker</title>
       <meta name="description" content="ANSH Expense streamlines receipt logging, tax/VAT calculations, project costing, and multi-stage manager approvals into a premium, blazing-fast dashboard." />
       {/* Symmetrical Background Glow Effects */}
