@@ -41,6 +41,11 @@ export async function PATCH(
             department: true,
           },
         },
+        comments: {
+          orderBy: {
+            createdAt: "asc",
+          },
+        },
       },
     });
 

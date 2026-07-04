@@ -176,6 +176,17 @@ model SupportTicket {
   employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   wid         Int      @default(1)
   createdAt   DateTime @default(now())
+  comments    TicketComment[]
+}
+
+model TicketComment {
+  id         String        @id @default(cuid())
+  ticketId   String
+  ticket     SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  employeeId String
+  authorName String
+  content    String
+  createdAt  DateTime      @default(now())
 }
 
 model CompanyExpense {

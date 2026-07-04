@@ -14,6 +14,15 @@ import {
 } from "lucide-react";
 import { ADMIN_SESSION_TOKEN } from "@/lib/admin/auth";
 
+interface TicketComment {
+  id: string;
+  ticketId: string;
+  employeeId: string;
+  authorName: string;
+  content: string;
+  createdAt: string;
+}
+
 interface Ticket {
   id: string;
   subject: string;
@@ -32,6 +41,7 @@ interface Ticket {
     role: string;
     department: string;
   };
+  comments: TicketComment[];
 }
 
 export function SupportTicketsView() {
@@ -87,10 +97,37 @@ export function SupportTicketsView() {
 
       if (res.ok) {
         const data = await res.json();
-        const updatedTicket = data.ticket;
+        let updatedTicket = data.ticket;
+
+        if (replyText.trim()) {
+          try {
+            const commentRes = await fetch("/api/admin/tickets/comments", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-Admin-Auth": ADMIN_SESSION_TOKEN,
+              },
+              body: JSON.stringify({
+                ticketId: selectedTicket.id,
+                content: replyText.trim(),
+              }),
+            });
+            if (commentRes.ok) {
+              const commentData = await commentRes.json();
+              updatedTicket = {
+                ...updatedTicket,
+                comments: [...(updatedTicket.comments || []), commentData.comment],
+              };
+            }
+          } catch (commErr) {
+            console.error("Error saving ticket comment reply:", commErr);
+          }
+        }
+
         setTickets((prev) => prev.map((t) => (t.id === updatedTicket.id ? updatedTicket : t)));
         setSelectedTicket(updatedTicket);
-        setSuccessToast("Ticket updated successfully!");
+        setReplyText("");
+        setSuccessToast("Ticket updated and reply posted!");
         setTimeout(() => setSuccessToast(""), 4000);
       } else {
         const err = await res.json();
@@ -134,7 +171,7 @@ export function SupportTicketsView() {
 
   const selectTicketAndSync = (ticket: Ticket) => {
     setSelectedTicket(ticket);
-    setReplyText(ticket.resolution || "");
+    setReplyText("");
     setReplyStatus(ticket.status === "Resolved" ? "Resolved" : ticket.status);
   };
 
@@ -346,6 +383,51 @@ export function SupportTicketsView() {
                   </p>
                 </div>
               )}
+
+              {/* Discussion History */}
+              <div className="border-t border-white/5 pt-4 space-y-3">
+                <span className="block text-[9px] font-bold text-slate-500 uppercase tracking-widest">
+                  Discussion History ({selectedTicket.comments?.length || 0})
+                </span>
+                <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
+                  {selectedTicket.comments && selectedTicket.comments.length > 0 ? (
+                    selectedTicket.comments.map((comm) => {
+                      const isSupport = comm.employeeId === "admin";
+                      return (
+                        <div
+                          key={comm.id}
+                          className={`p-3 rounded-2xl border text-xs space-y-1 ${
+                            isSupport
+                              ? "bg-violet-500/5 border-violet-500/10"
+                              : "bg-[#020408]/60 border-white/5"
+                          }`}
+                        >
+                          <div className="flex justify-between text-[9px] font-bold text-slate-500">
+                            <span className={isSupport ? "text-violet-400 font-extrabold" : "text-slate-350"}>
+                              {comm.authorName} {isSupport && " (Support Team)"}
+                            </span>
+                            <span>
+                              {new Date(comm.createdAt).toLocaleString("en-IN", {
+                                month: "short",
+                                day: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </span>
+                          </div>
+                          <p className="text-slate-300 leading-relaxed font-medium whitespace-pre-wrap mt-1 break-all">
+                            {comm.content}
+                          </p>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <p className="text-[10px] text-slate-550 italic text-center py-4">
+                      No discussion history yet.
+                    </p>
+                  )}
+                </div>
+              </div>
             </div>
 
             <div className="bg-[#070D14] border border-white/5 rounded-3xl p-6 space-y-4">

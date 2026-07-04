@@ -44,7 +44,24 @@ export async function POST(req: Request) {
         CA: "CAD",
         SG: "SGD",
         AE: "AED",
-        JP: "JPY"
+        JP: "JPY",
+        AT: "EUR",
+        BE: "EUR",
+        CY: "EUR",
+        EE: "EUR",
+        FI: "EUR",
+        GR: "EUR",
+        IE: "EUR",
+        IT: "EUR",
+        LV: "EUR",
+        LT: "EUR",
+        LU: "EUR",
+        MT: "EUR",
+        NL: "EUR",
+        PT: "EUR",
+        SK: "EUR",
+        SI: "EUR",
+        ES: "EUR"
       };
       const defaultCurrency = countryToCurrency[country?.toUpperCase()] || "USD";
       const defaultMileageRate = defaultCurrency === "INR" ? 8 : 0.5;

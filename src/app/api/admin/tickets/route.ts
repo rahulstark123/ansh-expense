@@ -18,6 +18,11 @@ export async function GET(req: Request) {
             department: true,
           },
         },
+        comments: {
+          orderBy: {
+            createdAt: "asc",
+          },
+        },
       },
       orderBy: { createdAt: "desc" },
     });

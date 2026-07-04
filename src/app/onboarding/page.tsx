@@ -8,6 +8,231 @@ import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import { MsmeBadge } from "@/components/shared/msme-badge";
 
+const countryCurrencyMap: Record<string, string> = {
+  US: "USD",
+  IN: "INR",
+  GB: "GBP",
+  DE: "EUR",
+  FR: "EUR",
+  AU: "AUD",
+  CA: "CAD",
+  SG: "SGD",
+  AE: "AED",
+  JP: "JPY",
+  AT: "EUR",
+  BE: "EUR",
+  CY: "EUR",
+  EE: "EUR",
+  FI: "EUR",
+  GR: "EUR",
+  IE: "EUR",
+  IT: "EUR",
+  LV: "EUR",
+  LT: "EUR",
+  LU: "EUR",
+  MT: "EUR",
+  NL: "EUR",
+  PT: "EUR",
+  SK: "EUR",
+  SI: "EUR",
+  ES: "EUR"
+};
+
+const ALL_COUNTRIES = [
+  { code: "AF", name: "Afghanistan" },
+  { code: "AL", name: "Albania" },
+  { code: "DZ", name: "Algeria" },
+  { code: "AD", name: "Andorra" },
+  { code: "AO", name: "Angola" },
+  { code: "AG", name: "Antigua and Barbuda" },
+  { code: "AR", name: "Argentina" },
+  { code: "AM", name: "Armenia" },
+  { code: "AU", name: "Australia" },
+  { code: "AT", name: "Austria" },
+  { code: "AZ", name: "Azerbaijan" },
+  { code: "BS", name: "Bahamas" },
+  { code: "BH", name: "Bahrain" },
+  { code: "BD", name: "Bangladesh" },
+  { code: "BB", name: "Barbados" },
+  { code: "BY", name: "Belarus" },
+  { code: "BE", name: "Belgium" },
+  { code: "BZ", name: "Belize" },
+  { code: "BJ", name: "Benin" },
+  { code: "BT", name: "Bhutan" },
+  { code: "BO", name: "Bolivia" },
+  { code: "BA", name: "Bosnia and Herzegovina" },
+  { code: "BW", name: "Botswana" },
+  { code: "BR", name: "Brazil" },
+  { code: "BN", name: "Brunei" },
+  { code: "BG", name: "Bulgaria" },
+  { code: "BF", name: "Burkina Faso" },
+  { code: "BI", name: "Burundi" },
+  { code: "CV", name: "Cabo Verde" },
+  { code: "KH", name: "Cambodia" },
+  { code: "CM", name: "Cameroon" },
+  { code: "CA", name: "Canada" },
+  { code: "CF", name: "Central African Republic" },
+  { code: "TD", name: "Chad" },
+  { code: "CL", name: "Chile" },
+  { code: "CN", name: "China" },
+  { code: "CO", name: "Colombia" },
+  { code: "KM", name: "Comoros" },
+  { code: "CG", name: "Congo (Brazzaville)" },
+  { code: "CD", name: "Congo (Kinshasa)" },
+  { code: "CR", name: "Costa Rica" },
+  { code: "HR", name: "Croatia" },
+  { code: "CU", name: "Cuba" },
+  { code: "CY", name: "Cyprus" },
+  { code: "CZ", name: "Czechia" },
+  { code: "DK", name: "Denmark" },
+  { code: "DJ", name: "Djibouti" },
+  { code: "DM", name: "Dominica" },
+  { code: "DO", name: "Dominican Republic" },
+  { code: "EC", name: "Ecuador" },
+  { code: "EG", name: "Egypt" },
+  { code: "SV", name: "El Salvador" },
+  { code: "GQ", name: "Equatorial Guinea" },
+  { code: "ER", name: "Eritrea" },
+  { code: "EE", name: "Estonia" },
+  { code: "SZ", name: "Eswatini" },
+  { code: "ET", name: "Ethiopia" },
+  { code: "FJ", name: "Fiji" },
+  { code: "FI", name: "Finland" },
+  { code: "FR", name: "France" },
+  { code: "GA", name: "Gabon" },
+  { code: "GM", name: "Gambia" },
+  { code: "GE", name: "Georgia" },
+  { code: "DE", name: "Germany" },
+  { code: "GH", name: "Ghana" },
+  { code: "GR", name: "Greece" },
+  { code: "GD", name: "Grenada" },
+  { code: "GT", name: "Guatemala" },
+  { code: "GN", name: "Guinea" },
+  { code: "GW", name: "Guinea-Bissau" },
+  { code: "GY", name: "Guyana" },
+  { code: "HT", name: "Haiti" },
+  { code: "HN", name: "Honduras" },
+  { code: "HU", name: "Hungary" },
+  { code: "IS", name: "Iceland" },
+  { code: "IN", name: "India" },
+  { code: "ID", name: "Indonesia" },
+  { code: "IR", name: "Iran" },
+  { code: "IQ", name: "Iraq" },
+  { code: "IE", name: "Ireland" },
+  { code: "IL", name: "Israel" },
+  { code: "IT", name: "Italy" },
+  { code: "JM", name: "Jamaica" },
+  { code: "JP", name: "Japan" },
+  { code: "JO", name: "Jordan" },
+  { code: "KZ", name: "Kazakhstan" },
+  { code: "KE", name: "Kenya" },
+  { code: "KI", name: "Kiribati" },
+  { code: "KP", name: "Korea, North" },
+  { code: "KR", name: "Korea, South" },
+  { code: "KW", name: "Kuwait" },
+  { code: "KG", name: "Kyrgyzstan" },
+  { code: "LA", name: "Laos" },
+  { code: "LV", name: "Latvia" },
+  { code: "LB", name: "Lebanon" },
+  { code: "LS", name: "Lesotho" },
+  { code: "LR", name: "Liberia" },
+  { code: "LY", name: "Libya" },
+  { code: "LI", name: "Liechtenstein" },
+  { code: "LT", name: "Lithuania" },
+  { code: "LU", name: "Luxembourg" },
+  { code: "MG", name: "Madagascar" },
+  { code: "MW", name: "Malawi" },
+  { code: "MY", name: "Malaysia" },
+  { code: "MV", name: "Maldives" },
+  { code: "ML", name: "Mali" },
+  { code: "MT", name: "Malta" },
+  { code: "MH", name: "Marshall Islands" },
+  { code: "MR", name: "Mauritania" },
+  { code: "MU", name: "Mauritius" },
+  { code: "MX", name: "Mexico" },
+  { code: "FM", name: "Micronesia" },
+  { code: "MD", name: "Moldova" },
+  { code: "MC", name: "Monaco" },
+  { code: "MN", name: "Mongolia" },
+  { code: "ME", name: "Montenegro" },
+  { code: "MA", name: "Morocco" },
+  { code: "MZ", name: "Mozambique" },
+  { code: "MM", name: "Myanmar" },
+  { code: "NA", name: "Namibia" },
+  { code: "NR", name: "Nauru" },
+  { code: "NP", name: "Nepal" },
+  { code: "NL", name: "Netherlands" },
+  { code: "NZ", name: "New Zealand" },
+  { code: "NI", name: "Nicaragua" },
+  { code: "NE", name: "Niger" },
+  { code: "NG", name: "Nigeria" },
+  { code: "MK", name: "North Macedonia" },
+  { code: "NO", name: "Norway" },
+  { code: "OM", name: "Oman" },
+  { code: "PK", name: "Pakistan" },
+  { code: "PW", name: "Palau" },
+  { code: "PA", name: "Panama" },
+  { code: "PG", name: "Papua New Guinea" },
+  { code: "PY", name: "Paraguay" },
+  { code: "PE", name: "Peru" },
+  { code: "PH", name: "Philippines" },
+  { code: "PL", name: "Poland" },
+  { code: "PT", name: "Portugal" },
+  { code: "QA", name: "Qatar" },
+  { code: "RO", name: "Romania" },
+  { code: "RU", name: "Russia" },
+  { code: "RW", name: "Rwanda" },
+  { code: "KN", name: "Saint Kitts and Nevis" },
+  { code: "LC", name: "Saint Lucia" },
+  { code: "VC", name: "Saint Vincent and the Grenadines" },
+  { code: "WS", name: "Samoa" },
+  { code: "SM", name: "San Marino" },
+  { code: "ST", name: "Sao Tome and Principe" },
+  { code: "SA", name: "Saudi Arabia" },
+  { code: "SN", name: "Senegal" },
+  { code: "RS", name: "Serbia" },
+  { code: "SC", name: "Seychelles" },
+  { code: "SL", name: "Sierra Leone" },
+  { code: "SG", name: "Singapore" },
+  { code: "SK", name: "Slovakia" },
+  { code: "SI", name: "Slovenia" },
+  { code: "SB", name: "Solomon Islands" },
+  { code: "SO", name: "Somalia" },
+  { code: "ZA", name: "South Africa" },
+  { code: "SS", name: "South Sudan" },
+  { code: "ES", name: "Spain" },
+  { code: "LK", name: "Sri Lanka" },
+  { code: "SD", name: "Sudan" },
+  { code: "SR", name: "Suriname" },
+  { code: "SE", name: "Sweden" },
+  { code: "CH", name: "Switzerland" },
+  { code: "SY", name: "Syria" },
+  { code: "TJ", name: "Tajikistan" },
+  { code: "TZ", name: "Tanzania" },
+  { code: "TH", name: "Thailand" },
+  { code: "TL", name: "Timor-Leste" },
+  { code: "TG", name: "Togo" },
+  { code: "TO", name: "Tonga" },
+  { code: "TT", name: "Trinidad and Tobago" },
+  { code: "TN", name: "Tunisia" },
+  { code: "TR", name: "Turkey" },
+  { code: "TM", name: "Turkmenistan" },
+  { code: "TV", name: "Tuvalu" },
+  { code: "UG", name: "Uganda" },
+  { code: "UA", name: "Ukraine" },
+  { code: "AE", name: "United Arab Emirates" },
+  { code: "GB", name: "United Kingdom" },
+  { code: "US", name: "United States" },
+  { code: "UY", name: "Uruguay" },
+  { code: "UZ", name: "Uzbekistan" },
+  { code: "VU", name: "Vanuatu" },
+  { code: "VE", name: "Venezuela" },
+  { code: "VN", name: "Vietnam" },
+  { code: "YE", name: "Yemen" },
+  { code: "ZM", name: "Zambia" },
+  { code: "ZW", name: "Zimbabwe" }
+];
+
 export default function OnboardingPage() {
   const router = useRouter();
 
@@ -212,12 +437,12 @@ export default function OnboardingPage() {
   const header = getStepHeader();
 
   return (
-    <div className="dark flex min-h-screen bg-slate-950 font-sans text-slate-100 overflow-hidden select-none">
+    <div className="flex min-h-screen bg-slate-50 font-sans text-slate-900 overflow-hidden select-none">
       <title>Onboarding Setup | Ansh Expense</title>
       <meta name="description" content="Set up your profile, create or join a workspace, and invite teammates to start using Ansh Expense." />
       
       {/* LEFT PANE - Progress Steps Timeline */}
-      <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-[#070809] lg:flex border-r border-white/5 p-16 xl:p-20 min-h-screen">
+      <div className="dark relative hidden w-1/2 flex-col justify-between overflow-hidden bg-[#070809] lg:flex border-r border-white/5 p-16 xl:p-20 min-h-screen">
         {/* Dynamic mesh glow background */}
         <div className="absolute inset-0 z-0">
           <div
@@ -343,27 +568,27 @@ export default function OnboardingPage() {
       </div>
 
       {/* RIGHT PANE - Form Input Panel */}
-      <div className="flex w-full items-center justify-center bg-slate-950 px-6 py-12 lg:w-1/2 select-none overflow-y-auto min-h-screen">
+      <div className="flex w-full items-center justify-center bg-slate-50 px-6 py-12 lg:w-1/2 select-none overflow-y-auto min-h-screen">
         <div className="w-full max-w-[420px] space-y-8 py-8 animate-in fade-in duration-500">
           
           {/* Header Description */}
           <div className="text-center lg:text-left space-y-2">
             <div className="lg:hidden flex justify-center">
-              <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
+              <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-600">
                 <Sparkles className="h-5.5 w-5.5" />
               </div>
             </div>
-            <h2 className="text-2xl font-black text-white tracking-tight">
+            <h2 className="text-2xl font-black text-slate-900 tracking-tight">
               {header.title}
             </h2>
-            <p className="text-xs text-slate-400 leading-relaxed">
+            <p className="text-xs text-slate-500 leading-relaxed">
               {header.desc}
             </p>
           </div>
 
           {/* Form Message Alerts */}
           {errorMsg && (
-            <div className="rounded-xl bg-rose-500/10 border border-rose-500/20 p-4 text-xs font-bold text-rose-400 animate-in fade-in duration-200">
+            <div className="rounded-xl bg-rose-50 border border-rose-100 p-4 text-xs font-bold text-rose-600 animate-in fade-in duration-200">
               {errorMsg}
             </div>
           )}
@@ -378,7 +603,7 @@ export default function OnboardingPage() {
                     Full Name
                   </label>
                   <div className="mt-2 relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                       <User className="h-4.5 w-4.5" />
                     </div>
                     <input
@@ -387,7 +612,7 @@ export default function OnboardingPage() {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="e.g. Priya Sharma"
-                      className="block w-full rounded-2xl border border-white/5 bg-slate-950/80 pl-11 pr-4 py-3.5 text-sm text-white shadow-inner outline-none transition-all placeholder:text-slate-700 focus:border-indigo-500/40 focus:ring-1 focus:ring-indigo-500/40"
+                      className="block w-full rounded-2xl border border-slate-200 bg-white pl-11 pr-4 py-3.5 text-sm text-slate-900 shadow-sm outline-none transition-all placeholder:text-slate-400 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
                     />
                   </div>
                   <p className="mt-1.5 text-[9px] text-slate-500">
@@ -400,7 +625,7 @@ export default function OnboardingPage() {
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2">
                     Phone Number (Mandatory)
                   </label>
-                  <div className="phone-input-container">
+                  <div className="phone-input-container [&_.PhoneInputInput]:bg-white [&_.PhoneInputInput]:border-slate-200 [&_.PhoneInputInput]:text-slate-900 [&_.PhoneInputCountry]:bg-white [&_.PhoneInputCountry]:border-slate-200 [&_.PhoneInputCountry]:text-slate-900">
                     <PhoneInput
                       international
                       defaultCountry="US"
@@ -417,13 +642,13 @@ export default function OnboardingPage() {
                     Department Registry
                   </label>
                   <div className="mt-2 relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                       <Briefcase className="h-4.5 w-4.5" />
                     </div>
                     <select
                       value={department}
                       onChange={(e) => setDepartment(e.target.value)}
-                      className="block w-full rounded-2xl border border-white/5 bg-slate-950/80 pl-11 pr-10 py-3.5 text-sm text-white shadow-inner outline-none transition-all focus:border-indigo-500/40 focus:ring-1 focus:ring-indigo-500/40 appearance-none cursor-pointer"
+                      className="block w-full rounded-2xl border border-slate-200 bg-white pl-11 pr-10 py-3.5 text-sm text-slate-900 shadow-sm outline-none transition-all focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 appearance-none cursor-pointer"
                     >
                       <option value="Engineering">Engineering</option>
                       <option value="Human Resources">Human Resources</option>
@@ -440,7 +665,7 @@ export default function OnboardingPage() {
                   <button
                     type="button"
                     onClick={handleNextStep1}
-                    className="flex w-full justify-center items-center gap-2 rounded-2xl bg-indigo-500 px-4 py-3.5 text-sm font-bold text-slate-950 shadow-xl shadow-indigo-500/10 transition-all hover:bg-indigo-400 hover:shadow-indigo-500/25 active:scale-[0.98] cursor-pointer"
+                    className="flex w-full justify-center items-center gap-2 rounded-2xl bg-indigo-600 px-4 py-3.5 text-sm font-bold text-white shadow-lg shadow-indigo-600/15 transition-all hover:bg-indigo-700 hover:shadow-indigo-600/25 active:scale-[0.98] cursor-pointer"
                   >
                     Next Step
                     <ArrowRight className="h-4 w-4" />
@@ -472,11 +697,11 @@ export default function OnboardingPage() {
                           onClick={() => setRole(item.value)}
                           className={`flex flex-col items-center justify-center p-3 rounded-2xl border transition-all text-center cursor-pointer ${
                             active
-                              ? "bg-indigo-500/10 border-indigo-500/40 text-indigo-400"
-                              : "bg-slate-950/50 border-white/5 text-slate-500 hover:bg-slate-950/80"
+                              ? "bg-indigo-50 border-indigo-200 text-indigo-600 shadow-sm"
+                              : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50/80 hover:border-slate-300"
                           }`}
                         >
-                          <Shield className={`h-4.5 w-4.5 mb-1.5 ${active ? "text-indigo-400" : "text-slate-600"}`} />
+                          <Shield className={`h-4.5 w-4.5 mb-1.5 ${active ? "text-indigo-600" : "text-slate-400"}`} />
                           <span className="text-xs font-bold block">{item.label}</span>
                           <span className="text-[9px] text-slate-500 block mt-0.5 leading-none">{item.desc}</span>
                         </button>
@@ -492,7 +717,7 @@ export default function OnboardingPage() {
                   <button
                     type="button"
                     onClick={handleBack}
-                    className="flex flex-1 justify-center items-center gap-2 rounded-2xl border border-white/10 bg-slate-900 px-4 py-3.5 text-sm font-bold text-slate-300 transition-all hover:bg-slate-800 hover:text-white active:scale-[0.98] cursor-pointer"
+                    className="flex flex-1 justify-center items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3.5 text-sm font-bold text-slate-600 transition-all hover:bg-slate-50 hover:text-slate-900 active:scale-[0.98] cursor-pointer"
                   >
                     <ArrowLeft className="h-4 w-4" />
                     Back
@@ -500,7 +725,7 @@ export default function OnboardingPage() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="flex flex-[2] justify-center items-center gap-2 rounded-2xl bg-indigo-500 px-4 py-3.5 text-sm font-bold text-slate-950 shadow-xl shadow-indigo-500/10 transition-all hover:bg-indigo-400 hover:shadow-indigo-500/25 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    className="flex flex-[2] justify-center items-center gap-2 rounded-2xl bg-indigo-600 px-4 py-3.5 text-sm font-bold text-white shadow-lg shadow-indigo-600/15 transition-all hover:bg-indigo-700 hover:shadow-indigo-600/25 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   >
                     {loading ? (
                       <>
@@ -526,15 +751,15 @@ export default function OnboardingPage() {
             {/* STEP 3: Company Setup (Managers/Admins only) */}
             {step === 3 && isManagerOrAdmin && (
               <div className="space-y-6 animate-in fade-in slide-in-from-right-3 duration-300">
-                <div className="rounded-2xl border border-indigo-500/10 bg-indigo-500/5 p-5 space-y-4">
-                  <div className="flex items-center gap-2 text-indigo-400 border-b border-indigo-500/10 pb-2">
+                <div className="rounded-2xl border border-indigo-100 bg-indigo-50/30 p-5 space-y-4">
+                  <div className="flex items-center gap-2 text-indigo-600 border-b border-indigo-100 pb-2">
                     <Building className="h-4.5 w-4.5" />
                     <span className="text-xs font-bold uppercase tracking-wider">Company Workspace Setup</span>
                   </div>
 
                   {/* COMPANY NAME */}
                   <div>
-                    <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-400">
+                    <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500">
                       Company Name
                     </label>
                     <div className="mt-1.5 relative">
@@ -544,35 +769,33 @@ export default function OnboardingPage() {
                         value={companyName}
                         onChange={(e) => setCompanyName(e.target.value)}
                         placeholder="e.g. ANSH Solutions"
-                        className="block w-full rounded-xl border border-white/5 bg-slate-950/90 px-3.5 py-2.5 text-xs text-white outline-none focus:border-indigo-500/40 focus:ring-1 focus:ring-indigo-500/40"
+                        className="block w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs text-slate-900 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
                       />
                     </div>
                   </div>
 
                   {/* BUSINESS COUNTRY */}
                   <div>
-                    <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-400">
+                    <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500">
                       Business Country
                     </label>
                     <div className="mt-1.5 relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                         <MapPin className="h-3.5 w-3.5" />
                       </div>
                       <select
                         value={country}
                         onChange={(e) => setCountry(e.target.value)}
-                        className="block w-full rounded-xl border border-white/5 bg-slate-950/90 pl-9 pr-10 py-2.5 text-xs text-white outline-none focus:border-indigo-500/40 focus:ring-1 focus:ring-indigo-500/40 appearance-none cursor-pointer"
+                        className="block w-full rounded-xl border border-slate-200 bg-white pl-9 pr-10 py-2.5 text-xs text-slate-900 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 appearance-none cursor-pointer"
                       >
-                        <option value="US">United States (USD)</option>
-                        <option value="IN">India (INR)</option>
-                        <option value="GB">United Kingdom (GBP)</option>
-                        <option value="DE">Germany (EUR)</option>
-                        <option value="FR">France (EUR)</option>
-                        <option value="AU">Australia (AUD)</option>
-                        <option value="CA">Canada (CAD)</option>
-                        <option value="SG">Singapore (SGD)</option>
-                        <option value="AE">United Arab Emirates (AED)</option>
-                        <option value="JP">Japan (JPY)</option>
+                        {ALL_COUNTRIES.map((c) => {
+                          const currency = countryCurrencyMap[c.code] || "USD";
+                          return (
+                            <option key={c.code} value={c.code}>
+                              {c.name} ({currency})
+                            </option>
+                          );
+                        })}
                       </select>
                       <ChevronDown className="absolute right-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400 pointer-events-none" />
                     </div>
@@ -580,17 +803,17 @@ export default function OnboardingPage() {
 
                   {/* EMPLOYEES COUNT */}
                   <div>
-                    <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-400">
+                    <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500">
                       Company Employee Size
                     </label>
                     <div className="mt-1.5 relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                         <Users className="h-3.5 w-3.5" />
                       </div>
                       <select
                         value={employeeCount}
                         onChange={(e) => setEmployeeCount(e.target.value)}
-                        className="block w-full rounded-xl border border-white/5 bg-slate-950/90 pl-9 pr-10 py-2.5 text-xs text-white outline-none focus:border-indigo-500/40 focus:ring-1 focus:ring-indigo-500/40 appearance-none cursor-pointer"
+                        className="block w-full rounded-xl border border-slate-200 bg-white pl-9 pr-10 py-2.5 text-xs text-slate-900 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 appearance-none cursor-pointer"
                       >
                         <option value="1-10">1 - 10 employees</option>
                         <option value="11-50">11 - 50 employees</option>
@@ -603,11 +826,11 @@ export default function OnboardingPage() {
 
                   {/* COMPANY ADDRESS */}
                   <div>
-                    <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-400">
+                    <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500">
                       Company Address
                     </label>
                     <div className="mt-1.5 relative">
-                      <div className="absolute top-3 left-3 text-slate-500">
+                      <div className="absolute top-3 left-3 text-slate-400">
                         <MapPin className="h-3.5 w-3.5" />
                       </div>
                       <textarea
@@ -616,7 +839,7 @@ export default function OnboardingPage() {
                         value={companyAddress}
                         onChange={(e) => setCompanyAddress(e.target.value)}
                         placeholder="e.g. 123 Business Park, Mumbai, India"
-                        className="block w-full rounded-xl border border-white/5 bg-slate-950/90 pl-9 pr-3 py-2.5 text-xs text-white outline-none focus:border-indigo-500/40 focus:ring-1 focus:ring-indigo-500/40 resize-none"
+                        className="block w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2.5 text-xs text-slate-900 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 resize-none"
                       />
                     </div>
                   </div>
@@ -626,7 +849,7 @@ export default function OnboardingPage() {
                   <button
                     type="button"
                     onClick={handleBack}
-                    className="flex flex-1 justify-center items-center gap-2 rounded-2xl border border-white/10 bg-slate-900 px-4 py-3.5 text-sm font-bold text-slate-300 transition-all hover:bg-slate-800 hover:text-white active:scale-[0.98] cursor-pointer"
+                    className="flex flex-1 justify-center items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3.5 text-sm font-bold text-slate-600 transition-all hover:bg-slate-50 hover:text-slate-900 active:scale-[0.98] cursor-pointer"
                   >
                     <ArrowLeft className="h-4 w-4" />
                     Back
@@ -634,7 +857,7 @@ export default function OnboardingPage() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="flex flex-[2] justify-center items-center gap-2 rounded-2xl bg-indigo-500 px-4 py-3.5 text-sm font-bold text-slate-950 shadow-xl shadow-indigo-500/10 transition-all hover:bg-indigo-400 hover:shadow-indigo-500/25 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    className="flex flex-[2] justify-center items-center gap-2 rounded-2xl bg-indigo-600 px-4 py-3.5 text-sm font-bold text-white shadow-lg shadow-indigo-600/15 transition-all hover:bg-indigo-700 hover:shadow-indigo-600/25 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   >
                     {loading ? (
                       <>

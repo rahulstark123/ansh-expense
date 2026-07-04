@@ -180,11 +180,11 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <nav className={`hidden md:flex items-center gap-8 text-[13px] font-black uppercase tracking-widest ${themeNavbarLinks} transition-colors duration-300`}>
-            <a href="#features" className={`${a.textHover} transition-colors`}>Features</a>
-            <a href="#pricing" className={`${a.textHover} transition-colors`}>Pricing</a>
-            <a href="#comparison" className={`${a.textHover} transition-colors`}>Why ANSH</a>
-            <a href="#faq" className={`${a.textHover} transition-colors`}>FAQ</a>
+          <nav className="hidden md:flex items-center gap-8 text-[13px] font-black uppercase tracking-widest transition-colors duration-300">
+            <a href="#features" className={`${themeNavbarLinks} transition-colors`}>Features</a>
+            <a href="#pricing" className={`${themeNavbarLinks} transition-colors`}>Pricing</a>
+            <a href="#comparison" className={`${themeNavbarLinks} transition-colors`}>Why ANSH</a>
+            <a href="#faq" className={`${themeNavbarLinks} transition-colors`}>FAQ</a>
           </nav>
 
           <div className="flex items-center gap-4">

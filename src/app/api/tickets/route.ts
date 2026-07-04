@@ -28,6 +28,11 @@ export async function GET(req: Request) {
               department: true,
             },
           },
+          comments: {
+            orderBy: {
+              createdAt: "asc",
+            },
+          },
         },
         orderBy: { createdAt: "desc" },
       });
@@ -46,6 +51,11 @@ export async function GET(req: Request) {
               avatarInitials: true,
               role: true,
               department: true,
+            },
+          },
+          comments: {
+            orderBy: {
+              createdAt: "asc",
             },
           },
         },
@@ -102,6 +112,7 @@ export async function POST(req: Request) {
             department: true,
           },
         },
+        comments: true,
       },
     });
 

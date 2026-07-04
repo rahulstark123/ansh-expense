@@ -5,6 +5,9 @@ import { convertToWorkspaceCurrency } from "@/lib/currency";
 
 // Maps personal expense claim categories → company expense categories
 function mapClaimCategoryToCompany(claimCategory: string): string {
+  if (claimCategory.startsWith("Other")) {
+    return "Other";
+  }
   const map: Record<string, string> = {
     Travel: "Office Operations",
     Meals: "Office Operations",

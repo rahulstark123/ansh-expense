@@ -30,10 +30,21 @@ import {
   Car,
   BarChart3,
   Paperclip,
+  Send,
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 type ActiveTab = "guides" | "tickets";
 type GuideKey = "leaves" | "checkin" | "regularize" | "wfh" | "face" | "holidays";
+
+interface TicketComment {
+  id: string;
+  ticketId: string;
+  employeeId: string;
+  authorName: string;
+  content: string;
+  createdAt: string;
+}
 
 interface Ticket {
   id: string;
@@ -53,6 +64,7 @@ interface Ticket {
     role: string;
     department: string;
   };
+  comments: TicketComment[];
 }
 
 const GUIDE_CARDS = [
@@ -367,6 +379,10 @@ export default function HelpCenterPage() {
   const [adminStatus, setAdminStatus] = useState<"Open" | "In Progress" | "Resolved">("Open");
   const [adminResolution, setAdminResolution] = useState("");
 
+  // Ticket Reply/Comment State
+  const [ticketCommentText, setTicketCommentText] = useState("");
+  const [postingTicketComment, setPostingTicketComment] = useState(false);
+
   // Feedback notifications
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
@@ -537,6 +553,46 @@ export default function HelpCenterPage() {
     setSelectedTicket(ticket);
     setAdminStatus(ticket.status);
     setAdminResolution(ticket.resolution || "");
+  };
+
+  const handleAddTicketComment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!ticketCommentText.trim() || !selectedTicket) return;
+
+    setPostingTicketComment(true);
+    try {
+      const res = await fetch("/api/tickets/comments", {
+        method: "POST",
+        headers: getHeaders(),
+        body: JSON.stringify({
+          ticketId: selectedTicket.id,
+          content: ticketCommentText.trim(),
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        // Insert new comment into selected ticket comments list
+        const updatedTicket = {
+          ...selectedTicket,
+          comments: [...(selectedTicket.comments || []), data.comment],
+        };
+        setSelectedTicket(updatedTicket);
+        // Also update in tickets list state
+        setTickets((prev) =>
+          prev.map((t) => (t.id === selectedTicket.id ? updatedTicket : t))
+        );
+        setTicketCommentText("");
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        alert(errData.error || "Failed to post reply.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error posting reply.");
+    } finally {
+      setPostingTicketComment(false);
+    }
   };
 
   const startGuide = (guide: GuideKey) => {
@@ -1189,6 +1245,74 @@ export default function HelpCenterPage() {
                   </div>
                 </div>
               )}
+
+              {/* Replies / Discussion Section */}
+              <div className="border-t border-border/40 pt-5 space-y-4">
+                <span className="block font-black text-[10px] uppercase tracking-widest text-slate-400">
+                  Replies & Discussion ({selectedTicket.comments?.length || 0})
+                </span>
+
+                {/* Comments list */}
+                <div className="space-y-3 max-h-52 overflow-y-auto pr-1">
+                  {selectedTicket.comments && selectedTicket.comments.length > 0 ? (
+                    selectedTicket.comments.map((comm) => {
+                      const isSupport = comm.employeeId === "admin";
+                      return (
+                        <div
+                          key={comm.id}
+                          className={`p-3 rounded-2xl border text-xs space-y-1 ${
+                            isSupport
+                              ? "bg-violet-500/5 border-violet-500/10 dark:bg-violet-950/10 dark:border-violet-550/10"
+                              : "bg-slate-550/5 border-border/30"
+                          }`}
+                        >
+                          <div className="flex justify-between text-[9px] font-bold text-slate-400">
+                            <span className={isSupport ? "text-violet-400 font-extrabold" : ""}>
+                              {comm.authorName} {isSupport && " (Support Team)"}
+                            </span>
+                            <span>
+                              {new Date(comm.createdAt).toLocaleString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </span>
+                          </div>
+                          <p className="text-slate-650 dark:text-slate-200 leading-relaxed font-medium whitespace-pre-wrap break-all">
+                            {comm.content}
+                          </p>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <p className="text-[11px] text-slate-400 italic text-center py-4">
+                      No replies yet. Type a message below to reply.
+                    </p>
+                  )}
+                </div>
+
+                {/* Reply Form */}
+                <form onSubmit={handleAddTicketComment} className="flex gap-2 pt-2">
+                  <Input
+                    value={ticketCommentText}
+                    onChange={(e) => setTicketCommentText(e.target.value)}
+                    placeholder="Type a message/reply..."
+                    className="flex-1 rounded-2xl h-11 text-xs"
+                  />
+                  <Button
+                    type="submit"
+                    disabled={postingTicketComment || !ticketCommentText.trim()}
+                    className="btn-primary rounded-2xl h-11 px-4 cursor-pointer shrink-0"
+                  >
+                    {postingTicketComment ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Send className="h-4 w-4" />
+                    )}
+                  </Button>
+                </form>
+              </div>
 
             </div>
 

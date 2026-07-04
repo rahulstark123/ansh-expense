@@ -120,6 +120,7 @@ export default function ExpensesPage() {
   // Form State
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("Travel");
+  const [otherCategory, setOtherCategory] = useState("");
   const [amount, setAmount] = useState<number>(0);
   const [date, setDate] = useState("");
   const [projectId, setProjectId] = useState("");
@@ -276,9 +277,13 @@ export default function ExpensesPage() {
     setSubmittingClaim(true);
     try {
       const mergedUrls = attachments.map((att) => att.url).join(",");
+      const finalCategory = category === "Other" && otherCategory.trim() 
+        ? `Other: ${otherCategory.trim()}` 
+        : category;
+
       const payload: any = {
         title: title.trim(),
-        category,
+        category: finalCategory,
         amount,
         currency: claimCurrency,
         date: date || new Date().toISOString().slice(0, 10),
@@ -312,6 +317,7 @@ export default function ExpensesPage() {
       setEditingClaimId(null);
       setTitle("");
       setCategory("Travel");
+      setOtherCategory("");
       setAmount(0);
       setDistanceKm(0);
       setTaxPercent(0);
@@ -382,7 +388,9 @@ export default function ExpensesPage() {
   const myClaims = expenses.filter(c => c.employeeId === currentUser.id);
 
   const filteredClaims = myClaims.filter(c => {
-    const matchCat = categoryFilter === "All" || c.category === categoryFilter;
+    const matchCat = categoryFilter === "All" || 
+      c.category === categoryFilter ||
+      (categoryFilter === "Other" && c.category.startsWith("Other"));
     const matchStatus = statusFilter === "All" || c.status === statusFilter;
     const matchProject = projectFilter === "All" || c.projectName === projectFilter;
     return matchCat && matchStatus && matchProject;
@@ -488,6 +496,7 @@ export default function ExpensesPage() {
             setSelectedEmployeeId(currentUser?.id || "");
             setTitle("");
             setCategory("Travel");
+            setOtherCategory("");
             setAmount(0);
             setDistanceKm(0);
             setTaxPercent(0);
@@ -823,6 +832,22 @@ export default function ExpensesPage() {
               </div>
             </div>
 
+            {/* Specify Category Input if Other selected */}
+            {category === "Other" && (
+              <div className="space-y-1 animate-in fade-in slide-in-from-top-2 duration-200">
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                  Specify Category / Purpose
+                </label>
+                <Input
+                  required
+                  value={otherCategory}
+                  onChange={(e) => setOtherCategory(e.target.value)}
+                  placeholder="e.g. Client Gift, Marketing Agency"
+                  className="h-11 rounded-2xl"
+                />
+              </div>
+            )}
+
             {/* Currency selector (Visible for both Mileage and Regular claims) */}
             <div className="space-y-1">
               <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">
@@ -1049,7 +1074,21 @@ export default function ExpensesPage() {
                             setEditingClaimId(selectedClaim.id);
                             setSelectedEmployeeId(selectedClaim.employeeId);
                             setTitle(selectedClaim.title);
-                            setCategory(selectedClaim.category);
+                            
+                            const standardCategories = ["Travel", "Meals", "Software", "Office Supplies", "Mileage"];
+                            const isStandard = standardCategories.includes(selectedClaim.category);
+                            if (isStandard) {
+                              setCategory(selectedClaim.category);
+                              setOtherCategory("");
+                            } else {
+                              setCategory("Other");
+                              if (selectedClaim.category.startsWith("Other: ")) {
+                                setOtherCategory(selectedClaim.category.slice(7));
+                              } else {
+                                setOtherCategory(selectedClaim.category);
+                              }
+                            }
+                            
                             setAmount(selectedClaim.amount);
                             setDate(selectedClaim.date);
                             setProjectId(selectedClaim.projectId || "");

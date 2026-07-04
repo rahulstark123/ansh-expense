@@ -137,7 +137,9 @@ export default function ApprovalsPage() {
   // Filters logic
   const filteredClaims = expenses.filter(c => {
     const matchEmp = employeeFilter === "All" || c.employeeName === employeeFilter;
-    const matchCat = categoryFilter === "All" || c.category === categoryFilter;
+    const matchCat = categoryFilter === "All" || 
+      c.category === categoryFilter ||
+      (categoryFilter === "Other" && c.category.startsWith("Other"));
     const matchStatus = statusFilter === "All" || c.status === statusFilter;
     return matchEmp && matchCat && matchStatus;
   });
