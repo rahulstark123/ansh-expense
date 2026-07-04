@@ -15,13 +15,43 @@ import {
   ArrowRight,
   TrendingDown,
   Loader2,
-  CalendarCheck2
+  CalendarCheck2,
+  ArrowLeftRight
 } from "lucide-react";
 import Link from "next/link";
+
+const usdRates: Record<string, number> = {
+  USD: 1.0,
+  INR: 83.5,
+  EUR: 0.92,
+  GBP: 0.79,
+  AUD: 1.51,
+  CAD: 1.37,
+  SGD: 1.35,
+  AED: 3.67,
+  JPY: 156.8,
+};
+
+const convertToWorkspaceCurrency = (amount: number, fromCurrency: string, targetCurrency: string) => {
+  if (fromCurrency === targetCurrency) return amount;
+  const fromInUsd = amount / (usdRates[fromCurrency] || 1.0);
+  const result = fromInUsd * (usdRates[targetCurrency] || 1.0);
+  return Number(result.toFixed(2));
+};
+
+interface CompanyEntry {
+  id: string;
+  direction: "in" | "out";
+  amount: number;
+  currency: string;
+  date: string;
+}
 
 export default function DashboardPage() {
   const { currentUser, expenses, projects, initialize, employees } = useExpenseStore();
   const [loading, setLoading] = useState(true);
+  const [companyEntries, setCompanyEntries] = useState<CompanyEntry[]>([]);
+  const [workspaceCurrency, setWorkspaceCurrency] = useState("USD");
 
   useEffect(() => {
     const run = async () => {
@@ -31,6 +61,35 @@ export default function DashboardPage() {
     run();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Company money in/out is restricted to management roles
+  const authorizedForCompany = ["admin", "manager", "owner", "hr", "hr manager"].includes(
+    (currentUser.role || "").toLowerCase()
+  );
+
+  useEffect(() => {
+    if (!authorizedForCompany) return;
+    const token = typeof window !== "undefined" ? sessionStorage.getItem("ansh_auth_token") : null;
+    if (!token) return;
+    (async () => {
+      try {
+        const [sRes, cRes] = await Promise.all([
+          fetch("/api/settings", { headers: { Authorization: `Bearer ${token}` } }),
+          fetch("/api/company-expenses", { headers: { Authorization: `Bearer ${token}` } }),
+        ]);
+        if (sRes.ok) {
+          const d = await sRes.json();
+          setWorkspaceCurrency(d.settings?.workspaceSettings?.currency || "USD");
+        }
+        if (cRes.ok) {
+          const d = await cRes.json();
+          setCompanyEntries(d.expenses || []);
+        }
+      } catch (e) {
+        console.error("Failed to load company money in/out data:", e);
+      }
+    })();
+  }, [authorizedForCompany]);
 
   // Filter expenses of the current user (if employee, or full workspace if Manager/Admin)
   const isManagement = currentUser.role === "Admin" || currentUser.role === "Manager" || currentUser.role === "Owner";
@@ -120,6 +179,43 @@ export default function DashboardPage() {
       currency: "INR",
       maximumFractionDigits: 0
     }).format(val);
+  };
+
+  // Company money in vs money out (already stored in workspace currency)
+  const cbConvert = (amount: number, from: string) =>
+    convertToWorkspaceCurrency(amount, from, workspaceCurrency);
+
+  const cbTrend = last6Months.map((month) => {
+    const monthEntries = companyEntries.filter((e) => e.date.startsWith(month));
+    const inAmt = monthEntries
+      .filter((e) => e.direction === "in")
+      .reduce((s, e) => s + cbConvert(e.amount, e.currency), 0);
+    const outAmt = monthEntries
+      .filter((e) => e.direction !== "in")
+      .reduce((s, e) => s + cbConvert(e.amount, e.currency), 0);
+    const label = new Date(month + "-02").toLocaleDateString("en-US", { month: "short" });
+    return { month: label, inAmt, outAmt };
+  });
+
+  const cbMax = Math.max(...cbTrend.flatMap((d) => [d.inAmt, d.outAmt]), 1);
+  const cbTotalIn = companyEntries
+    .filter((e) => e.direction === "in")
+    .reduce((s, e) => s + cbConvert(e.amount, e.currency), 0);
+  const cbTotalOut = companyEntries
+    .filter((e) => e.direction !== "in")
+    .reduce((s, e) => s + cbConvert(e.amount, e.currency), 0);
+  const cbNet = cbTotalIn - cbTotalOut;
+
+  const formatCur = (val: number) => {
+    try {
+      return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: workspaceCurrency,
+        maximumFractionDigits: 0,
+      }).format(val);
+    } catch {
+      return `${workspaceCurrency} ${val.toFixed(0)}`;
+    }
   };
 
   if (loading) {
@@ -419,6 +515,104 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* COMPANY MONEY IN vs MONEY OUT */}
+      {authorizedForCompany && (
+        <Card className="crm-card">
+          <CardHeader className="border-b border-border/40 pb-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-sm font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                  <ArrowLeftRight className="h-4 w-4 text-primary" />
+                  Money In vs Money Out
+                </CardTitle>
+                <CardDescription className="text-xs text-slate-400">
+                  Company cash movement over the last 6 months.
+                </CardDescription>
+              </div>
+              <Link href="/company-expenses" className="text-xs font-bold text-primary hover:underline shrink-0">
+                Open ledger
+              </Link>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-6">
+            {/* Totals summary */}
+            <div className="grid grid-cols-3 gap-4 mb-6">
+              <div className="rounded-2xl border border-border/40 bg-emerald-500/5 p-3">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Money In</span>
+                <div className="text-base sm:text-lg font-extrabold text-emerald-500 mt-0.5">
+                  {formatCur(cbTotalIn)}
+                </div>
+              </div>
+              <div className="rounded-2xl border border-border/40 bg-rose-500/5 p-3">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Money Out</span>
+                <div className="text-base sm:text-lg font-extrabold text-rose-500 mt-0.5">
+                  {formatCur(cbTotalOut)}
+                </div>
+              </div>
+              <div className={`rounded-2xl border border-border/40 p-3 ${cbNet >= 0 ? "bg-primary/5" : "bg-amber-500/5"}`}>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Net Balance</span>
+                <div className={`text-base sm:text-lg font-extrabold mt-0.5 ${cbNet >= 0 ? "text-primary" : "text-amber-500"}`}>
+                  {cbNet < 0 ? "-" : ""}{formatCur(Math.abs(cbNet))}
+                </div>
+              </div>
+            </div>
+
+            {/* Grouped bar chart */}
+            {companyEntries.length > 0 ? (
+              <>
+                <div className="h-40 w-full flex items-end justify-between gap-3 sm:gap-6 pt-2 px-2">
+                  {cbTrend.map((d, i) => (
+                    <div key={i} className="flex flex-1 flex-col items-center gap-2">
+                      <div className="flex items-end justify-center gap-1.5 w-full h-28">
+                        <div
+                          title={`In: ${formatCur(d.inAmt)}`}
+                          className="flex-1 max-w-[16px] bg-slate-100 dark:bg-slate-900/60 rounded-t-md flex items-end h-full overflow-hidden"
+                        >
+                          <div
+                            style={{ height: `${Math.max(3, (d.inAmt / cbMax) * 100)}%` }}
+                            className="w-full bg-emerald-500 rounded-t-md transition-all duration-500 hover:brightness-110"
+                          />
+                        </div>
+                        <div
+                          title={`Out: ${formatCur(d.outAmt)}`}
+                          className="flex-1 max-w-[16px] bg-slate-100 dark:bg-slate-900/60 rounded-t-md flex items-end h-full overflow-hidden"
+                        >
+                          <div
+                            style={{ height: `${Math.max(3, (d.outAmt / cbMax) * 100)}%` }}
+                            className="w-full bg-rose-500 rounded-t-md transition-all duration-500 hover:brightness-110"
+                          />
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">
+                        {d.month}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Legend */}
+                <div className="mt-4 flex items-center justify-center gap-6">
+                  <div className="flex items-center gap-2">
+                    <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
+                    <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Money In</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="h-2.5 w-2.5 rounded-full bg-rose-500" />
+                    <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Money Out</span>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-12 bg-slate-500/5 rounded-2xl border border-dashed border-border/60">
+                <p className="text-xs text-slate-400 italic">
+                  No company transactions logged yet. Log money in/out from Company Expenses.
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* TABLES: RECENT REQUESTS & PROJECTS SPENDING */}
       <div className="grid gap-6 lg:grid-cols-3">

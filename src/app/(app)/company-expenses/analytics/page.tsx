@@ -103,6 +103,7 @@ const CompanyCharts = dynamic(() => import("@/components/analytics/company-chart
 
 interface CompanyExpenseEntry {
   id: string;
+  direction: "in" | "out";
   title: string;
   amount: number;
   currency: string;
@@ -349,9 +350,12 @@ export default function CompanyExpensesAnalyticsPage() {
     return months;
   };
 
+  // Burn/spend analytics only consider money-out entries
+  const outExpenses = expenses.filter((e) => e.direction !== "in");
+
   const recentMonths = getRecentMonths();
   const trendData = recentMonths.map((m) => {
-    const mExpenses = expenses.filter((e) => e.date.startsWith(m));
+    const mExpenses = outExpenses.filter((e) => e.date.startsWith(m));
     const total = mExpenses.reduce((sum, e) => {
       return sum + convertToWorkspaceCurrency(e.amount, e.currency, workspaceCurrency);
     }, 0);
@@ -363,7 +367,7 @@ export default function CompanyExpensesAnalyticsPage() {
 
   // 2. Process Categories Allocation Mix
   const categoryMap: Record<string, number> = {};
-  expenses.forEach((e) => {
+  outExpenses.forEach((e) => {
     const amt = convertToWorkspaceCurrency(e.amount, e.currency, workspaceCurrency);
     categoryMap[e.category] = (categoryMap[e.category] || 0) + amt;
   });
@@ -379,7 +383,7 @@ export default function CompanyExpensesAnalyticsPage() {
 
   // 3. Payment Method mix
   const paymentMethodMap: Record<string, number> = {};
-  expenses.forEach((e) => {
+  outExpenses.forEach((e) => {
     const amt = convertToWorkspaceCurrency(e.amount, e.currency, workspaceCurrency);
     paymentMethodMap[e.paymentMethod] = (paymentMethodMap[e.paymentMethod] || 0) + amt;
   });

@@ -24,6 +24,7 @@ import {
   AlertCircle,
   Paperclip,
   TrendingUp,
+  TrendingDown,
   FolderOpen,
   Calendar,
   Loader2,
@@ -35,7 +36,12 @@ import {
   ShieldAlert,
   Search,
   Landmark,
+  ArrowDownLeft,
+  ArrowUpRight,
 } from "lucide-react";
+
+// Fixed income categories for money-in entries
+const INCOME_CATEGORIES = ["Sales", "Service Income", "Collection", "Other Income"];
 
 import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
@@ -133,10 +139,12 @@ const formatCurrency = (amount: number, currency: string) => {
 
 interface CompanyExpenseEntry {
   id: string;
+  direction: "in" | "out";
   title: string;
   amount: number;
   currency: string;
   category: string;
+  customer: string | null;
   date: string;
   paymentMethod: string;
   paymentStatus: string;
@@ -167,6 +175,7 @@ export default function CompanyExpensesPage() {
   const [selectedExpense, setSelectedExpense] = useState<CompanyExpenseEntry | null>(null);
 
   // Form Fields
+  const [direction, setDirection] = useState<"in" | "out">("out");
   const [title, setTitle] = useState("");
   const [amount, setAmount] = useState<number>(0);
   const [claimCurrency, setClaimCurrency] = useState("USD");
@@ -175,6 +184,7 @@ export default function CompanyExpensesPage() {
   const [paymentMethod, setPaymentMethod] = useState("Company Card");
   const [paymentStatus, setPaymentStatus] = useState("Paid");
   const [vendor, setVendor] = useState("");
+  const [customer, setCustomer] = useState("");
   const [notes, setNotes] = useState("");
   const [attachments, setAttachments] = useState<{ name: string; url: string }[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -199,6 +209,7 @@ export default function CompanyExpensesPage() {
 
   // Filters State
   const [search, setSearch] = useState("");
+  const [directionFilter, setDirectionFilter] = useState("All");
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");
   const [showFilters, setShowFilters] = useState(false);
@@ -235,6 +246,16 @@ export default function CompanyExpensesPage() {
     }
   }, [toast]);
 
+  // Categories shown depend on the transaction direction
+  const activeCategories = direction === "in" ? INCOME_CATEGORIES : companyCategories;
+
+  // Keep the selected category valid whenever direction (or the list) changes
+  useEffect(() => {
+    const cats = direction === "in" ? INCOME_CATEGORIES : companyCategories;
+    setCategory((prev) => (cats.includes(prev) ? prev : cats[0] || ""));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [direction, companyCategories]);
+
   // Auth roles validation
   const userRole = currentUser?.role?.toLowerCase() || "";
   const isAuthorized = ["admin", "manager", "owner", "hr", "hr manager"].includes(userRole);
@@ -245,6 +266,7 @@ export default function CompanyExpensesPage() {
       const token = sessionStorage.getItem("ansh_auth_token");
       const url = new URL("/api/company-expenses", window.location.origin);
       if (search.trim()) url.searchParams.set("search", search.trim());
+      if (directionFilter !== "All") url.searchParams.set("direction", directionFilter);
       if (categoryFilter !== "All") url.searchParams.set("category", categoryFilter);
       if (statusFilter !== "All") url.searchParams.set("paymentStatus", statusFilter);
 
@@ -462,7 +484,8 @@ export default function CompanyExpensesPage() {
     if (!loading && isAuthorized) {
       fetchExpenses();
     }
-  }, [loading, search, categoryFilter, statusFilter]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, search, directionFilter, categoryFilter, statusFilter]);
 
   // Handle Uploader
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -524,14 +547,16 @@ export default function CompanyExpensesPage() {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
+          direction,
           title: title.trim(),
           amount,
           currency: claimCurrency,
           category,
+          customer: direction === "in" ? customer.trim() || null : null,
           date: date || new Date().toISOString().slice(0, 10),
           paymentMethod,
           paymentStatus,
-          vendor: vendor.trim() || null,
+          vendor: direction === "out" ? vendor.trim() || null : null,
           notes: notes.trim() || null,
           receiptUrl: mergedUrls || null,
         }),
@@ -539,16 +564,20 @@ export default function CompanyExpensesPage() {
 
       if (!res.ok) {
         const errData = await res.json();
-        throw new Error(errData.error || "Failed to submit company expense");
+        throw new Error(errData.error || "Failed to submit entry");
       }
 
       setTitle("");
       setAmount(0);
       setVendor("");
+      setCustomer("");
       setNotes("");
       setAttachments([]);
       setOpen(false);
-      setToast({ message: "Company expense logged successfully!", type: "success" });
+      setToast({
+        message: direction === "in" ? "Money In recorded successfully!" : "Company expense logged successfully!",
+        type: "success",
+      });
       fetchExpenses();
     } catch (err: any) {
       console.error(err);
@@ -681,28 +710,37 @@ export default function CompanyExpensesPage() {
   // Statistics Computations
   const currentMonthStr = new Date().toISOString().slice(0, 7); // "YYYY-MM"
   const currentMonthExpenses = expenses.filter(e => e.date.startsWith(currentMonthStr));
-  
-  // Total aggregate spend in workspace currency
-  const totalMonthlySpend = currentMonthExpenses.reduce((sum, e) => {
+
+  // Split by direction: money out (spend) vs money in (income)
+  const monthOutEntries = currentMonthExpenses.filter(e => e.direction !== "in");
+  const monthInEntries = currentMonthExpenses.filter(e => e.direction === "in");
+
+  // Total aggregate spend (money out) in workspace currency
+  const totalMonthlySpend = monthOutEntries.reduce((sum, e) => {
     return sum + convertToWorkspaceCurrency(e.amount, e.currency, workspaceCurrency);
   }, 0);
 
-  // Unpaid invoices stats
-  const unpaidExpenses = expenses.filter(e => e.paymentStatus !== "Paid");
+  // Total money in this month
+  const totalMonthlyIncome = monthInEntries.reduce((sum, e) => {
+    return sum + convertToWorkspaceCurrency(e.amount, e.currency, workspaceCurrency);
+  }, 0);
+
+  // Unpaid bill stats (money out only)
+  const unpaidExpenses = expenses.filter(e => e.direction !== "in" && e.paymentStatus !== "Paid");
   const unpaidCount = unpaidExpenses.length;
   const unpaidSum = unpaidExpenses.reduce((sum, e) => {
     return sum + convertToWorkspaceCurrency(e.amount, e.currency, workspaceCurrency);
   }, 0);
 
-  // SaaS and software categories aggregate
-  const saasExpenses = currentMonthExpenses.filter(e => e.category === "SaaS & Software");
+  // SaaS and software categories aggregate (money out only)
+  const saasExpenses = monthOutEntries.filter(e => e.category === "SaaS & Software");
   const saasSum = saasExpenses.reduce((sum, e) => {
     return sum + convertToWorkspaceCurrency(e.amount, e.currency, workspaceCurrency);
   }, 0);
 
-  // Category percentage breakdown calculations
+  // Category percentage breakdown calculations (money out only)
   const categorySummary: Record<string, number> = {};
-  expenses.forEach(e => {
+  expenses.filter(e => e.direction !== "in").forEach(e => {
     const amt = convertToWorkspaceCurrency(e.amount, e.currency, workspaceCurrency);
     categorySummary[e.category] = (categorySummary[e.category] || 0) + amt;
   });
@@ -744,7 +782,7 @@ export default function CompanyExpensesPage() {
         description="Track and log corporate expenditures, software SaaS licenses, marketing billing, and office rents."
         eyebrow="Finance desk"
         action={{
-          label: "Log General Expense",
+          label: "Log Transaction",
           icon: Plus,
           onClick: () => setOpen(true),
         }}
@@ -757,10 +795,10 @@ export default function CompanyExpensesPage() {
             >
               <Filter className="h-3.5 w-3.5 text-slate-400" />
               <span>Filters</span>
-              {(search.trim() !== "" || categoryFilter !== "All" || statusFilter !== "All") && (
+              {(search.trim() !== "" || directionFilter !== "All" || categoryFilter !== "All" || statusFilter !== "All") && (
                 <span className="ml-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-primary text-[9px] font-black text-primary-foreground animate-in zoom-in duration-200">
                   {
-                    [search.trim() !== "", categoryFilter !== "All", statusFilter !== "All"].filter(Boolean).length
+                    [search.trim() !== "", directionFilter !== "All", categoryFilter !== "All", statusFilter !== "All"].filter(Boolean).length
                   }
                 </span>
               )}
@@ -777,10 +815,11 @@ export default function CompanyExpensesPage() {
                     <span className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-white">
                       Filter Ledger
                     </span>
-                    {(search.trim() !== "" || categoryFilter !== "All" || statusFilter !== "All") && (
+                    {(search.trim() !== "" || directionFilter !== "All" || categoryFilter !== "All" || statusFilter !== "All") && (
                       <button
                         onClick={() => {
                           setSearch("");
+                          setDirectionFilter("All");
                           setCategoryFilter("All");
                           setStatusFilter("All");
                         }}
@@ -807,6 +846,25 @@ export default function CompanyExpensesPage() {
                     </div>
                   </div>
 
+                  {/* Direction Filter */}
+                  <div className="space-y-1.5">
+                    <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400">
+                      Direction
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={directionFilter}
+                        onChange={(e) => setDirectionFilter(e.target.value)}
+                        className="flex h-10 w-full items-center rounded-xl border border-border bg-card dark:bg-slate-900 pl-3 pr-9 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none hover:bg-slate-50/50 cursor-pointer appearance-none"
+                      >
+                        <option value="All">All Movements</option>
+                        <option value="in">Money In</option>
+                        <option value="out">Money Out</option>
+                      </select>
+                      <ChevronDown className="absolute right-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                    </div>
+                  </div>
+
                   {/* Category Filter */}
                   <div className="space-y-1.5">
                     <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400">
@@ -819,7 +877,7 @@ export default function CompanyExpensesPage() {
                         className="flex h-10 w-full items-center rounded-xl border border-border bg-card dark:bg-slate-900 pl-3 pr-9 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none hover:bg-slate-50/50 cursor-pointer appearance-none"
                       >
                         <option value="All">All Categories</option>
-                        {companyCategories.map((c) => (
+                        {[...companyCategories, ...INCOME_CATEGORIES].map((c) => (
                           <option key={c} value={c}>
                             {c}
                           </option>
@@ -858,24 +916,37 @@ export default function CompanyExpensesPage() {
       />
 
       {/* METRIC TILES */}
-      <div className="grid gap-6 grid-cols-1 sm:grid-cols-3">
-        <Card className="crm-card border-l-4 border-l-primary bg-card/60 backdrop-blur-md shadow-sm">
+      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <Card className="crm-card border-l-4 border-l-rose-500 bg-card/60 backdrop-blur-md shadow-sm">
           <CardContent className="p-4 flex flex-col gap-1">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">This Month's Spend</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Money Out (This Month)</span>
             <span className="text-2xl font-black text-slate-900 dark:text-white mt-1">
               {formatCurrency(totalMonthlySpend, workspaceCurrency)}
             </span>
             <span className="text-[10px] text-slate-450 mt-1 flex items-center gap-1">
-              <TrendingUp className="h-3 w-3 text-primary shrink-0" />
-              Aggregated & converted in {workspaceCurrency}
+              <TrendingDown className="h-3 w-3 text-rose-500 shrink-0" />
+              Total spent, converted in {workspaceCurrency}
             </span>
           </CardContent>
         </Card>
 
-        <Card className="crm-card border-l-4 border-l-rose-500 bg-card/60 backdrop-blur-md shadow-sm">
+        <Card className="crm-card border-l-4 border-l-emerald-500 bg-card/60 backdrop-blur-md shadow-sm">
+          <CardContent className="p-4 flex flex-col gap-1">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Money In (This Month)</span>
+            <span className="text-2xl font-black text-emerald-500 mt-1">
+              {formatCurrency(totalMonthlyIncome, workspaceCurrency)}
+            </span>
+            <span className="text-[10px] text-slate-450 mt-1 flex items-center gap-1">
+              <TrendingUp className="h-3 w-3 text-emerald-500 shrink-0" />
+              Sales & collections received
+            </span>
+          </CardContent>
+        </Card>
+
+        <Card className="crm-card border-l-4 border-l-amber-500 bg-card/60 backdrop-blur-md shadow-sm">
           <CardContent className="p-4 flex flex-col gap-1">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Unpaid & Scheduled Bills</span>
-            <span className="text-2xl font-black text-rose-500 mt-1">
+            <span className="text-2xl font-black text-amber-500 mt-1">
               {formatCurrency(unpaidSum, workspaceCurrency)}
             </span>
             <span className="text-[10px] text-slate-450 mt-1">
@@ -911,37 +982,45 @@ export default function CompanyExpensesPage() {
                 <tr className="border-b border-border/80 bg-slate-500/5 text-slate-500 font-bold text-[10px] uppercase tracking-wider">
                   <th className="p-3.5">Details</th>
                   <th className="p-3.5">Category</th>
-                  <th className="p-3.5">Vendor/Merchant</th>
-                  <th className="p-3.5">Amount</th>
+                  <th className="p-3.5">Party</th>
+                  <th className="p-3.5 text-right">Amount</th>
                   <th className="p-3.5">Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/40 font-medium">
-                {expenses.map((exp) => (
-                  <tr
-                    key={exp.id}
-                    onClick={() => {
-                      setSelectedExpense(exp);
-                      setDetailOpen(true);
-                    }}
-                    className="hover:bg-slate-500/5 cursor-pointer transition-colors"
-                  >
-                    <td className="p-3.5">
-                      <div className="flex flex-col gap-0.5">
-                        <span className="font-bold text-slate-900 dark:text-white truncate max-w-[150px]">{exp.title}</span>
-                        <span className="text-[10px] text-slate-450">
-                          {new Date(exp.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="p-3.5 text-slate-500">{exp.category}</td>
-                    <td className="p-3.5 text-slate-700 dark:text-slate-350">{exp.vendor || "N/A"}</td>
-                    <td className="p-3.5 font-bold text-slate-800 dark:text-slate-200">
-                      {formatCurrency(exp.amount, exp.currency)}
-                    </td>
-                    <td className="p-3.5">{getStatusBadge(exp.paymentStatus)}</td>
-                  </tr>
-                ))}
+                {expenses.map((exp) => {
+                  const isIn = exp.direction === "in";
+                  return (
+                    <tr
+                      key={exp.id}
+                      onClick={() => {
+                        setSelectedExpense(exp);
+                        setDetailOpen(true);
+                      }}
+                      className="hover:bg-slate-500/5 cursor-pointer transition-colors"
+                    >
+                      <td className="p-3.5">
+                        <div className="flex items-center gap-3">
+                          <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${isIn ? "bg-emerald-500/10 text-emerald-500" : "bg-rose-500/10 text-rose-500"}`}>
+                            {isIn ? <ArrowDownLeft className="h-4 w-4" /> : <ArrowUpRight className="h-4 w-4" />}
+                          </span>
+                          <div className="flex flex-col gap-0.5">
+                            <span className="font-bold text-slate-900 dark:text-white truncate max-w-[150px]">{exp.title}</span>
+                            <span className="text-[10px] text-slate-450">
+                              {new Date(exp.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                            </span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="p-3.5 text-slate-500">{exp.category}</td>
+                      <td className="p-3.5 text-slate-700 dark:text-slate-350">{(isIn ? exp.customer : exp.vendor) || "—"}</td>
+                      <td className={`p-3.5 text-right font-black ${isIn ? "text-emerald-500" : "text-slate-800 dark:text-slate-200"}`}>
+                        {isIn ? "+ " : "− "}{formatCurrency(exp.amount, exp.currency)}
+                      </td>
+                      <td className="p-3.5">{getStatusBadge(exp.paymentStatus)}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -959,7 +1038,7 @@ export default function CompanyExpensesPage() {
         <DialogContent className="sm:max-w-[550px] p-6 rounded-3xl border border-border bg-card backdrop-blur-xl shadow-2xl overflow-y-auto max-h-[90dvh] relative">
           <DialogHeader className="pb-3 border-b border-border/40">
             <DialogTitle className="text-base font-extrabold text-slate-900 dark:text-white">
-              Log Company Expenditure
+              {direction === "in" ? "Record Money In" : "Log Company Expenditure"}
             </DialogTitle>
           </DialogHeader>
 
@@ -970,14 +1049,34 @@ export default function CompanyExpensesPage() {
               </div>
             )}
 
+            {/* Direction toggle: Money In / Money Out */}
+            <div className="grid grid-cols-2 gap-2 p-1 bg-slate-500/5 rounded-2xl border border-border/40">
+              <button
+                type="button"
+                onClick={() => setDirection("out")}
+                className={`flex items-center justify-center gap-2 h-10 rounded-xl font-bold transition-all cursor-pointer ${direction === "out" ? "bg-rose-500 text-white shadow-sm" : "text-slate-500 hover:bg-slate-500/10"}`}
+              >
+                <ArrowUpRight className="h-4 w-4" /> Money Out
+              </button>
+              <button
+                type="button"
+                onClick={() => setDirection("in")}
+                className={`flex items-center justify-center gap-2 h-10 rounded-xl font-bold transition-all cursor-pointer ${direction === "in" ? "bg-emerald-500 text-white shadow-sm" : "text-slate-500 hover:bg-slate-500/10"}`}
+              >
+                <ArrowDownLeft className="h-4 w-4" /> Money In
+              </button>
+            </div>
+
             {/* Title */}
             <div className="space-y-1">
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">Expense Title / Item</label>
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                {direction === "in" ? "Income Title / Item" : "Expense Title / Item"}
+              </label>
               <Input
                 required
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="e.g. AWS SaaS Bill May 2026, Office Rent Q2"
+                placeholder={direction === "in" ? "e.g. Counter sales, Invoice #221" : "e.g. AWS SaaS Bill May 2026, Office Rent Q2"}
                 className="h-11 rounded-2xl"
               />
             </div>
@@ -987,7 +1086,7 @@ export default function CompanyExpensesPage() {
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">Category</label>
-                  {isAuthorized && (
+                  {isAuthorized && direction === "out" && (
                     <button
                       type="button"
                       onClick={() => {
@@ -1006,7 +1105,7 @@ export default function CompanyExpensesPage() {
                     onChange={(e) => setCategory(e.target.value)}
                     className="flex h-11 w-full items-center rounded-2xl border border-border bg-card dark:bg-slate-900 pl-3 pr-10 py-2 text-xs font-semibold outline-none hover:bg-slate-50/50 cursor-pointer appearance-none"
                   >
-                    {companyCategories.map((c) => (
+                    {activeCategories.map((c) => (
                       <option key={c} value={c}>{c}</option>
                     ))}
                   </select>
@@ -1067,38 +1166,50 @@ export default function CompanyExpensesPage() {
 
             {/* Merchant/Vendor & Method */}
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <div className="flex items-center justify-between">
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">Vendor / Merchant</label>
-                  {isAuthorized && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setOpen(false);
-                        setAddVendorOpen(true);
-                      }}
-                      className="text-[10px] font-extrabold text-primary hover:underline flex items-center gap-0.5 cursor-pointer bg-transparent border-0"
+              {direction === "out" ? (
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">Vendor / Merchant</label>
+                    {isAuthorized && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOpen(false);
+                          setAddVendorOpen(true);
+                        }}
+                        className="text-[10px] font-extrabold text-primary hover:underline flex items-center gap-0.5 cursor-pointer bg-transparent border-0"
+                      >
+                        <Plus className="h-3 w-3" /> Add
+                      </button>
+                    )}
+                  </div>
+                  <div className="relative">
+                    <select
+                      value={vendor}
+                      onChange={(e) => setVendor(e.target.value)}
+                      className="flex h-11 w-full items-center rounded-2xl border border-border bg-card dark:bg-slate-900 pl-3 pr-10 py-2 text-xs font-semibold outline-none hover:bg-slate-50/50 cursor-pointer appearance-none"
                     >
-                      <Plus className="h-3 w-3" /> Add
-                    </button>
-                  )}
+                      <option value="">Select Vendor...</option>
+                      {registeredVendors.map((v) => (
+                        <option key={v.id} value={v.name}>
+                          {v.name}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                  </div>
                 </div>
-                <div className="relative">
-                  <select
-                    value={vendor}
-                    onChange={(e) => setVendor(e.target.value)}
-                    className="flex h-11 w-full items-center rounded-2xl border border-border bg-card dark:bg-slate-900 pl-3 pr-10 py-2 text-xs font-semibold outline-none hover:bg-slate-50/50 cursor-pointer appearance-none"
-                  >
-                    <option value="">Select Vendor...</option>
-                    {registeredVendors.map((v) => (
-                      <option key={v.id} value={v.name}>
-                        {v.name}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 pointer-events-none" />
+              ) : (
+                <div className="space-y-1">
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">Customer / Payer</label>
+                  <Input
+                    value={customer}
+                    onChange={(e) => setCustomer(e.target.value)}
+                    placeholder="e.g. Walk-in, Ravi Traders"
+                    className="h-11 rounded-2xl"
+                  />
                 </div>
-              </div>
+              )}
 
               <div className="space-y-1">
                 <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">Payment Method</label>
@@ -1258,8 +1369,12 @@ export default function CompanyExpensesPage() {
                   </div>
 
                   <div>
-                    <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-455 mb-0.5">Vendor / Merchant</span>
-                    <span className="font-bold text-slate-700 dark:text-slate-200">{selectedExpense.vendor || "N/A"}</span>
+                    <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-455 mb-0.5">
+                      {selectedExpense.direction === "in" ? "Customer / Payer" : "Vendor / Merchant"}
+                    </span>
+                    <span className="font-bold text-slate-700 dark:text-slate-200">
+                      {(selectedExpense.direction === "in" ? selectedExpense.customer : selectedExpense.vendor) || "N/A"}
+                    </span>
                   </div>
 
                   <div>
@@ -1283,10 +1398,12 @@ export default function CompanyExpensesPage() {
                 </div>
 
                 {/* Amount Display */}
-                <div className="flex items-center justify-between bg-primary/10 p-3.5 rounded-2xl">
-                  <span className="font-bold text-primary">Ledger Cost:</span>
-                  <span className="font-black text-sm text-primary">
-                    {formatCurrency(selectedExpense.amount, selectedExpense.currency)}
+                <div className={`flex items-center justify-between p-3.5 rounded-2xl ${selectedExpense.direction === "in" ? "bg-emerald-500/10" : "bg-rose-500/10"}`}>
+                  <span className={`font-bold ${selectedExpense.direction === "in" ? "text-emerald-500" : "text-rose-500"}`}>
+                    {selectedExpense.direction === "in" ? "Money In:" : "Money Out:"}
+                  </span>
+                  <span className={`font-black text-sm ${selectedExpense.direction === "in" ? "text-emerald-500" : "text-rose-500"}`}>
+                    {selectedExpense.direction === "in" ? "+ " : "− "}{formatCurrency(selectedExpense.amount, selectedExpense.currency)}
                   </span>
                 </div>
 

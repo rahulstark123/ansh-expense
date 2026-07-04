@@ -191,10 +191,12 @@ model TicketComment {
 
 model CompanyExpense {
   id            String        @id @default(cuid())
+  direction     String        @default("out") // "in" (money received) | "out" (money spent)
   title         String
   amount        Float
   currency      String        @default("USD")
   category      String        // "Rent & Utilities" | "SaaS & Software" | "Marketing & Ads" | "Office Operations" | "Salaries & Payroll" | "Other"
+  customer      String?       // Customer/payer name for money-in entries
   date          String        // "YYYY-MM-DD"
   paymentMethod String        // "Cash" | "Company Card" | "Bank Transfer" | "Cheque" | "Other"
   paymentStatus String        // "Paid" | "Unpaid" | "Scheduled"

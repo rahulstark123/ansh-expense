@@ -8,6 +8,14 @@ const isAuthorized = (role: string) => {
   return ["admin", "manager", "owner", "hr", "hr manager"].includes(r);
 };
 
+// Fixed income categories used for money-in entries
+export const INCOME_CATEGORIES = [
+  "Sales",
+  "Service Income",
+  "Collection",
+  "Other Income",
+];
+
 export async function GET(req: Request) {
   try {
     const employee = await getAuthEmployee(req);
@@ -23,12 +31,17 @@ export async function GET(req: Request) {
     const search = searchParams.get("search")?.trim() || "";
     const category = searchParams.get("category") || "All";
     const paymentStatus = searchParams.get("paymentStatus") || "All";
+    const direction = searchParams.get("direction") || "All";
 
     const wid = employee.wid ?? 1;
 
     const whereClause: any = {
       wid,
     };
+
+    if (direction === "in" || direction === "out") {
+      whereClause.direction = direction;
+    }
 
     if (category !== "All") {
       whereClause.category = category;
@@ -42,6 +55,7 @@ export async function GET(req: Request) {
       whereClause.OR = [
         { title: { contains: search, mode: "insensitive" } },
         { vendor: { contains: search, mode: "insensitive" } },
+        { customer: { contains: search, mode: "insensitive" } },
         { notes: { contains: search, mode: "insensitive" } },
       ];
     }
@@ -84,10 +98,12 @@ export async function POST(req: Request) {
 
     const body = await req.json();
     const {
+      direction: rawDirection,
       title,
       amount,
       currency,
       category,
+      customer,
       date,
       paymentMethod,
       paymentStatus,
@@ -95,6 +111,8 @@ export async function POST(req: Request) {
       vendor,
       notes,
     } = body;
+
+    const direction = rawDirection === "in" ? "in" : "out";
 
     if (!title?.trim() || amount === undefined || amount <= 0 || !category || !date || !paymentMethod || !paymentStatus) {
       return NextResponse.json({ error: "Missing required fields or invalid values" }, { status: 400 });
@@ -133,7 +151,8 @@ export async function POST(req: Request) {
       }
     }
 
-    if (!validCategories.includes(category)) {
+    const allowedCategories = direction === "in" ? INCOME_CATEGORIES : validCategories;
+    if (!allowedCategories.includes(category)) {
       return NextResponse.json({ error: "Invalid category selection" }, { status: 400 });
     }
 
@@ -156,15 +175,17 @@ export async function POST(req: Request) {
 
     const expense = await prisma.companyExpense.create({
       data: {
+        direction,
         title: title.trim(),
         amount: finalAmount,
         currency: targetCurrency,
         category,
+        customer: direction === "in" && customer ? String(customer).trim() : null,
         date,
         paymentMethod,
         paymentStatus,
         receiptUrl: receiptUrl ? String(receiptUrl).trim() : null,
-        vendor: vendor ? String(vendor).trim() : null,
+        vendor: direction === "out" && vendor ? String(vendor).trim() : null,
         notes: notes ? String(notes).trim() : "",
         wid,
         loggedById: employee.id,

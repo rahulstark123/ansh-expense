@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthEmployee } from "@/lib/auth-helper";
 import { prisma } from "@/lib/db";
+import { INCOME_CATEGORIES } from "../route";
 
 const isAuthorized = (role: string) => {
   const r = role.toLowerCase();
@@ -36,6 +37,7 @@ export async function PATCH(
       amount,
       currency,
       category,
+      customer,
       date,
       paymentMethod,
       paymentStatus,
@@ -47,6 +49,7 @@ export async function PATCH(
     const updateData: Record<string, any> = {};
 
     if (title !== undefined) updateData.title = String(title).trim();
+    if (customer !== undefined) updateData.customer = customer ? String(customer).trim() : null;
     if (amount !== undefined) updateData.amount = Number(amount);
     if (currency !== undefined) updateData.currency = currency;
     const wid = employee.wid ?? 1;
@@ -79,7 +82,8 @@ export async function PATCH(
     }
 
     if (category !== undefined) {
-      if (!validCategories.includes(category)) {
+      const allowedCategories = expense.direction === "in" ? INCOME_CATEGORIES : validCategories;
+      if (!allowedCategories.includes(category)) {
         return NextResponse.json({ error: "Invalid category selection" }, { status: 400 });
       }
       updateData.category = category;
