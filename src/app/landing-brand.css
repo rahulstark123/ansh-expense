@@ -31,3 +31,47 @@
     rgba(224, 64, 251, 0.05)
   );
 }
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.landing-page .lp-shimmer-tagline {
+  background: linear-gradient(
+    90deg,
+    #71717a 0%,
+    #18181b 25%,
+    #71717a 50%,
+    #18181b 75%,
+    #71717a 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 6s linear infinite;
+  display: inline-block;
+}
+
+.landing-page.landing-dark .lp-shimmer-tagline {
+  background: linear-gradient(
+    90deg,
+    #71717a 0%,
+    #ffffff 25%,
+    #71717a 50%,
+    #ffffff 75%,
+    #71717a 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 6s linear infinite;
+  display: inline-block;
+}
+

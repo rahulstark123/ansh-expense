@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import { Providers } from "@/components/providers";
 import { ThemeInitScript } from "@/components/theme-init-script";
+import { buildSiteMetadata } from "@/lib/seo";
 import "./globals.css";
 
 const sansFont = Plus_Jakarta_Sans({
@@ -16,13 +17,7 @@ const monoFont = JetBrains_Mono({
   weight: ["400", "500"],
 });
 
-export const metadata: Metadata = {
-  title: "Ansh Expense",
-  description: "A premium, state-of-the-art expense management and reimbursement tracker for teams.",
-  icons: {
-    icon: "/anshFavicon.png",
-  },
-};
+export const metadata: Metadata = buildSiteMetadata();
 
 export default function RootLayout({
   children,
@@ -31,7 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="en-IN"
       className={`${sansFont.variable} ${monoFont.variable} h-full antialiased`}
       suppressHydrationWarning
     >
@@ -44,3 +39,4 @@ export default function RootLayout({
     </html>
   );
 }
+
