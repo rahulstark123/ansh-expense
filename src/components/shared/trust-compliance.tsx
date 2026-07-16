@@ -1,9 +1,10 @@
 "use client";
 
-import { BadgeCheck, Building2, ShieldCheck } from "lucide-react";
+import { BadgeCheck, Building2, ShieldCheck, Receipt } from "lucide-react";
 import { landingAccent, landingSurfaces } from "@/components/landing/brand-theme";
 
 export const UDYAM_REGISTRATION_NUMBER = "UDYAM-BR-23-0127857";
+export const GSTIN_NUMBER = "10DIUPR1358M1ZP";
 export const TRUST_COMPLIANCE_SECTION_ID = "trust-compliance";
 
 type TrustComplianceProps = {
@@ -52,7 +53,7 @@ export function TrustCompliance({
           )}
         </div>
 
-        <div className={`grid gap-6 ${compact ? "md:grid-cols-2" : "md:grid-cols-2 lg:gap-8"}`}>
+        <div className={`grid gap-6 grid-cols-1 ${compact ? "md:grid-cols-3" : "md:grid-cols-3 lg:gap-8"}`}>
           <div
             className={`rounded-3xl border ${s.cardSurface} p-6 sm:p-8 space-y-5 transition-all duration-300 ${a.cardHover}`}
           >
@@ -77,6 +78,34 @@ export function TrustCompliance({
                 className={`mt-1 font-mono text-sm sm:text-base font-bold tracking-wide ${isDark ? "text-zinc-100" : "text-zinc-800"}`}
               >
                 {UDYAM_REGISTRATION_NUMBER}
+              </p>
+            </div>
+          </div>
+
+          <div
+            className={`rounded-3xl border ${s.cardSurface} p-6 sm:p-8 space-y-5 transition-all duration-300 ${a.cardHover}`}
+          >
+            <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${a.iconCircle}`}>
+              <Receipt className="h-5 w-5" />
+            </div>
+            <div className="space-y-2 text-left">
+              <h3 className={`text-base font-black tracking-tight ${isDark ? "text-white" : "text-zinc-900"}`}>
+                GSTIN Registered
+              </h3>
+              <p className={`text-xs sm:text-sm font-semibold ${themeTextMuted}`}>
+                Goods and Services Tax Identification Number
+              </p>
+            </div>
+            <div
+              className={`rounded-2xl border ${themeBorder} ${isDark ? "bg-zinc-950/50" : "bg-zinc-50/80"} px-4 py-3 text-left`}
+            >
+              <p className={`text-[10px] font-black uppercase tracking-widest ${themeTextMutedLighter}`}>
+                GSTIN Number
+              </p>
+              <p
+                className={`mt-1 font-mono text-sm sm:text-base font-bold tracking-wide ${isDark ? "text-zinc-100" : "text-zinc-800"}`}
+              >
+                {GSTIN_NUMBER}
               </p>
             </div>
           </div>

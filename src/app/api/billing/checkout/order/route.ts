@@ -32,6 +32,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const billingCycle = (body.billingCycle || "monthly") as BillingCycle;
     const billingCountry = body.billingCountry as string | undefined;
+    const saathicode = body.saathicode as string | undefined;
 
     if (billingCycle !== "monthly" && billingCycle !== "yearly") {
       return NextResponse.json({ error: "Invalid billing cycle" }, { status: 400 });
@@ -40,17 +41,10 @@ export async function POST(req: Request) {
     const workspaceId = getEmployeeWorkspaceId(employee);
     const workspace = await ensureWorkspaceBilling(workspaceId);
 
-    if (workspace.plan === "pro" && workspace.planExpiresAt && workspace.planExpiresAt > new Date()) {
-      return NextResponse.json(
-        { error: "Workspace already has an active Pro plan" },
-        { status: 400 }
-      );
-    }
-
     const scheduledPro = await getScheduledProSubscription(workspaceId);
     if (scheduledPro) {
       return NextResponse.json(
-        { error: "Pro is already purchased and will start when your trial ends" },
+        { error: "You already have a scheduled Pro subscription renewal queued" },
         { status: 400 }
       );
     }
@@ -81,7 +75,7 @@ export async function POST(req: Request) {
     const billableSeats = Math.min(requestedSeats, 500);
 
     const { countryCode, currency } = await resolveCheckoutFromRequest(req, billingCountry);
-    const { amountMinor, monthlyEquivalentMajor } = computeUpgradeCheckoutMinor({
+    const { amountMinor, monthlyEquivalentMajor, totalMinor } = computeUpgradeCheckoutMinor({
       currency,
       billingCycle,
       cfg,
@@ -90,7 +84,7 @@ export async function POST(req: Request) {
 
     const receipt = `expense_${workspaceId}_${Date.now()}`.slice(0, 40);
     const order = await rzp.orders.create({
-      amount: amountMinor,
+      amount: totalMinor,
       currency,
       receipt,
       notes: {
@@ -111,9 +105,10 @@ export async function POST(req: Request) {
         plan: "pro",
         seatsCount: billableSeats,
         billingCycle,
-        amountPaisa: amountMinor,
+        amountPaisa: totalMinor,
         currency,
         razorpayOrderId: order.id,
+        saathicode: saathicode ? saathicode.trim() : null,
       },
     });
 
@@ -122,7 +117,7 @@ export async function POST(req: Request) {
         workspaceId,
         subscriptionId: subscription.id,
         status: "CREATED",
-        amountPaisa: amountMinor,
+        amountPaisa: totalMinor,
         currency,
         razorpayOrderId: order.id,
         description: `ANSH Expense Pro — ${billingCycle === "yearly" ? "Yearly" : "Monthly"} (${billableSeats} users)`,

@@ -45,6 +45,11 @@ export async function maybeActivateScheduledPro<T extends { id: number }>(worksp
     return full;
   }
 
+  // If current Pro is active, wait until it expires before activating scheduled
+  if (full.plan === "pro" && full.planExpiresAt && full.planExpiresAt > now) {
+    return full;
+  }
+
   const scheduled = await getScheduledProSubscription(full.id);
   if (!scheduled || !scheduled.startsAt || !scheduled.expiresAt) {
     return full;
@@ -103,11 +108,18 @@ export async function activateProSubscription(params: {
 
   const now = new Date();
   const trialActive = isTrialActive(workspace.trialEndsAt, now);
-  const startsAt =
-    trialActive && workspace.trialEndsAt ? workspace.trialEndsAt : now;
+  const proActive = workspace.plan === "pro" && workspace.planExpiresAt && workspace.planExpiresAt > now;
+
+  let startsAt = now;
+  if (trialActive && workspace.trialEndsAt) {
+    startsAt = workspace.trialEndsAt;
+  } else if (proActive && workspace.planExpiresAt) {
+    startsAt = workspace.planExpiresAt;
+  }
+
   const expiresAt = addBillingPeriod(startsAt, params.billingCycle);
 
-  if (trialActive) {
+  if (trialActive || proActive) {
     await prisma.subscription.update({
       where: { id: params.subscriptionId },
       data: {

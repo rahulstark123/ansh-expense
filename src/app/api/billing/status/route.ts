@@ -33,6 +33,7 @@ export async function GET(req: Request) {
 
     const transactions = await prisma.transaction.findMany({
       where: { workspaceId, status: "SUCCESS" },
+      include: { receipt: true },
       orderBy: { createdAt: "desc" },
       take: 10,
     });
@@ -86,6 +87,7 @@ export async function GET(req: Request) {
         amount: formatMajorAmount(tx.amountPaisa, tx.currency as "INR" | "USD"),
         status: "Paid",
         description: tx.description || "ANSH Expense Pro Subscription",
+        receiptId: tx.receipt?.id || null,
       })),
     });
   } catch (error) {

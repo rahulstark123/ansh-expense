@@ -186,6 +186,19 @@ export function LandingPageClient() {
           </nav>
 
           <div className="flex items-center gap-4">
+            {/* ANSH Saathi Button */}
+            <a
+              href="https://saathi.anshapps.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center p-[1px] rounded-full bg-gradient-to-r from-orange-400 to-emerald-500 hover:scale-[1.03] active:scale-[0.97] transition-all duration-200 shadow-sm"
+              title="ANSH Saathi Support & Companion"
+            >
+              <span className={`px-4.5 py-1.5 rounded-full text-[11px] font-black tracking-wider ${isDark ? "bg-zinc-950 text-zinc-100" : "bg-white text-slate-800"} transition-colors`}>
+                ANSH Saathi
+              </span>
+            </a>
+
             {/* Theme Switcher Toggle */}
             <div className={`flex items-center gap-1 ${isDark ? "bg-zinc-900/80 border-white/5" : "bg-zinc-200/55 border-zinc-300/70"} border p-1 rounded-xl shadow-sm transition-colors duration-300`}>
               <button
@@ -703,11 +716,14 @@ export function LandingPageClient() {
                 </div>
 
                 <div className="space-y-1 text-left">
-                  <div className={`flex items-baseline ${isDark ? "text-white" : "text-slate-900"}`}>
+                  <div className={`flex items-baseline gap-1.5 ${isDark ? "text-white" : "text-slate-900"}`}>
                     <span className="text-4xl font-black tracking-tight">₹199</span>
                     <span className="ml-1 text-[13px] font-semibold text-slate-500">/ user / month</span>
+                    <span className={`ml-1 text-[9px] font-black uppercase tracking-widest ${a.badgeSoft} ${a.text} px-1.5 py-0.5 rounded`}>
+                      + 18% GST
+                    </span>
                   </div>
-                  <p className="text-[11px] text-slate-500 font-extrabold leading-normal">₹199/user/month. Switch to yearly to save 19%.</p>
+                  <p className="text-[11px] text-slate-500 font-extrabold leading-normal">₹199/user/month (exclusive of 18% GST). Switch to yearly to save 19%.</p>
                 </div>
 
                 {/* Features List */}

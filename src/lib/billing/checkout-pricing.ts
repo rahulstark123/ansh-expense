@@ -16,12 +16,15 @@ export function computeCheckoutTotals(
   const safeSeats = Math.max(1, Math.floor(seats));
   const perSeatMonthly =
     billingCycle === "yearly" ? fx.yearlyMonthlyEquivalentMajor : fx.monthlyPriceMajor;
-  const total =
+  const baseTotal =
     billingCycle === "yearly"
       ? fx.yearlyTotalMajor * safeSeats
       : fx.monthlyPriceMajor * safeSeats;
 
-  return { seats: safeSeats, perSeatMonthly, total };
+  const gst = fx.chargeCurrency === "INR" ? Math.round(baseTotal * 0.18) : 0;
+  const total = baseTotal + gst;
+
+  return { seats: safeSeats, perSeatMonthly, baseTotal, gst, total };
 }
 
 export function formatCheckoutPrice(amount: number, currency: string) {

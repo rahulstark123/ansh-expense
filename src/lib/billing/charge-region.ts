@@ -9,6 +9,8 @@ export interface CheckoutAmount {
   amountMinor: number;
   currency: ChargeCurrency;
   monthlyEquivalentMajor: number;
+  taxMinor: number;
+  totalMinor: number;
 }
 
 function monthlyMinor(currency: ChargeCurrency, cfg: RazorpayConfig): number {
@@ -26,24 +28,29 @@ export function computeUpgradeCheckoutMinor(params: {
   const perSeatMonthly = monthlyMinor(currency, cfg);
   const monthly = perSeatMonthly * seats;
 
+  let amountMinor = 0;
   if (billingCycle === "yearly") {
-    const yearlyTotal = Math.round(monthly * 12 * YEARLY_DISCOUNT);
-    const monthlyEquivalentMajor =
-      currency === "INR"
-        ? Math.round(yearlyTotal / 12 / 100)
-        : Math.round((yearlyTotal / 12 / 100) * 100) / 100;
-
-    return {
-      amountMinor: yearlyTotal,
-      currency,
-      monthlyEquivalentMajor,
-    };
+    amountMinor = Math.round(monthly * 12 * YEARLY_DISCOUNT);
+  } else {
+    amountMinor = monthly;
   }
 
+  const taxMinor = currency === "INR" ? Math.round(amountMinor * 0.18) : 0;
+  const totalMinor = amountMinor + taxMinor;
+
+  const monthlyEquivalentMajor =
+    billingCycle === "yearly"
+      ? (currency === "INR"
+        ? Math.round(amountMinor / 12 / 100)
+        : Math.round((amountMinor / 12 / 100) * 100) / 100)
+      : amountMinor / 100;
+
   return {
-    amountMinor: monthly,
+    amountMinor,
     currency,
-    monthlyEquivalentMajor: monthly / 100,
+    monthlyEquivalentMajor,
+    taxMinor,
+    totalMinor,
   };
 }
 

@@ -5,6 +5,7 @@ import { getRazorpayConfig } from "@/lib/billing/razorpay";
 import { activateProSubscription } from "@/lib/billing/workspace-billing";
 import { planDisplayName, PRO_MAX_USERS } from "@/lib/billing/plans";
 import { prisma } from "@/lib/db";
+import { generateReceipt } from "@/lib/billing/receipt-generator";
 
 export async function POST(req: Request) {
   try {
@@ -81,6 +82,13 @@ export async function POST(req: Request) {
         razorpaySignature: signature,
       },
     });
+
+    // Generate the payment receipt asynchronously
+    try {
+      await generateReceipt(transaction.id);
+    } catch (receiptError) {
+      console.error("Receipt generation error during payment verification:", receiptError);
+    }
 
     const subscription = transaction.subscription;
     if (!subscription) {

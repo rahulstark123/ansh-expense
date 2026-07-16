@@ -13,6 +13,8 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { name, department, role, phoneNumber, companyName, companyAddress, employeeCount, country } = body;
 
+    const saathicode = user.user_metadata?.saathicode || null;
+
     if (!name || !department || !role || !phoneNumber) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
@@ -114,6 +116,7 @@ export async function POST(req: Request) {
             employeeCount: isManagerOrAdmin ? employeeCount : null,
             wid: newWid,
             acceptedTerms: true,
+            saathicode: saathicode,
           },
         });
 
@@ -157,6 +160,7 @@ export async function POST(req: Request) {
           employeeCount: isManagerOrAdmin ? employeeCount : null,
           wid: newWid,
           acceptedTerms: true,
+          saathicode: saathicode,
         },
       });
     }

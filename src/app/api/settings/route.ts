@@ -23,7 +23,12 @@ const defaultDepartments = [
   "Data Analytics",
   "Executive",
   "Marketing",
-  "Finance"
+  "Sales",
+  "Finance",
+  "Operations",
+  "Legal & Compliance",
+  "Customer Support",
+  "IT Support"
 ];
 
 const defaultWorkLocations = [

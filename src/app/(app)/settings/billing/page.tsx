@@ -16,7 +16,9 @@ import {
   Zap,
   Shield,
   Check,
-  X
+  X,
+  Download,
+  Eye
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { usePlanStore } from "@/stores/plan-store";
@@ -27,6 +29,7 @@ interface BillingInvoice {
   amount: string;
   status: string;
   description: string;
+  receiptId: string | null;
 }
 
 interface BillingStatus {
@@ -95,6 +98,52 @@ export default function BillingSettingPage() {
   const [workspaceId, setWorkspaceId] = useState(1);
   const [fx, setFx] = useState<FxPricing | null>(null);
   const [fetching, setFetching] = useState(true);
+  const [downloadingReceiptId, setDownloadingReceiptId] = useState<string | null>(null);
+
+  const handleDownloadReceipt = async (receiptId: string, invoiceId: string) => {
+    try {
+      setDownloadingReceiptId(receiptId);
+      const token = sessionStorage.getItem("ansh_auth_token");
+      if (!token) {
+        alert("Session expired. Please log in again.");
+        return;
+      }
+
+      const res = await fetch(`/api/billing/receipts/${receiptId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to download receipt");
+      }
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `receipt_${invoiceId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err) {
+      console.error(err);
+      alert("Could not download receipt. Please try again.");
+    } finally {
+      setDownloadingReceiptId(null);
+    }
+  };
+
+  const handlePreviewSample = () => {
+    const token = sessionStorage.getItem("ansh_auth_token");
+    if (!token) {
+      alert("Session expired. Please log in again.");
+      return;
+    }
+    window.open(`/api/billing/receipts/sample?token=${encodeURIComponent(token)}`, "_blank");
+  };
 
   const [isPlansModalOpen, setIsPlansModalOpen] = useState(false);
   const [isYearly, setIsYearly] = useState(false);
@@ -446,11 +495,13 @@ export default function BillingSettingPage() {
 
           {/* Invoice History */}
           <Card className="crm-card">
-            <CardHeader className="flex flex-row items-center gap-2">
-              <Receipt className="h-4.5 w-4.5 text-primary" />
-              <CardTitle className="text-sm font-bold uppercase tracking-widest text-slate-400">
-                Invoice History
-              </CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between pb-4">
+              <div className="flex items-center gap-2">
+                <Receipt className="h-4.5 w-4.5 text-primary" />
+                <CardTitle className="text-sm font-bold uppercase tracking-widest text-slate-400">
+                  Invoice History
+                </CardTitle>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
@@ -461,13 +512,14 @@ export default function BillingSettingPage() {
                       <th className="pb-3 font-bold">Billing Date</th>
                       <th className="pb-3 font-bold">Description</th>
                       <th className="pb-3 font-bold">Amount</th>
-                      <th className="pb-3 font-bold text-right">Status</th>
+                      <th className="pb-3 font-bold text-center">Status</th>
+                      <th className="pb-3 font-bold text-right">Receipt</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border/20">
                     {invoices.length === 0 ? (
                       <tr>
-                        <td colSpan={5} className="py-8 text-center text-slate-400 text-xs">
+                        <td colSpan={6} className="py-8 text-center text-slate-400 text-xs">
                           No invoices yet. Upgrade to Pro to see payment history here.
                         </td>
                       </tr>
@@ -478,10 +530,29 @@ export default function BillingSettingPage() {
                           <td className="py-3.5">{inv.date}</td>
                           <td className="py-3.5 text-slate-500">{inv.description}</td>
                           <td className="py-3.5 font-bold">{inv.amount}</td>
-                          <td className="py-3.5 text-right">
+                          <td className="py-3.5 text-center">
                             <span className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 text-[9px] font-bold text-emerald-400">
                               {inv.status}
                             </span>
+                          </td>
+                          <td className="py-3.5 text-right">
+                            {inv.receiptId ? (
+                              <button
+                                type="button"
+                                disabled={downloadingReceiptId === inv.receiptId}
+                                onClick={() => handleDownloadReceipt(inv.receiptId!, inv.id)}
+                                className="inline-flex items-center gap-1.5 rounded-lg border border-border/80 hover:bg-slate-100 dark:hover:bg-slate-800 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-slate-200 transition-colors cursor-pointer disabled:opacity-50"
+                              >
+                                {downloadingReceiptId === inv.receiptId ? (
+                                  <Loader2 className="h-3 w-3 animate-spin text-slate-400" />
+                                ) : (
+                                  <Download className="h-3 w-3 text-slate-500" />
+                                )}
+                                Download
+                              </button>
+                            ) : (
+                              <span className="text-[10px] font-semibold text-slate-400 italic">Processing</span>
+                            )}
                           </td>
                         </tr>
                       ))
@@ -722,14 +793,19 @@ export default function BillingSettingPage() {
                 </div>
 
                 <div>
-                  <p className="text-3xl font-black text-slate-800 dark:text-white">
+                  <p className="text-3xl font-black text-slate-800 dark:text-white flex items-baseline gap-1.5 flex-wrap">
                     {listPrice(isYearly)}
                     <span className="text-xs font-semibold text-slate-400"> / user / month</span>
+                    {displayCurrency === "INR" && (
+                      <span className="text-[9px] font-black uppercase tracking-widest text-primary bg-primary/10 px-1.5 py-0.5 rounded border border-primary/20">
+                        + 18% GST
+                      </span>
+                    )}
                   </p>
                   <p className="text-[10px] text-slate-450 dark:text-slate-400 mt-1">
                     {isYearly
-                      ? `${listPrice(true)}/user/mo billed yearly (${formatPrice(yearlyTotalPrice, displayCurrency)}/user/year)`
-                      : `${listPrice(false)}/user/month`}
+                      ? `${listPrice(true)}/user/mo billed yearly (${formatPrice(yearlyTotalPrice, displayCurrency)}/user/year)${displayCurrency === "INR" ? " (exclusive of 18% GST)" : ""}`
+                      : `${listPrice(false)}/user/month${displayCurrency === "INR" ? " (exclusive of 18% GST)" : ""}`}
                   </p>
                   <p className="text-[9px] text-slate-400 mt-0.5">
                     {isYearly ? "Switch to monthly anytime." : "Switch to yearly to save 19%."}

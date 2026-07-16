@@ -238,6 +238,7 @@ export default function OnboardingPage() {
 
   const [name, setName] = useState("");
   const [department, setDepartment] = useState("Engineering");
+  const [customDepartment, setCustomDepartment] = useState("");
   const [role, setRole] = useState("Employee");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [companyName, setCompanyName] = useState("");
@@ -301,6 +302,10 @@ export default function OnboardingPage() {
     }
     if (!phoneNumber || !phoneNumber.trim()) {
       setErrorMsg("Phone number (with country code) is required.");
+      return;
+    }
+    if (department === "Other" && !customDepartment.trim()) {
+      setErrorMsg("Please specify your department.");
       return;
     }
     setStep(2);
@@ -367,7 +372,7 @@ export default function OnboardingPage() {
         },
         body: JSON.stringify({
           name: name.trim(),
-          department,
+          department: department === "Other" ? customDepartment.trim() : department,
           role,
           phoneNumber: phoneNumber.trim(),
           companyName: isManagerOrAdmin ? companyName.trim() : null,
@@ -656,10 +661,36 @@ export default function OnboardingPage() {
                       <option value="Data Analytics">Data Analytics</option>
                       <option value="Executive">Executive</option>
                       <option value="Marketing">Marketing</option>
+                      <option value="Sales">Sales</option>
+                      <option value="Finance">Finance</option>
+                      <option value="Operations">Operations</option>
+                      <option value="Legal & Compliance">Legal & Compliance</option>
+                      <option value="Customer Support">Customer Support</option>
+                      <option value="IT Support">IT Support</option>
+                      <option value="Other">Other</option>
                     </select>
                     <ChevronDown className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 pointer-events-none" />
                   </div>
                 </div>
+
+                {/* CUSTOM DEPARTMENT NAME */}
+                {department === "Other" && (
+                  <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                    <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                      Specify Department Name
+                    </label>
+                    <div className="mt-2 relative">
+                      <input
+                        type="text"
+                        required
+                        value={customDepartment}
+                        onChange={(e) => setCustomDepartment(e.target.value)}
+                        placeholder="e.g. Quality Assurance"
+                        className="block w-full rounded-2xl border border-slate-200 bg-white px-4 py-3.5 text-sm text-slate-900 shadow-sm outline-none transition-all placeholder:text-slate-400 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                      />
+                    </div>
+                  </div>
+                )}
 
                 <div className="pt-2">
                   <button

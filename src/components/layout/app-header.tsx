@@ -97,6 +97,19 @@ export function AppHeader() {
       <div className="flex-1" />
 
       <div className="flex shrink-0 items-center gap-3">
+        {/* ANSH Saathi Button */}
+        <a
+          href="https://saathi.anshapps.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center justify-center p-[1px] rounded-full bg-gradient-to-r from-orange-400 to-emerald-500 hover:scale-[1.03] active:scale-[0.97] transition-all duration-200 shadow-sm"
+          title="ANSH Saathi Support & Companion"
+        >
+          <span className="px-3 py-1 rounded-full text-[10px] font-black tracking-wider bg-white dark:bg-zinc-950 text-slate-850 dark:text-zinc-100 transition-colors">
+            ANSH Saathi
+          </span>
+        </a>
+
         {planLoaded && (
           <Link
             href="/settings/billing"
