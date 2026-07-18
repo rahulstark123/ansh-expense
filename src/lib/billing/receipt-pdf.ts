@@ -477,7 +477,7 @@ export async function buildReceiptPdf(input: ReceiptPdfInput): Promise<Buffer> {
     font: helveticaFont,
     color: rgb(0.4, 0.45, 0.5),
   });
-  page.drawText("Corporate Address: 123 Corporate Tower, New Delhi, India 110001", {
+  page.drawText("Corporate Address: Muzaffarpur, Bihar, India 842001", {
     x: 50,
     y: 123,
     size: 8,

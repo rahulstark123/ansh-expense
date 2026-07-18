@@ -118,6 +118,13 @@ export function ProCheckoutModal({
   }, [seatsInput]);
 
   const currency = fx?.chargeCurrency ?? "INR";
+
+  const isBihar = useMemo(() => {
+    if (currency !== "INR") return false;
+    const address = currentUser?.companyAddress || "";
+    return /bihar|patna|muzaffarpur|gaya|bhagalpur|darbhanga/i.test(address);
+  }, [currentUser?.companyAddress, currency]);
+
   const { perSeatMonthly, baseTotal, gst, total } = useMemo(() => {
     if (seats < 1) {
       return { perSeatMonthly: currency === "USD" ? 2 : 199, baseTotal: 0, gst: 0, total: 0 };
@@ -383,7 +390,7 @@ export function ProCheckoutModal({
               </span>
             </div>
 
-            {currency === "INR" && seats > 0 && (
+            {seats > 0 && (
               <>
                 <div className="flex items-center justify-between text-xs border-t border-border/20 pt-2.5">
                   <span className="text-slate-500">Subtotal ({seats} seats)</span>
@@ -391,12 +398,38 @@ export function ProCheckoutModal({
                     {formatCheckoutPrice(baseTotal, currency)}
                   </span>
                 </div>
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-500">GST (18%)</span>
-                  <span className="font-bold text-slate-800 dark:text-white">
-                    {formatCheckoutPrice(gst, currency)}
-                  </span>
-                </div>
+                {currency === "INR" ? (
+                  isBihar ? (
+                    <>
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-slate-500">CGST (9%)</span>
+                        <span className="font-bold text-slate-800 dark:text-white">
+                          {formatCheckoutPrice(gst / 2, currency)}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-slate-500">SGST (9%)</span>
+                        <span className="font-bold text-slate-800 dark:text-white">
+                          {formatCheckoutPrice(gst / 2, currency)}
+                        </span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-slate-500">IGST (18%)</span>
+                      <span className="font-bold text-slate-800 dark:text-white">
+                        {formatCheckoutPrice(gst, currency)}
+                      </span>
+                    </div>
+                  )
+                ) : (
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-slate-500">GST (0%)</span>
+                    <span className="font-bold text-slate-800 dark:text-white">
+                      {formatCheckoutPrice(0, currency)}
+                    </span>
+                  </div>
+                )}
               </>
             )}
 

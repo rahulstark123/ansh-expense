@@ -54,12 +54,21 @@ export async function generateReceipt(transactionId: string): Promise<void> {
     const descriptionText = `${seatsCount} Seat License(s) - Pro ${billingCycleText} Plan`;
 
     // Resolve state and country for GST tax rules
-    const address = owner?.companyAddress || "";
+    let address = owner?.companyAddress || "";
+    if (!address && transaction.workspace.settingsJson) {
+      try {
+        const settings = JSON.parse(transaction.workspace.settingsJson);
+        address = settings.companyProfile?.address || "";
+      } catch (e) {
+        console.error("Failed to parse settingsJson in generateReceipt:", e);
+      }
+    }
+
     let billingState: string | null = null;
     let billingCountry: string | null = null;
 
     if (address) {
-      if (/bihar/i.test(address)) {
+      if (/bihar|muzaffarpur|patna/i.test(address)) {
         billingState = "Bihar";
       } else {
         billingState = "Other State";
